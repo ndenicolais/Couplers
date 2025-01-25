@@ -172,7 +172,7 @@ class LoginScreenState extends State<LoginScreen> {
           fontWeight: FontWeight.bold,
         ),
         recognizer: TapGestureRecognizer()
-          ..onTap = () => Get.to(
+          ..onTap = () => Get.off(
                 () => const ResetPasswordScreen(),
                 transition: Transition.fade,
                 duration: const Duration(milliseconds: 500),

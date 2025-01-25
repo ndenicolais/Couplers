@@ -119,13 +119,13 @@ class SignupScreenState extends State<SignupScreen> {
               fontWeight: FontWeight.bold,
             ),
             recognizer: TapGestureRecognizer()
-              ..onTap = () {
-                Get.off(
-                  () => const LoginScreen(),
-                  transition: Transition.fade,
-                  duration: const Duration(milliseconds: 500),
-                );
-              },
+              ..onTap = () => Get.off(
+                    Get.off(
+                      () => const LoginScreen(),
+                      transition: Transition.fade,
+                      duration: const Duration(milliseconds: 500),
+                    ),
+                  ),
           ),
         ],
       ),

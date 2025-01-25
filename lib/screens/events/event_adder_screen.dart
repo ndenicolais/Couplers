@@ -65,7 +65,7 @@ class EventAdderScreenState extends State<EventAdderScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(context),
+      appBar: _buildAppBar(),
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: SafeArea(
         child: Padding(
@@ -182,7 +182,6 @@ class EventAdderScreenState extends State<EventAdderScreen> {
         ),
       ],
     );
-
     return croppedFile != null ? File(croppedFile.path) : null;
   }
 
@@ -324,7 +323,7 @@ class EventAdderScreenState extends State<EventAdderScreen> {
       eventId = await _eventService.addEvent(newEvent);
     } catch (e) {
       if (mounted) {
-        showSuccessToast(context,
+        showErrorToast(context,
             '${AppLocalizations.of(context)!.event_adder_screen_toast_error} $e');
       }
       return;
@@ -393,7 +392,7 @@ class EventAdderScreenState extends State<EventAdderScreen> {
     }
   }
 
-  AppBar _buildAppBar(BuildContext context) {
+  AppBar _buildAppBar() {
     return AppBar(
       leading: IconButton(
         icon: Icon(

@@ -730,24 +730,21 @@ class EventUpdaterScreenState extends State<EventUpdaterScreen> {
         else if (!isMultiDate && _existingImages.isNotEmpty)
           Stack(
             children: [
-              GestureDetector(
-                onTap: () => _pickImage(),
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.all(Radius.circular(10)),
-                  child: _existingImages.first.startsWith('assets/')
-                      ? Image.asset(
-                          _existingImages.first,
-                          width: double.infinity,
-                          height: 200,
-                          fit: BoxFit.cover,
-                        )
-                      : Image.network(
-                          _existingImages.first,
-                          width: double.infinity,
-                          height: 200,
-                          fit: BoxFit.cover,
-                        ),
-                ),
+              ClipRRect(
+                borderRadius: const BorderRadius.all(Radius.circular(10)),
+                child: _existingImages.first.startsWith('assets/')
+                    ? Image.asset(
+                        _existingImages.first,
+                        width: double.infinity,
+                        height: 200,
+                        fit: BoxFit.cover,
+                      )
+                    : Image.network(
+                        _existingImages.first,
+                        width: double.infinity,
+                        height: 200,
+                        fit: BoxFit.cover,
+                      ),
               ),
               Positioned(
                 top: -8,
