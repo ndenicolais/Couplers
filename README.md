@@ -5,13 +5,11 @@
 <img src="images/couplers_logo.png" title="Couplers's logo" width="140" height="140">
 This application was designed to allow couples of engaged to share and celebrate every special moment of their love story. From the engagement date onwards, you can add significant events such as the first meeting, anniversaries, trips, and other experiences that have marked your journey together. Share memories, photos, and thoughts to create a unique timeline that tells your love story.
 
-## 🔧 Installation
-Clone the repository and run the following commands:
+## 💎 Release
+<img src="images/couplers_release.png" title="Couplers's release">
+The release of version 1.0.0 of the application is now available for download. You can download it from the following link:
 
-```bash
-flutter pub get
-flutter run
-```
+[Download v1.0.0](https://github.com/ndenicolais/Couplers/releases/download/v1.0.0/Couplers_v1.0.0.apk)
     
 ## 🔑 Features
 - A single account with the emails of both partners
