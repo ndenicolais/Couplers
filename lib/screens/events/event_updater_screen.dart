@@ -4,6 +4,7 @@ import 'package:couplers/services/event_service.dart';
 import 'package:couplers/theme/app_colors.dart';
 import 'package:couplers/theme/theme_notifier.dart';
 import 'package:couplers/utils/event_type_translations.dart';
+import 'package:couplers/widgets/custom_loader.dart';
 import 'package:couplers/widgets/custom_textfield.dart';
 import 'package:couplers/widgets/custom_toast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -393,6 +393,15 @@ class EventUpdaterScreenState extends State<EventUpdaterScreen> {
       centerTitle: true,
       backgroundColor: Theme.of(context).colorScheme.primary,
       foregroundColor: Theme.of(context).colorScheme.secondary,
+    );
+  }
+
+  Widget _buildLoadingIndicator(BuildContext context) {
+    return Center(
+      child: CustomLoader(
+        width: 50.w,
+        height: 50.h,
+      ),
     );
   }
 
@@ -1081,15 +1090,6 @@ class EventUpdaterScreenState extends State<EventUpdaterScreen> {
           MingCuteIcons.mgc_save_2_fill,
           color: Theme.of(context).colorScheme.primary,
         ),
-      ),
-    );
-  }
-
-  Widget _buildLoadingIndicator(BuildContext context) {
-    return Center(
-      child: SpinKitPumpingHeart(
-        color: Theme.of(context).colorScheme.secondary,
-        size: 150.r,
       ),
     );
   }

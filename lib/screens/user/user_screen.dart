@@ -4,6 +4,7 @@ import 'package:couplers/models/user_model.dart';
 import 'package:couplers/screens/home_screen.dart';
 import 'package:couplers/services/user_service.dart';
 import 'package:couplers/theme/theme_notifier.dart';
+import 'package:couplers/widgets/custom_loader.dart';
 import 'package:couplers/widgets/custom_toast.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -349,6 +349,15 @@ class UserScreenState extends State<UserScreen> {
     } catch (e) {
       _logger.e("Error during data saving: $e");
     }
+  }
+
+  Widget _buildLoadingIndicator(BuildContext context) {
+    return Center(
+      child: CustomLoader(
+        width: 50.w,
+        height: 50.h,
+      ),
+    );
   }
 
   Widget _buildProfileView(BuildContext context) {
@@ -883,14 +892,5 @@ class UserScreenState extends State<UserScreen> {
       },
     );
     return picked;
-  }
-
-  Widget _buildLoadingIndicator(BuildContext context) {
-    return Center(
-      child: SpinKitPumpingHeart(
-        color: Theme.of(context).colorScheme.secondary,
-        size: 150.r,
-      ),
-    );
   }
 }

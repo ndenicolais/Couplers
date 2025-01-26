@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:couplers/services/map_service.dart';
+import 'package:couplers/widgets/custom_loader.dart';
 import 'package:couplers/widgets/custom_toast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
@@ -316,9 +316,9 @@ class MapScreenState extends State<MapScreen> {
 
   Widget _buildLoadingIndicator(BuildContext context) {
     return Center(
-      child: SpinKitPumpingHeart(
-        color: Theme.of(context).colorScheme.secondary,
-        size: 150.r,
+      child: CustomLoader(
+        width: 50.w,
+        height: 50.h,
       ),
     );
   }

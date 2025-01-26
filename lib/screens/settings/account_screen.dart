@@ -129,14 +129,14 @@ class AccountInfoPageState extends State<AccountInfoPage> {
               AppLocalizations.of(context)!.account_screen_user_email_private,
               style: GoogleFonts.josefinSans(
                 color: Theme.of(context).colorScheme.tertiary,
-                fontSize: 16.sp,
+                fontSize: 18.sp,
               ),
             ),
             Text(
               '$userEmail1',
               style: GoogleFonts.josefinSans(
                 color: Theme.of(context).colorScheme.secondary,
-                fontSize: 16.sp,
+                fontSize: 18.sp,
               ),
             ),
             SizedBox(height: 4.h),
@@ -144,14 +144,14 @@ class AccountInfoPageState extends State<AccountInfoPage> {
               AppLocalizations.of(context)!.account_screen_user_email_partner,
               style: GoogleFonts.josefinSans(
                 color: Theme.of(context).colorScheme.tertiary,
-                fontSize: 16.sp,
+                fontSize: 18.sp,
               ),
             ),
             Text(
               '$userEmail2',
               style: GoogleFonts.josefinSans(
                 color: Theme.of(context).colorScheme.secondary,
-                fontSize: 16.sp,
+                fontSize: 18.sp,
               ),
             ),
             SizedBox(height: 4.h),
@@ -159,7 +159,7 @@ class AccountInfoPageState extends State<AccountInfoPage> {
               AppLocalizations.of(context)!.account_screen_user_creation_date,
               style: GoogleFonts.josefinSans(
                 color: Theme.of(context).colorScheme.tertiary,
-                fontSize: 16.sp,
+                fontSize: 18.sp,
               ),
             ),
             Text(
@@ -167,7 +167,7 @@ class AccountInfoPageState extends State<AccountInfoPage> {
                   .format(currentUser!.metadata.creationTime!),
               style: GoogleFonts.josefinSans(
                 color: Theme.of(context).colorScheme.secondary,
-                fontSize: 16.sp,
+                fontSize: 18.sp,
               ),
             ),
           ],
@@ -200,14 +200,14 @@ class AccountInfoPageState extends State<AccountInfoPage> {
               AppLocalizations.of(context)!.account_screen_events_totals,
               style: GoogleFonts.josefinSans(
                 color: Theme.of(context).colorScheme.tertiary,
-                fontSize: 16.sp,
+                fontSize: 18.sp,
               ),
             ),
             Text(
               '${eventCount ?? 'Loading...'}',
               style: GoogleFonts.josefinSans(
                 color: Theme.of(context).colorScheme.secondary,
-                fontSize: 16.sp,
+                fontSize: 18.sp,
               ),
             ),
             SizedBox(height: 4.h),
@@ -221,14 +221,14 @@ class AccountInfoPageState extends State<AccountInfoPage> {
                       '${entry.key}',
                       style: GoogleFonts.josefinSans(
                         color: Theme.of(context).colorScheme.tertiary,
-                        fontSize: 16.sp,
+                        fontSize: 18.sp,
                       ),
                     ),
                     Text(
                       '${entry.value}',
                       style: GoogleFonts.josefinSans(
                         color: Theme.of(context).colorScheme.secondary,
-                        fontSize: 16.sp,
+                        fontSize: 18.sp,
                       ),
                     ),
                   ],
@@ -265,14 +265,14 @@ class AccountInfoPageState extends State<AccountInfoPage> {
                   .account_screen_milestones_anniversaries,
               style: GoogleFonts.josefinSans(
                 color: Theme.of(context).colorScheme.tertiary,
-                fontSize: 16.sp,
+                fontSize: 18.sp,
               ),
             ),
             Text(
               '${anniversaryCount ?? 'Loading...'}',
               style: GoogleFonts.josefinSans(
                 color: Theme.of(context).colorScheme.secondary,
-                fontSize: 16.sp,
+                fontSize: 18.sp,
               ),
             ),
             SizedBox(height: 4.h),
@@ -281,14 +281,14 @@ class AccountInfoPageState extends State<AccountInfoPage> {
                   .account_screen_milestones_dayversaries,
               style: GoogleFonts.josefinSans(
                 color: Theme.of(context).colorScheme.tertiary,
-                fontSize: 16.sp,
+                fontSize: 18.sp,
               ),
             ),
             Text(
               '${dayversaryCount ?? 'Loading...'}',
               style: GoogleFonts.josefinSans(
                 color: Theme.of(context).colorScheme.secondary,
-                fontSize: 16.sp,
+                fontSize: 18.sp,
               ),
             ),
           ],
