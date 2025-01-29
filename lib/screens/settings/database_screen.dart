@@ -11,14 +11,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:ming_cute_icons/ming_cute_icons.dart';
 
-class AccountInfoPage extends StatefulWidget {
-  const AccountInfoPage({super.key});
+class DatabasePage extends StatefulWidget {
+  const DatabasePage({super.key});
 
   @override
-  AccountInfoPageState createState() => AccountInfoPageState();
+  DatabasePageState createState() => DatabasePageState();
 }
 
-class AccountInfoPageState extends State<AccountInfoPage> {
+class DatabasePageState extends State<DatabasePage> {
   final User? currentUser = FirebaseAuth.instance.currentUser;
   final EventService _eventService = EventService();
   String? userEmail1;
@@ -32,6 +32,11 @@ class AccountInfoPageState extends State<AccountInfoPage> {
   void initState() {
     super.initState();
     _loadCoupleData();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     _loadEventData();
   }
 
@@ -53,6 +58,7 @@ class AccountInfoPageState extends State<AccountInfoPage> {
   }
 
   Future<void> _loadEventData() async {
+    Locale locale = Localizations.localeOf(context);
     if (currentUser != null) {
       int count = await _eventService.getEventCount();
       Map<int, int> countPerYear = await _eventService.getEventCountPerYear();
@@ -62,11 +68,13 @@ class AccountInfoPageState extends State<AccountInfoPage> {
             DateCalculations.calculateAnniversaries(
           coupleDate,
           AppLocalizations.of(context)!.milestones_screen_card_dayversary,
+          locale,
         );
         List<Map<String, String>> dayversaryList =
             DateCalculations.calculateDayversaries(
           coupleDate,
           AppLocalizations.of(context)!.milestones_screen_card_dayversary,
+          locale,
         );
 
         setState(() {
@@ -117,7 +125,7 @@ class AccountInfoPageState extends State<AccountInfoPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              AppLocalizations.of(context)!.account_screen_user_title,
+              AppLocalizations.of(context)!.database_screen_user_title,
               style: GoogleFonts.josefinSans(
                 color: Theme.of(context).colorScheme.tertiary,
                 fontSize: 22.sp,
@@ -126,7 +134,7 @@ class AccountInfoPageState extends State<AccountInfoPage> {
             ),
             Divider(color: Theme.of(context).colorScheme.secondary),
             Text(
-              AppLocalizations.of(context)!.account_screen_user_email_private,
+              AppLocalizations.of(context)!.database_screen_user_email_private,
               style: GoogleFonts.josefinSans(
                 color: Theme.of(context).colorScheme.tertiary,
                 fontSize: 18.sp,
@@ -141,7 +149,7 @@ class AccountInfoPageState extends State<AccountInfoPage> {
             ),
             SizedBox(height: 4.h),
             Text(
-              AppLocalizations.of(context)!.account_screen_user_email_partner,
+              AppLocalizations.of(context)!.database_screen_user_email_partner,
               style: GoogleFonts.josefinSans(
                 color: Theme.of(context).colorScheme.tertiary,
                 fontSize: 18.sp,
@@ -156,7 +164,7 @@ class AccountInfoPageState extends State<AccountInfoPage> {
             ),
             SizedBox(height: 4.h),
             Text(
-              AppLocalizations.of(context)!.account_screen_user_creation_date,
+              AppLocalizations.of(context)!.database_screen_user_creation_date,
               style: GoogleFonts.josefinSans(
                 color: Theme.of(context).colorScheme.tertiary,
                 fontSize: 18.sp,
@@ -189,7 +197,7 @@ class AccountInfoPageState extends State<AccountInfoPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              AppLocalizations.of(context)!.account_screen_events_title,
+              AppLocalizations.of(context)!.database_screen_events_title,
               style: GoogleFonts.josefinSans(
                 fontSize: 22.sp,
                 fontWeight: FontWeight.bold,
@@ -197,7 +205,7 @@ class AccountInfoPageState extends State<AccountInfoPage> {
             ),
             Divider(color: Theme.of(context).colorScheme.secondary),
             Text(
-              AppLocalizations.of(context)!.account_screen_events_totals,
+              AppLocalizations.of(context)!.database_screen_events_totals,
               style: GoogleFonts.josefinSans(
                 color: Theme.of(context).colorScheme.tertiary,
                 fontSize: 18.sp,
@@ -253,7 +261,7 @@ class AccountInfoPageState extends State<AccountInfoPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              AppLocalizations.of(context)!.account_screen_milestones_title,
+              AppLocalizations.of(context)!.database_screen_milestones_title,
               style: GoogleFonts.josefinSans(
                 fontSize: 22.sp,
                 fontWeight: FontWeight.bold,
@@ -262,7 +270,7 @@ class AccountInfoPageState extends State<AccountInfoPage> {
             Divider(color: Theme.of(context).colorScheme.secondary),
             Text(
               AppLocalizations.of(context)!
-                  .account_screen_milestones_anniversaries,
+                  .database_screen_milestones_anniversaries,
               style: GoogleFonts.josefinSans(
                 color: Theme.of(context).colorScheme.tertiary,
                 fontSize: 18.sp,
@@ -278,7 +286,7 @@ class AccountInfoPageState extends State<AccountInfoPage> {
             SizedBox(height: 4.h),
             Text(
               AppLocalizations.of(context)!
-                  .account_screen_milestones_dayversaries,
+                  .database_screen_milestones_dayversaries,
               style: GoogleFonts.josefinSans(
                 color: Theme.of(context).colorScheme.tertiary,
                 fontSize: 18.sp,
@@ -309,7 +317,7 @@ class AccountInfoPageState extends State<AccountInfoPage> {
         },
       ),
       title: Text(
-        AppLocalizations.of(context)!.account_screen_title,
+        AppLocalizations.of(context)!.database_screen_title,
         style: GoogleFonts.josefinSans(
           color: Theme.of(context).colorScheme.secondary,
         ),
