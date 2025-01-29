@@ -12,6 +12,7 @@ import 'package:couplers/theme/app_colors.dart';
 import 'package:couplers/theme/theme_notifier.dart';
 import 'package:couplers/utils/custom_icons.dart';
 import 'package:couplers/widgets/custom_drawer.dart';
+import 'package:couplers/widgets/custom_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -97,8 +98,9 @@ class HomepageScreenState extends State<HomepageScreen>
 
   Widget _buildLoadingIndicator(BuildContext context) {
     return Center(
-      child: CircularProgressIndicator(
-        color: Theme.of(context).colorScheme.secondary,
+      child: CustomLoader(
+        width: 50.w,
+        height: 50.h,
       ),
     );
   }

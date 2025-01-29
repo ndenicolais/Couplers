@@ -1,4 +1,6 @@
+import 'package:couplers/widgets/custom_loader.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:ming_cute_icons/ming_cute_icons.dart';
 import 'package:photo_view/photo_view.dart';
@@ -32,7 +34,18 @@ class CustomFullImage extends StatelessWidget {
           imageProvider: NetworkImage(imageUrl),
           minScale: PhotoViewComputedScale.contained,
           maxScale: PhotoViewComputedScale.covered * 2,
+          loadingBuilder: (context, event) =>
+              Center(child: _buildLoadingIndicator(context)),
         ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingIndicator(BuildContext context) {
+    return Center(
+      child: CustomLoader(
+        width: 50.w,
+        height: 50.h,
       ),
     );
   }
