@@ -7,6 +7,5 @@ class AppConstants {
       Uri.parse('https://ndenicolais.github.io/');
   static final Uri uriGithubLink = Uri.parse('https://ndenicolais.github.io/');
   static final Uri uriGithubDocumentation =
-      Uri.parse('https://ndenicolais.github.io/');
-  static final Uri uriGithubFaq = Uri.parse('https://ndenicolais.github.io/');
+      Uri.parse('https://github.com/ndenicolais/Couplers/');
 }
