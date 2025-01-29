@@ -73,7 +73,9 @@ class CalendarScreenState extends State<CalendarScreen> {
     }
   }
 
-  List<Map<String, String>> _getCelebrationsForDay(DateTime date) {
+  List<Map<String, String>> _getCelebrationsForDay(
+      BuildContext context, DateTime date) {
+    Locale locale = Localizations.localeOf(context);
     if (coupleDate == null) {
       return [];
     }
@@ -81,21 +83,23 @@ class CalendarScreenState extends State<CalendarScreen> {
     final anniversaries = DateCalculations.calculateAnniversaries(
       coupleDate!,
       AppLocalizations.of(context)!.milestones_screen_card_anniversary,
+      locale,
     );
     final dayversaries = DateCalculations.calculateDayversaries(
       coupleDate!,
       AppLocalizations.of(context)!.milestones_screen_card_dayversary,
+      locale,
     );
 
     final celebrations = anniversaries.where((anniversary) {
-      final anniversaryDate =
-          DateFormat('dd MMMM yyyy', 'it_IT').parse(anniversary['date']!);
+      final anniversaryDate = DateFormat('dd MMMM yyyy', locale.toString())
+          .parse(anniversary['date']!);
       return isSameDay(date, anniversaryDate);
     }).toList();
 
     celebrations.addAll(dayversaries.where((dayversary) {
-      final dayversaryDate =
-          DateFormat('dd MMMM yyyy', 'it_IT').parse(dayversary['date']!);
+      final dayversaryDate = DateFormat('dd MMMM yyyy', locale.toString())
+          .parse(dayversary['date']!);
       return isSameDay(date, dayversaryDate);
     }).toList());
 
@@ -210,10 +214,14 @@ class CalendarScreenState extends State<CalendarScreen> {
       ),
       calendarBuilders: CalendarBuilders(
         markerBuilder: (context, date, events) {
-          return Stack(
+          final eventMarkers = _buildEventsMarker(date, events);
+          final milestoneMarkers = _buildMilestonesMarkers(date);
+
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildEventsMarker(date, events),
-              _buildMilestonesMarkers(date),
+              eventMarkers,
+              milestoneMarkers,
             ],
           );
         },
@@ -232,7 +240,7 @@ class CalendarScreenState extends State<CalendarScreen> {
 
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             if (_selectedDay != null &&
-                _getCelebrationsForDay(_selectedDay!).isNotEmpty) {
+                _getCelebrationsForDay(context, _selectedDay!).isNotEmpty) {
               return _buildEventListView([], context);
             } else {
               return Center(
@@ -268,6 +276,7 @@ class CalendarScreenState extends State<CalendarScreen> {
 
   Widget _buildEventListView(
       List<EventModel> filteredEvents, BuildContext context) {
+    Locale locale = Localizations.localeOf(context);
     final selectedEvents = filteredEvents.where((event) {
       if (_selectedDay == null) {
         return false;
@@ -281,7 +290,14 @@ class CalendarScreenState extends State<CalendarScreen> {
       return isSameDay(event.startDate, _selectedDay);
     }).toList();
 
-    final celebrations = _getCelebrationsForDay(_selectedDay ?? DateTime.now());
+    final celebrations =
+        _getCelebrationsForDay(context, _selectedDay ?? DateTime.now())
+            .where((celebration) {
+      final celebrationDate = DateFormat('dd MMMM yyyy', locale.toString())
+          .parse(celebration['date']!);
+      return celebrationDate.month == _focusedDay.month &&
+          celebrationDate.year == _focusedDay.year;
+    }).toList();
 
     if (selectedEvents.isEmpty && celebrations.isEmpty) {
       return Center(
@@ -329,32 +345,26 @@ class CalendarScreenState extends State<CalendarScreen> {
                 borderRadius: BorderRadius.circular(10.r),
                 side: BorderSide(
                   color: event.getColor(),
-                  width: 2.w,
+                  width: 1.w,
                 ),
               ),
               child: ListTile(
                 leading: event.getIcon(
                     color: Theme.of(context).colorScheme.tertiary),
-                title: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      event.title,
-                      style: GoogleFonts.josefinSans(
-                        color: Theme.of(context).colorScheme.tertiary,
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 4.h),
-                    Text(
-                      DateFormat('dd/MM/yyyy').format(event.startDate),
-                      style: GoogleFonts.josefinSans(
-                        color: Theme.of(context).colorScheme.tertiary,
-                        fontSize: 16.sp,
-                      ),
-                    ),
-                  ],
+                title: Text(
+                  event.title,
+                  style: GoogleFonts.josefinSans(
+                    color: Theme.of(context).colorScheme.tertiary,
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                subtitle: Text(
+                  DateFormat('dd/MM/yyyy').format(event.startDate),
+                  style: GoogleFonts.josefinSans(
+                    color: Theme.of(context).colorScheme.tertiary,
+                    fontSize: 16.sp,
+                  ),
                 ),
                 trailing: Icon(
                   MingCuteIcons.mgc_right_fill,
@@ -366,12 +376,26 @@ class CalendarScreenState extends State<CalendarScreen> {
         } else {
           final celebration = item['data'] as Map<String, String>;
           return Card(
+            elevation: 0,
             color: Theme.of(context).colorScheme.secondary,
             margin: EdgeInsets.all(8.r),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10.r),
+              side: BorderSide(
+                color: Theme.of(context)
+                    .colorScheme
+                    .tertiary
+                    .withValues(alpha: 0.3),
+                width: 1.w,
+              ),
             ),
             child: ListTile(
+              leading: Icon(
+                celebration.containsKey('anniversary')
+                    ? MingCuteIcons.mgc_anniversary_fill
+                    : MingCuteIcons.mgc_love_fill,
+                color: Theme.of(context).colorScheme.primary,
+              ),
               title: Text(
                 celebration['anniversary'] ?? celebration['dayversary']!,
                 style: GoogleFonts.josefinSans(
@@ -388,6 +412,12 @@ class CalendarScreenState extends State<CalendarScreen> {
                   fontSize: 16.sp,
                 ),
                 textAlign: TextAlign.center,
+              ),
+              trailing: Icon(
+                celebration.containsKey('anniversary')
+                    ? MingCuteIcons.mgc_anniversary_fill
+                    : MingCuteIcons.mgc_love_fill,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
           );
@@ -416,7 +446,6 @@ class CalendarScreenState extends State<CalendarScreen> {
                 eventsForDay.length,
                 (index) {
                   Color eventColor = eventsForDay[index].getColor();
-
                   return Positioned(
                     left: index * 6,
                     child: Container(
@@ -436,6 +465,7 @@ class CalendarScreenState extends State<CalendarScreen> {
   }
 
   Widget _buildMilestonesMarkers(DateTime date) {
+    Locale locale = Localizations.localeOf(context);
     if (coupleDate == null) {
       return Container();
     }
@@ -443,21 +473,23 @@ class CalendarScreenState extends State<CalendarScreen> {
     final anniversaries = DateCalculations.calculateAnniversaries(
       coupleDate!,
       AppLocalizations.of(context)!.milestones_screen_card_anniversary,
+      locale,
     );
     final dayversaries = DateCalculations.calculateDayversaries(
       coupleDate!,
       AppLocalizations.of(context)!.milestones_screen_card_dayversary,
+      locale,
     );
 
     final celebrationForDay = anniversaries.where((anniversary) {
-      final anniversaryDate =
-          DateFormat('dd MMMM yyyy', 'it_IT').parse(anniversary['date']!);
+      final anniversaryDate = DateFormat('dd MMMM yyyy', locale.toString())
+          .parse(anniversary['date']!);
       return isSameDay(date, anniversaryDate);
     }).toList();
 
     celebrationForDay.addAll(dayversaries.where((dayversary) {
-      final dayversaryDate =
-          DateFormat('dd MMMM yyyy', 'it_IT').parse(dayversary['date']!);
+      final dayversaryDate = DateFormat('dd MMMM yyyy', locale.toString())
+          .parse(dayversary['date']!);
       return isSameDay(date, dayversaryDate);
     }).toList());
 
@@ -470,14 +502,13 @@ class CalendarScreenState extends State<CalendarScreen> {
               children: List.generate(
                 celebrationForDay.length,
                 (index) {
-                  Color markerColor = Theme.of(context).colorScheme.secondary;
                   return Positioned(
                     left: index * 6,
                     child: Container(
                       width: 10.w,
                       height: 10.h,
                       decoration: BoxDecoration(
-                        color: markerColor,
+                        color: Theme.of(context).colorScheme.secondary,
                         shape: BoxShape.circle,
                       ),
                     ),
