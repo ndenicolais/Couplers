@@ -2,8 +2,6 @@ import 'package:couplers/screens/settings/info_screen.dart';
 import 'package:couplers/screens/settings/policy_screen.dart';
 import 'package:couplers/screens/settings/settings_screen.dart';
 import 'package:couplers/screens/settings/support_screen.dart';
-import 'package:couplers/screens/user/user_screen.dart';
-import 'package:couplers/services/auth_service.dart';
 import 'package:couplers/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -18,8 +16,6 @@ class CustomDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AuthService authService = AuthService();
-
     return Drawer(
       backgroundColor: Theme.of(context).colorScheme.primary,
       width: MediaQuery.of(context).size.width * 0.7,
@@ -35,23 +31,6 @@ class CustomDrawer extends StatelessWidget {
                     width: 150.w,
                     height: 150.h,
                   ),
-                ),
-                ListTile(
-                  leading: Icon(MingCuteIcons.mgc_user_heart_line,
-                      color: Theme.of(context).colorScheme.secondary),
-                  title: Text(
-                    AppLocalizations.of(context)!.drawer_us,
-                    style: GoogleFonts.josefinSans(
-                        color: Theme.of(context).colorScheme.tertiary),
-                  ),
-                  onTap: () {
-                    final userId = authService.currentUser?.uid ?? '';
-                    Get.to(
-                      () => UserScreen(userId: userId),
-                      transition: Transition.leftToRight,
-                      duration: const Duration(milliseconds: 500),
-                    );
-                  },
                 ),
                 ListTile(
                   leading: Icon(MingCuteIcons.mgc_settings_5_line,

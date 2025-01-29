@@ -1,6 +1,8 @@
 import 'package:couplers/screens/authentication/login/login_controller.dart';
-import 'package:couplers/screens/settings/account_screen.dart';
+import 'package:couplers/screens/settings/database_screen.dart';
 import 'package:couplers/screens/settings/delete_account_screen.dart';
+import 'package:couplers/screens/user/users_details_screen.dart';
+import 'package:couplers/services/auth_service.dart';
 import 'package:couplers/theme/theme_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -22,6 +24,7 @@ class SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final LoginController controller = Get.find<LoginController>();
+    final AuthService authService = AuthService();
 
     return Scaffold(
       appBar: _buildAppBar(context),
@@ -42,7 +45,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 SizedBox(height: 10.h),
-                _buildSwitchSetting(
+                _buildThemeSwitch(
                   context,
                   icon: MingCuteIcons.mgc_moon_line,
                   title:
@@ -53,14 +56,17 @@ class SettingsScreenState extends State<SettingsScreen> {
                         .switchTheme();
                   },
                 ),
-                _buildSettingOption(
+                _buildLanguageSwitch(
                   context,
-                  icon: MingCuteIcons.mgc_translate_2_line,
+                  icon: MingCuteIcons.mgc_world_2_line,
                   title: AppLocalizations.of(context)!
                       .settings_screen_language_text,
-                  onTap: () {
-                    _showLanguageDialog(context);
+                  currentValue: Get.locale?.languageCode ?? 'en',
+                  onChanged: (String newValue) {
+                    _saveLanguagePreference(newValue);
+                    Get.updateLocale(Locale(newValue));
                   },
+                  options: ['en', 'it'],
                 ),
                 SizedBox(height: 20.h),
                 Text(
@@ -74,12 +80,27 @@ class SettingsScreenState extends State<SettingsScreen> {
                 SizedBox(height: 10.h),
                 _buildSettingOption(
                   context,
-                  icon: MingCuteIcons.mgc_user_info_line,
-                  title: 'Account',
+                  icon: MingCuteIcons.mgc_user_heart_line,
+                  title:
+                      AppLocalizations.of(context)!.settings_screen_users_title,
+                  onTap: () {
+                    final userId = authService.currentUser?.uid ?? '';
+                    Get.to(
+                      () => UsersDetailsScreen(userId: userId),
+                      transition: Transition.rightToLeft,
+                      duration: const Duration(milliseconds: 500),
+                    );
+                  },
+                ),
+                _buildSettingOption(
+                  context,
+                  icon: MingCuteIcons.mgc_coin_2_line,
+                  title: AppLocalizations.of(context)!
+                      .settings_screen_database_title,
                   onTap: () {
                     Get.to(
-                      () => const AccountInfoPage(),
-                      transition: Transition.leftToRight,
+                      () => const DatabasePage(),
+                      transition: Transition.rightToLeft,
                       duration: const Duration(milliseconds: 500),
                     );
                   },
@@ -101,7 +122,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                   onTap: () {
                     Get.to(
                       () => const DeleteAccountScreen(),
-                      transition: Transition.leftToRight,
+                      transition: Transition.rightToLeft,
                       duration: const Duration(milliseconds: 500),
                     );
                   },
@@ -136,79 +157,6 @@ class SettingsScreenState extends State<SettingsScreen> {
     Get.updateLocale(Locale(languageCode));
   }
 
-  void _showLanguageDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(
-            AppLocalizations.of(context)!.settings_screen_language_dialog_title,
-            style: GoogleFonts.montserrat(
-              fontSize: 18,
-              color: Theme.of(context).colorScheme.secondary,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                children: [
-                  Checkbox(
-                    checkColor: Theme.of(context).colorScheme.primary,
-                    activeColor: Theme.of(context).colorScheme.secondary,
-                    value: Get.locale?.languageCode == 'en',
-                    onChanged: (value) {
-                      if (value != null && value) {
-                        _saveLanguagePreference('en');
-
-                        Get.updateLocale(const Locale('en'));
-                        Get.back();
-                      }
-                    },
-                  ),
-                  Text(
-                    AppLocalizations.of(context)!
-                        .settings_screen_language_dialog_english,
-                    style: GoogleFonts.montserrat(
-                      color: Theme.of(context).colorScheme.secondary,
-                      fontSize: 18,
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  Checkbox(
-                    checkColor: Theme.of(context).colorScheme.primary,
-                    activeColor: Theme.of(context).colorScheme.secondary,
-                    value: Get.locale?.languageCode == 'it',
-                    onChanged: (value) {
-                      if (value != null && value) {
-                        _saveLanguagePreference('it');
-                        Get.updateLocale(const Locale('it'));
-                        Get.back();
-                      }
-                    },
-                  ),
-                  Text(
-                    AppLocalizations.of(context)!
-                        .settings_screen_language_dialog_italian,
-                    style: GoogleFonts.montserrat(
-                      color: Theme.of(context).colorScheme.secondary,
-                      fontSize: 18,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   AppBar _buildAppBar(BuildContext context) {
     return AppBar(
       leading: IconButton(
@@ -235,7 +183,8 @@ class SettingsScreenState extends State<SettingsScreen> {
   Widget _buildSettingOption(BuildContext context,
       {required IconData icon,
       required String title,
-      required Function() onTap}) {
+      required Function() onTap,
+      String? selectedOption}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -256,6 +205,15 @@ class SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const Spacer(),
+            if (selectedOption != null)
+              Text(
+                selectedOption,
+                style: GoogleFonts.josefinSans(
+                  color: Theme.of(context).colorScheme.tertiary,
+                  fontSize: 16.sp,
+                ),
+              ),
+            SizedBox(width: 15.w),
             Icon(
               MingCuteIcons.mgc_right_fill,
               size: 18.sp,
@@ -267,7 +225,7 @@ class SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildSwitchSetting(BuildContext context,
+  Widget _buildThemeSwitch(BuildContext context,
       {required IconData icon,
       required String title,
       required bool value,
@@ -289,9 +247,69 @@ class SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           const Spacer(),
+          Text(
+            value
+                ? AppLocalizations.of(context)!.settings_screen_theme_on_text
+                : AppLocalizations.of(context)!.settings_screen_theme_off_text,
+            style: GoogleFonts.josefinSans(
+              color: Theme.of(context).colorScheme.tertiary,
+              fontSize: 16.sp,
+            ),
+          ),
+          SizedBox(width: 15.w),
           Switch(
             value: value,
             onChanged: onChanged,
+            activeColor: Theme.of(context).colorScheme.primary,
+            activeTrackColor: Theme.of(context).colorScheme.tertiary,
+            inactiveThumbColor: Theme.of(context).colorScheme.secondary,
+            inactiveTrackColor: Theme.of(context).colorScheme.tertiaryFixed,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLanguageSwitch(BuildContext context,
+      {required IconData icon,
+      required String title,
+      required String currentValue,
+      required ValueChanged<String> onChanged,
+      required List<String> options}) {
+    return SizedBox(
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            size: 25.sp,
+            color: Theme.of(context).colorScheme.secondary,
+          ),
+          SizedBox(width: 15.w),
+          Text(
+            title,
+            style: GoogleFonts.josefinSans(
+              color: Theme.of(context).colorScheme.secondary,
+              fontSize: 16.sp,
+            ),
+          ),
+          const Spacer(),
+          Text(
+            currentValue == 'en'
+                ? AppLocalizations.of(context)!
+                    .settings_screen_language_english_text
+                : AppLocalizations.of(context)!
+                    .settings_screen_language_italian_text,
+            style: GoogleFonts.josefinSans(
+              color: Theme.of(context).colorScheme.tertiary,
+              fontSize: 16.sp,
+            ),
+          ),
+          SizedBox(width: 15.w),
+          Switch(
+            value: currentValue == 'it',
+            onChanged: (bool value) {
+              onChanged(value ? 'it' : 'en');
+            },
             activeColor: Theme.of(context).colorScheme.primary,
             activeTrackColor: Theme.of(context).colorScheme.tertiary,
             inactiveThumbColor: Theme.of(context).colorScheme.secondary,
