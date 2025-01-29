@@ -6,10 +6,10 @@
 This application was designed to allow couples of engaged to share and celebrate every special moment of their love story. From the engagement date onwards, you can add significant events such as the first meeting, anniversaries, trips, and other experiences that have marked your journey together. Share memories, photos, and thoughts to create a unique timeline that tells your love story.
 
 ## 💎 Release
-<img src="images/couplers_release.png" title="Couplers's release">
+<img src="images/couplers_version.png" title="Couplers's version">
 The release of version 1.0.0 of the application is now available for download. You can download it from the following link:
 
-WIP
+[Download v1.0.0](https://github.com/ndenicolais/Couplers/releases/download/v1.0.0/Couplers_v1.0.0.apk)
     
 ## 🔑 Features
 - A single account with the emails of both partners
@@ -27,7 +27,7 @@ WIP
 - English and Italian languages variants
 
 ## 🎨 Screenshots
-WIP
+<img src="images/couplers_release.png" title="Couplers's release">
 
 ## 📌 Packages
 Below is a list of some of the most relevant packages:
