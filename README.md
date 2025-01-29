@@ -9,7 +9,7 @@ This application was designed to allow couples of engaged to share and celebrate
 <img src="images/couplers_release.png" title="Couplers's release">
 The release of version 1.0.0 of the application is now available for download. You can download it from the following link:
 
-[Download v1.0.0](https://github.com/ndenicolais/Couplers/releases/download/v1.0.0/Couplers_v1.0.0.apk)
+WIP
     
 ## 🔑 Features
 - A single account with the emails of both partners
@@ -27,7 +27,7 @@ The release of version 1.0.0 of the application is now available for download. Y
 - English and Italian languages variants
 
 ## 🎨 Screenshots
-<img src="images/couplers_preview.png" title="Couplers's preview">
+WIP
 
 ## 📌 Packages
 Below is a list of some of the most relevant packages:
