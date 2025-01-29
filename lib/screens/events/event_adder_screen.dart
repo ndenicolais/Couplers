@@ -160,7 +160,7 @@ class EventAdderScreenState extends State<EventAdderScreen> {
       uiSettings: [
         AndroidUiSettings(
           toolbarTitle:
-              AppLocalizations.of(context)!.user_screen_crop_image_title,
+              AppLocalizations.of(context)!.event_adder_screen_image_crop,
           toolbarColor: Theme.of(context).colorScheme.secondary,
           statusBarColor: Theme.of(context).colorScheme.secondary,
           toolbarWidgetColor: Theme.of(context).colorScheme.primary,
@@ -178,7 +178,7 @@ class EventAdderScreenState extends State<EventAdderScreen> {
           showCropGrid: true,
         ),
         IOSUiSettings(
-          title: AppLocalizations.of(context)!.user_screen_crop_image_title,
+          title: AppLocalizations.of(context)!.event_adder_screen_image_crop,
         ),
       ],
     );

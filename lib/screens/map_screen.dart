@@ -154,13 +154,14 @@ class MapScreenState extends State<MapScreen> {
 
       showModalBottomSheet(
         context: context,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         builder: (context) {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
                 leading: Icon(
-                  MingCuteIcons.mgc_location_3_fill,
+                  MingCuteIcons.mgc_pin_2_fill,
                   color: Theme.of(context).colorScheme.tertiary,
                 ),
                 title: Text(
@@ -171,6 +172,7 @@ class MapScreenState extends State<MapScreen> {
                 onTap: () {
                   showModalBottomSheet(
                     context: context,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     builder: (context) {
                       return FutureBuilder<List<Map<String, dynamic>>>(
                         future: eventsListFuture,
@@ -214,28 +216,29 @@ class MapScreenState extends State<MapScreen> {
                                     (event['startDate'] as Timestamp).toDate();
 
                                 return ListTile(
-                                    title: Text(
-                                      event['title'],
-                                      style: GoogleFonts.josefinSans(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .tertiary,
-                                        fontSize: 16.sp,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                  title: Text(
+                                    event['title'],
+                                    style: GoogleFonts.josefinSans(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .tertiary,
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                    subtitle: Text(
-                                      eventDate
-                                          .toLocal()
-                                          .toString()
-                                          .split(' ')[0],
-                                      style: GoogleFonts.josefinSans(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .tertiary,
-                                        fontSize: 14.sp,
-                                      ),
-                                    ));
+                                  ),
+                                  subtitle: Text(
+                                    eventDate
+                                        .toLocal()
+                                        .toString()
+                                        .split(' ')[0],
+                                    style: GoogleFonts.josefinSans(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .tertiary,
+                                      fontSize: 14.sp,
+                                    ),
+                                  ),
+                                );
                               },
                             );
                           }

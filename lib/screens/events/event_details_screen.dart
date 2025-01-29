@@ -19,7 +19,6 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:logger/logger.dart';
 import 'package:ming_cute_icons/ming_cute_icons.dart';
 
 class EventDetailsScreen extends StatefulWidget {
@@ -32,7 +31,6 @@ class EventDetailsScreen extends StatefulWidget {
 }
 
 class EventDetailsScreenState extends State<EventDetailsScreen> {
-  final Logger _logger = Logger();
   final User? currentUser = FirebaseAuth.instance.currentUser;
   late final EventService _eventService = EventService();
   List<MapController> mapControllers = [];
@@ -121,24 +119,10 @@ class EventDetailsScreenState extends State<EventDetailsScreen> {
           );
         } else if (value == 'delete') {
           _confirmDeleteEvent(context, event);
-        } else if (value == 'toggleFavorite') {
-          _toggleFavoriteStatus(event);
         }
       },
       itemBuilder: (BuildContext context) {
         return [
-          _buildPopupMenuItem(
-            context,
-            'toggleFavorite',
-            event.isFavorite
-                ? MingCuteIcons.mgc_heart_line
-                : MingCuteIcons.mgc_heart_fill,
-            event.isFavorite
-                ? AppLocalizations.of(context)!
-                    .event_details_screen_menu_favorites_remove
-                : AppLocalizations.of(context)!
-                    .event_details_screen_menu_favorites_add,
-          ),
           _buildPopupMenuItem(
             context,
             'edit',
@@ -520,7 +504,7 @@ class EventDetailsScreenState extends State<EventDetailsScreen> {
             top: -12,
             right: 78,
             child: Icon(
-              MingCuteIcons.mgc_pin_2_fill,
+              MingCuteIcons.mgc_attachment_2_fill,
               color: Theme.of(context).colorScheme.secondary,
               size: 20.sp,
             ),
@@ -565,19 +549,5 @@ class EventDetailsScreenState extends State<EventDetailsScreen> {
         );
       },
     );
-  }
-
-  void _toggleFavoriteStatus(EventModel event) async {
-    try {
-      if (event.isFavorite) {
-        await _eventService.toggleFavoriteStatus(event.id!, false);
-        event.isFavorite = false;
-      } else {
-        await _eventService.toggleFavoriteStatus(event.id!, true);
-        event.isFavorite = true;
-      }
-    } catch (e) {
-      _logger.e("Error in changing preferred state: $e");
-    }
   }
 }

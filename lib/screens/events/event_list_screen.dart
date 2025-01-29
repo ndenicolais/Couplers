@@ -107,7 +107,7 @@ class EventListScreenState extends State<EventListScreen> {
         },
       ),
       title: Text(
-        AppLocalizations.of(context)!.events_screen_title,
+        AppLocalizations.of(context)!.events_list_screen_title,
         style: GoogleFonts.josefinSans(
           color: Theme.of(context).colorScheme.secondary,
         ),
@@ -146,7 +146,7 @@ class EventListScreenState extends State<EventListScreen> {
       child: SizedBox(
         width: 320.w,
         child: Text(
-          '${AppLocalizations.of(context)!.events_screen_error_state} $error',
+          '${AppLocalizations.of(context)!.events_list_screen_error_state} $error',
           style: GoogleFonts.josefinSans(
             color: Theme.of(context).colorScheme.tertiary,
             fontSize: 18.sp,
@@ -161,7 +161,7 @@ class EventListScreenState extends State<EventListScreen> {
       child: SizedBox(
         width: 320.w,
         child: Text(
-          AppLocalizations.of(context)!.events_screen_empty_state,
+          AppLocalizations.of(context)!.events_list_screen_empty_state,
           style: GoogleFonts.josefinSans(
             color: Theme.of(context).colorScheme.tertiary,
             fontSize: 24.sp,
@@ -207,75 +207,72 @@ class EventListScreenState extends State<EventListScreen> {
   Widget _buildEventCard(EventModel event, BuildContext context) {
     final formattedDate = DateFormat('dd/MM/yyyy').format(event.startDate);
 
-    return Card(
-      color: event.getColor().withValues(alpha: 0.3),
-      margin: EdgeInsets.all(12.r),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20.r),
-      ),
-      clipBehavior: Clip.antiAliasWithSaveLayer,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          event.images != null
-              ? ClipRRect(
-                  borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(20.r),
-                    topLeft: Radius.circular(20.r),
-                  ),
-                  child: _buildImage(event.images!.first),
-                )
-              : const SizedBox.shrink(),
-          Container(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: <Widget>[
-                    event.getIcon(
-                        color: Theme.of(context).colorScheme.tertiary),
-                    SizedBox(width: 10.w),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          formattedDate,
-                          style: GoogleFonts.josefinSans(
-                            color: Theme.of(context).colorScheme.tertiary,
-                            fontSize: 20.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          event.title,
-                          style: GoogleFonts.josefinSans(
-                            color: Theme.of(context).colorScheme.tertiary,
-                            fontSize: 16.sp,
-                          ),
-                        ),
-                      ],
+    return InkWell(
+      onTap: () {
+        Get.to(
+          () => EventDetailsScreen(eventId: event.id!),
+          transition: Transition.fade,
+          duration: const Duration(milliseconds: 500),
+        );
+      },
+      child: Card(
+        color: event.getColor().withValues(alpha: 0.3),
+        margin: EdgeInsets.all(12.r),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.r),
+        ),
+        clipBehavior: Clip.antiAliasWithSaveLayer,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            event.images != null
+                ? ClipRRect(
+                    borderRadius: BorderRadius.only(
+                      topRight: Radius.circular(20.r),
+                      topLeft: Radius.circular(20.r),
                     ),
-                    const Spacer(),
-                    IconButton(
-                      icon: Icon(
-                        MingCuteIcons.mgc_right_fill,
-                        color: Theme.of(context).colorScheme.tertiary,
+                    child: _buildImage(event.images!.first),
+                  )
+                : const SizedBox.shrink(),
+            Container(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: <Widget>[
+                      event.getIcon(
+                          color: Theme.of(context).colorScheme.tertiary),
+                      SizedBox(width: 10.w),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            formattedDate,
+                            style: GoogleFonts.josefinSans(
+                              color: Theme.of(context).colorScheme.tertiary,
+                              fontSize: 20.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            event.title,
+                            style: GoogleFonts.josefinSans(
+                              color: Theme.of(context).colorScheme.tertiary,
+                              fontSize: 16.sp,
+                            ),
+                          ),
+                        ],
                       ),
-                      onPressed: () {
-                        Get.to(
-                          () => EventDetailsScreen(eventId: event.id!),
-                          transition: Transition.fade,
-                          duration: const Duration(milliseconds: 500),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ],
+                      const Spacer(),
+                      _buildFavoriteButton(event, context),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -308,6 +305,20 @@ class EventListScreenState extends State<EventListScreen> {
     }
   }
 
+  Widget _buildFavoriteButton(EventModel event, BuildContext context) {
+    return IconButton(
+      icon: Icon(
+        event.isFavorite
+            ? MingCuteIcons.mgc_heart_fill
+            : MingCuteIcons.mgc_heart_line,
+        color: Theme.of(context).colorScheme.secondary,
+      ),
+      onPressed: () {
+        _eventService.toggleFavoriteStatus(event.id!, !event.isFavorite);
+      },
+    );
+  }
+
   Drawer _buildEndDrawer(BuildContext context) {
     return Drawer(
       backgroundColor: Theme.of(context).colorScheme.primary,
@@ -320,16 +331,16 @@ class EventListScreenState extends State<EventListScreen> {
               children: [
                 SizedBox(height: MediaQuery.of(context).padding.top),
                 _buildDrawerHeader(context),
-                _buildSearchField(context),
-                const SizedBox(height: 10),
-                _buildOrderTile(context),
+                _buildFilterSearchField(context),
+                SizedBox(height: 10.h),
+                _buildFilterOrderTile(context),
                 _buildFilterTypeTile(context),
                 _buildFilterYearTile(context),
               ],
             ),
           ),
           _buildResetButton(context),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
         ],
       ),
     );
@@ -339,7 +350,7 @@ class EventListScreenState extends State<EventListScreen> {
     return Padding(
       padding: EdgeInsets.all(16.r),
       child: Text(
-        AppLocalizations.of(context)!.events_screen_filter_title,
+        AppLocalizations.of(context)!.events_list_screen_filter_title,
         style: GoogleFonts.josefinSans(
           color: Theme.of(context).colorScheme.secondary,
           fontSize: 24.sp,
@@ -349,23 +360,23 @@ class EventListScreenState extends State<EventListScreen> {
     );
   }
 
-  Padding _buildSearchField(BuildContext context) {
+  Padding _buildFilterSearchField(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.r),
       child: TextField(
         controller: _searchController,
         decoration: InputDecoration(
-          labelText: AppLocalizations.of(context)!.events_screen_filter_search,
-          labelStyle: GoogleFonts.josefinSans(
-            color: Theme.of(context).colorScheme.secondary,
-          ),
+          labelText: AppLocalizations.of(context)!
+              .events_list_screen_filter_label_search,
+          hintText: AppLocalizations.of(context)!
+              .events_list_screen_filter_hint_search,
           prefixIcon: Icon(
             MingCuteIcons.mgc_search_2_line,
             color: Theme.of(context).colorScheme.secondary,
           ),
         ),
         style: GoogleFonts.josefinSans(
-          color: Theme.of(context).colorScheme.secondary,
+          color: Theme.of(context).colorScheme.tertiary,
         ),
         onChanged: (value) {
           setState(() {
@@ -376,7 +387,7 @@ class EventListScreenState extends State<EventListScreen> {
     );
   }
 
-  ExpansionTile _buildOrderTile(BuildContext context) {
+  ExpansionTile _buildFilterOrderTile(BuildContext context) {
     return ExpansionTile(
       tilePadding: const EdgeInsets.symmetric(horizontal: 22.0),
       leading: Icon(
@@ -387,8 +398,8 @@ class EventListScreenState extends State<EventListScreen> {
       ),
       title: Text(
         isAscending
-            ? AppLocalizations.of(context)!.events_screen_order_ascending
-            : AppLocalizations.of(context)!.events_screen_order_descending,
+            ? AppLocalizations.of(context)!.events_list_screen_order_ascending
+            : AppLocalizations.of(context)!.events_list_screen_order_descending,
         style: GoogleFonts.josefinSans(
           color: Theme.of(context).colorScheme.secondary,
         ),
@@ -403,8 +414,10 @@ class EventListScreenState extends State<EventListScreen> {
           ),
           title: Text(
             isAscending
-                ? AppLocalizations.of(context)!.events_screen_order_descending
-                : AppLocalizations.of(context)!.events_screen_order_ascending,
+                ? AppLocalizations.of(context)!
+                    .events_list_screen_order_descending
+                : AppLocalizations.of(context)!
+                    .events_list_screen_order_ascending,
             style: GoogleFonts.josefinSans(
               color: Theme.of(context).colorScheme.secondary,
             ),
@@ -428,7 +441,7 @@ class EventListScreenState extends State<EventListScreen> {
         color: Theme.of(context).colorScheme.secondary,
       ),
       title: Text(
-        AppLocalizations.of(context)!.events_screen_filter_type,
+        AppLocalizations.of(context)!.events_list_screen_filter_type,
         style: GoogleFonts.josefinSans(
           color: Theme.of(context).colorScheme.secondary,
         ),
@@ -466,7 +479,7 @@ class EventListScreenState extends State<EventListScreen> {
         color: Theme.of(context).colorScheme.secondary,
       ),
       title: Text(
-        AppLocalizations.of(context)!.events_screen_filter_years,
+        AppLocalizations.of(context)!.events_list_screen_filter_years,
         style: GoogleFonts.josefinSans(
           color: Theme.of(context).colorScheme.secondary,
         ),
@@ -503,7 +516,7 @@ class EventListScreenState extends State<EventListScreen> {
             });
           },
           child: Text(
-            AppLocalizations.of(context)!.events_screen_filter_reset,
+            AppLocalizations.of(context)!.events_list_screen_filter_reset,
             style: GoogleFonts.josefinSans(
               color: Theme.of(context).colorScheme.primary,
               fontSize: 18.sp,

@@ -6,7 +6,7 @@ class AppColors {
   static const Color sunset = Color(0xFFF1CE9F);
   static const Color charcoal = Color(0xFF3D3F4D);
   static const Color darkBrick = Color(0xFF780000);
-  static const Color darkGold = Color(0xFF947041);
+  static const Color darkGold = Color(0xFFC79B68);
   static const Color toastLightGreen = Color(0xFFEAF8EA);
   static const Color toastDarkGreen = Color(0xFF449777);
   static const Color toastLightRed = Color(0xFFFFEBEA);
@@ -40,4 +40,10 @@ final List<Color> notesTextColors = [
   const Color(0xFF415D43),
   const Color(0xFF051923),
   const Color(0xFF003554),
+];
+
+List<Color> cardColors = [
+  const Color(0xFFA7333F),
+  const Color(0xFFA0001C),
+  const Color(0xFF800016),
 ];

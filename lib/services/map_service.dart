@@ -41,20 +41,20 @@ class MapService {
           final numberOfEvents = await _getEventCountForMarker(event);
 
           return Marker(
-            width: 40.w,
-            height: 40.h,
+            width: 20.w,
+            height: 20.h,
             point: position!,
             child: GestureDetector(
               onTap: () => onMarkerTap(doc.id, data, numberOfEvents),
               child: Icon(
-                MingCuteIcons.mgc_location_fill,
-                color: event.getColor().withValues(alpha: 0.3),
-                size: 30.sp,
+                MingCuteIcons.mgc_pin_2_fill,
+                color: event.getColor(),
+                size: 20.sp,
                 shadows: const [
                   Shadow(
-                    color: Colors.blueGrey,
+                    color: Colors.grey,
                     offset: Offset(1, 1),
-                    blurRadius: 4,
+                    blurRadius: 1,
                   ),
                 ],
               ),

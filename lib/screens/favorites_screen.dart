@@ -164,7 +164,7 @@ class FavoritesScreenState extends State<FavoritesScreen> {
           borderRadius: BorderRadius.circular(10.r),
           side: BorderSide(
             color: event.getColor(),
-            width: 2.w,
+            width: 1.w,
           ),
         ),
         child: ListTile(
@@ -193,7 +193,9 @@ class FavoritesScreenState extends State<FavoritesScreen> {
   Widget _buildFavoriteButton(EventModel event, BuildContext context) {
     return IconButton(
       icon: Icon(
-        event.isFavorite ? Icons.favorite : Icons.favorite_border,
+        event.isFavorite
+            ? MingCuteIcons.mgc_heart_fill
+            : MingCuteIcons.mgc_heart_line,
         color: Theme.of(context).colorScheme.secondary,
       ),
       onPressed: () {

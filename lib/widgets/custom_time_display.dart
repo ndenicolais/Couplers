@@ -26,7 +26,7 @@ class CustomTimeDisplay extends StatelessWidget {
                 '$value',
                 style: GoogleFonts.josefinSans(
                   color: Theme.of(context).colorScheme.secondary,
-                  fontSize: 30.sp,
+                  fontSize: 28.sp,
                   fontWeight: FontWeight.w900,
                 ),
               ),
@@ -45,6 +45,7 @@ class CustomTimeDisplay extends StatelessWidget {
                   color: Theme.of(context).colorScheme.tertiary,
                   fontSize: 28.sp,
                   fontStyle: FontStyle.italic,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ],

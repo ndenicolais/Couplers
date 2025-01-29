@@ -1,4 +1,6 @@
 import 'package:couplers/services/user_service.dart';
+import 'package:couplers/theme/app_colors.dart';
+import 'package:couplers/theme/theme_notifier.dart';
 import 'package:couplers/utils/date_calculation.dart';
 import 'package:couplers/widgets/custom_loader.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +9,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ming_cute_icons/ming_cute_icons.dart';
+import 'package:provider/provider.dart';
 
 class MilestonesScreen extends StatefulWidget {
   const MilestonesScreen({super.key});
@@ -105,20 +108,24 @@ class MilestonesScreenState extends State<MilestonesScreen>
   }
 
   List<Map<String, String>> getAnniversaries() {
+    Locale locale = Localizations.localeOf(context);
     if (coupleDate != null) {
       return DateCalculations.calculateAnniversaries(
         coupleDate!,
         AppLocalizations.of(context)!.milestones_screen_card_anniversary,
+        locale,
       );
     }
     return [];
   }
 
   List<Map<String, String>> getDayversaries() {
+    Locale locale = Localizations.localeOf(context);
     if (coupleDate != null) {
       return DateCalculations.calculateDayversaries(
         coupleDate!,
         AppLocalizations.of(context)!.milestones_screen_card_dayversary,
+        locale,
       );
     }
     return [];
@@ -201,7 +208,7 @@ Widget _buildDayversaryTab(BuildContext context) {
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(
-          MingCuteIcons.mgc_calendar_3_fill,
+          MingCuteIcons.mgc_love_fill,
           size: 20.r,
         ),
         SizedBox(width: 8.w),
@@ -258,7 +265,7 @@ Widget _buildDateTabDayversary(BuildContext context,
     sliderMaxValue: 100,
     subtitleText:
         AppLocalizations.of(context)!.milestones_screen_tab_dayversary_b,
-    leadingIcon: MingCuteIcons.mgc_calendar_3_fill,
+    leadingIcon: MingCuteIcons.mgc_love_fill,
     items: calculateDayversaries(),
   );
 }
@@ -281,6 +288,8 @@ class DateTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeNotifier = Provider.of<ThemeNotifier>(context, listen: false);
+    final isDarkMode = themeNotifier.isDarkMode;
     return Column(
       children: [
         SizedBox(height: 10.h),
@@ -351,32 +360,49 @@ class DateTab extends StatelessWidget {
                   ),
                 )
               : ListView(
-                  children: items.map((item) {
-                    return Card(
-                      color: Theme.of(context).colorScheme.secondary,
-                      margin: EdgeInsets.all(8.r),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.r),
-                      ),
-                      child: ListTile(
-                        leading: Icon(
-                          leadingIcon,
-                          color: Theme.of(context).colorScheme.primary,
+                  children: items.asMap().entries.map((entry) {
+                    int index = entry.key;
+                    Map<String, String> item = entry.value;
+                    return SizedBox(
+                      height: 140.h,
+                      child: Card(
+                        color: cardColors[index % cardColors.length],
+                        elevation: 5,
+                        margin: EdgeInsets.all(8.r),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.r),
                         ),
-                        title: Text(
-                          item['anniversary'] ?? item['dayversary'] ?? '',
-                          style: GoogleFonts.josefinSans(
-                            color: Theme.of(context).colorScheme.primary,
-                            fontSize: 20.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        subtitle: Text(
-                          item['date'] ?? '',
-                          style: GoogleFonts.josefinSans(
-                            color: Theme.of(context).colorScheme.tertiaryFixed,
-                            fontSize: 16.sp,
-                          ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              leadingIcon,
+                              size: 50.sp,
+                              color: isDarkMode
+                                  ? Theme.of(context).colorScheme.secondary
+                                  : Theme.of(context).colorScheme.primary,
+                            ),
+                            SizedBox(height: 8.h),
+                            Text(
+                              item['anniversary'] ?? item['dayversary'] ?? '',
+                              style: GoogleFonts.josefinSans(
+                                color: isDarkMode
+                                    ? Theme.of(context).colorScheme.secondary
+                                    : Theme.of(context).colorScheme.primary,
+                                fontSize: 20.sp,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4.h),
+                            Text(
+                              item['date'] ?? '',
+                              style: GoogleFonts.josefinSans(
+                                color:
+                                    Theme.of(context).colorScheme.tertiaryFixed,
+                                fontSize: 16.sp,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     );
