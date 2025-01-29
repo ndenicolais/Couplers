@@ -191,7 +191,7 @@ class EventUpdaterScreenState extends State<EventUpdaterScreen> {
       uiSettings: [
         AndroidUiSettings(
           toolbarTitle:
-              AppLocalizations.of(context)!.user_screen_crop_image_title,
+              AppLocalizations.of(context)!.event_updater_screen_image_crop,
           toolbarColor: Theme.of(context).colorScheme.secondary,
           statusBarColor: Theme.of(context).colorScheme.secondary,
           toolbarWidgetColor: Theme.of(context).colorScheme.primary,
@@ -209,7 +209,7 @@ class EventUpdaterScreenState extends State<EventUpdaterScreen> {
           showCropGrid: true,
         ),
         IOSUiSettings(
-          title: AppLocalizations.of(context)!.user_screen_crop_image_title,
+          title: AppLocalizations.of(context)!.event_updater_screen_image_crop,
         ),
       ],
     );
@@ -352,8 +352,8 @@ class EventUpdaterScreenState extends State<EventUpdaterScreen> {
     final updatedEvent = EventModel(
       id: event.id,
       title: _titleController.text,
-      startDate: _selectedStartDate!,
-      endDate: _selectedEndDate,
+      startDate: isMultiDate ? _selectedStartDate! : _selectedDate!,
+      endDate: isMultiDate ? _selectedEndDate : null,
       type: _typeController.text,
       images: finalImages,
       locations: finalLocations,
