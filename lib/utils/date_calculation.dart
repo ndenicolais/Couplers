@@ -1,8 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class DateCalculations {
   static List<Map<String, String>> calculateAnniversaries(
-      DateTime coupleDate, String anniversaryLabel) {
+      DateTime coupleDate, String anniversaryLabel, Locale locale) {
     DateTime today = DateTime.now();
     List<Map<String, String>> anniversaries = [];
     int yearsDiff = today.year - coupleDate.year;
@@ -16,7 +17,7 @@ class DateCalculations {
       }
 
       String formattedDate =
-          DateFormat('dd MMMM yyyy', 'it_IT').format(anniversaryDate);
+          DateFormat('dd MMMM yyyy', locale.toString()).format(anniversaryDate);
       anniversaries.add({
         'anniversary': '$i° $anniversaryLabel',
         'date': formattedDate,
@@ -27,7 +28,7 @@ class DateCalculations {
   }
 
   static List<Map<String, String>> calculateDayversaries(
-      DateTime coupleDate, String dayversaryLabel) {
+      DateTime coupleDate, String dayversaryLabel, Locale locale) {
     DateTime today = DateTime.now();
     List<Map<String, String>> dayversaries = [];
     int daysDiff = today.difference(coupleDate).inDays;
@@ -35,7 +36,7 @@ class DateCalculations {
     for (int i = 1; i <= daysDiff ~/ 100; i++) {
       DateTime dayversaryDate = coupleDate.add(Duration(days: i * 100));
       String formattedDate =
-          DateFormat('dd MMMM yyyy', 'it_IT').format(dayversaryDate);
+          DateFormat('dd MMMM yyyy', locale.toString()).format(dayversaryDate);
       dayversaries.add({
         'dayversary': '${i * 100}° $dayversaryLabel',
         'date': formattedDate,
