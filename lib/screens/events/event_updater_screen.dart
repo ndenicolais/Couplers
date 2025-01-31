@@ -69,7 +69,7 @@ class EventUpdaterScreenState extends State<EventUpdaterScreen> {
   Widget build(BuildContext context) {
     if (isLoading) {
       return Center(
-        child: _buildLoadingIndicator(context),
+        child: _buildLoadingIndicator(),
       );
     }
     return Scaffold(
@@ -396,7 +396,7 @@ class EventUpdaterScreenState extends State<EventUpdaterScreen> {
     );
   }
 
-  Widget _buildLoadingIndicator(BuildContext context) {
+  Widget _buildLoadingIndicator() {
     return Center(
       child: CustomLoader(
         width: 50.w,
@@ -1077,19 +1077,13 @@ class EventUpdaterScreenState extends State<EventUpdaterScreen> {
   }
 
   Widget _buildSaveButton() {
-    return SizedBox(
-      width: 70.w,
-      height: 70.h,
-      child: FloatingActionButton(
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        onPressed: _updateEvent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.r),
-        ),
-        child: Icon(
-          MingCuteIcons.mgc_save_2_fill,
-          color: Theme.of(context).colorScheme.primary,
-        ),
+    return FloatingActionButton(
+      foregroundColor: Theme.of(context).colorScheme.primary,
+      backgroundColor: Theme.of(context).colorScheme.secondary,
+      elevation: 0,
+      onPressed: _updateEvent,
+      child: const Icon(
+        MingCuteIcons.mgc_check_2_fill,
       ),
     );
   }

@@ -1012,19 +1012,13 @@ class EventAdderScreenState extends State<EventAdderScreen> {
   }
 
   Widget _buildSaveButton() {
-    return SizedBox(
-      width: 70.w,
-      height: 70.h,
-      child: FloatingActionButton(
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        onPressed: _saveEvent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.r),
-        ),
-        child: Icon(
-          MingCuteIcons.mgc_save_2_fill,
-          color: Theme.of(context).colorScheme.primary,
-        ),
+    return FloatingActionButton(
+      foregroundColor: Theme.of(context).colorScheme.primary,
+      backgroundColor: Theme.of(context).colorScheme.secondary,
+      elevation: 0,
+      onPressed: _saveEvent,
+      child: const Icon(
+        MingCuteIcons.mgc_check_2_fill,
       ),
     );
   }
