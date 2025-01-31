@@ -84,7 +84,7 @@ class HomepageScreenState extends State<HomepageScreen>
   Widget _buildBody(BuildContext context) {
     return Obx(() {
       if (userController.isLoading.value) {
-        return _buildLoadingIndicator(context);
+        return _buildLoadingIndicator();
       } else if (userController.hasError.value) {
         return _buildErrorState(context);
       } else if (userController.coupleData.value == null) {
@@ -96,7 +96,7 @@ class HomepageScreenState extends State<HomepageScreen>
     });
   }
 
-  Widget _buildLoadingIndicator(BuildContext context) {
+  Widget _buildLoadingIndicator() {
     return Center(
       child: CustomLoader(
         width: 50.w,

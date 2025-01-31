@@ -35,13 +35,13 @@ class CustomFullImage extends StatelessWidget {
           minScale: PhotoViewComputedScale.contained,
           maxScale: PhotoViewComputedScale.covered * 2,
           loadingBuilder: (context, event) =>
-              Center(child: _buildLoadingIndicator(context)),
+              Center(child: _buildLoadingIndicator()),
         ),
       ),
     );
   }
 
-  Widget _buildLoadingIndicator(BuildContext context) {
+  Widget _buildLoadingIndicator() {
     return Center(
       child: CustomLoader(
         width: 50.w,

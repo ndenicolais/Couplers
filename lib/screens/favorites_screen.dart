@@ -97,7 +97,7 @@ class FavoritesScreenState extends State<FavoritesScreen> {
       stream: _eventService.getFavoriteEvents(_eventService.currentUser!.uid),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return _buildLoadingIndicator(context);
+          return _buildLoadingIndicator();
         }
 
         var events = snapshot.data ?? [];
@@ -115,7 +115,7 @@ class FavoritesScreenState extends State<FavoritesScreen> {
     );
   }
 
-  Widget _buildLoadingIndicator(BuildContext context) {
+  Widget _buildLoadingIndicator() {
     return Center(
       child: CustomLoader(
         width: 50.w,

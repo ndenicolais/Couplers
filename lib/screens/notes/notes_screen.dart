@@ -137,7 +137,7 @@ class NotesScreenState extends State<NotesScreen> {
       stream: _noteService.getNotes(currentUser!.uid),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return _buildLoadingIndicator(context);
+          return _buildLoadingIndicator();
         }
 
         if (snapshot.hasError) {
@@ -156,7 +156,7 @@ class NotesScreenState extends State<NotesScreen> {
     );
   }
 
-  Widget _buildLoadingIndicator(BuildContext context) {
+  Widget _buildLoadingIndicator() {
     return Center(
       child: CustomLoader(
         width: 50.w,
@@ -293,7 +293,7 @@ class NotesScreenState extends State<NotesScreen> {
     return await showDialog<bool>(
           context: context,
           builder: (BuildContext context) {
-            return DeleteDialog(
+            return CustomDeleteDialog(
               title: AppLocalizations.of(context)!
                   .notes_screen_delete_dialog_title,
               content:

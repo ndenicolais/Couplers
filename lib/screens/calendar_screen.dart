@@ -129,7 +129,7 @@ class CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
-  Widget _buildLoadingIndicator(BuildContext context) {
+  Widget _buildLoadingIndicator() {
     return Center(
       child: CustomLoader(
         width: 50.w,
@@ -235,7 +235,7 @@ class CalendarScreenState extends State<CalendarScreen> {
         stream: _eventService.getEvents(_auth.currentUser!.uid),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return _buildLoadingIndicator(context);
+            return _buildLoadingIndicator();
           }
 
           if (!snapshot.hasData || snapshot.data!.isEmpty) {

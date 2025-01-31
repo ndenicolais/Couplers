@@ -37,7 +37,7 @@ class MilestonesScreenState extends State<MilestonesScreen>
         appBar: _buildAppBar(context),
         backgroundColor: Theme.of(context).colorScheme.primary,
         body: Center(
-          child: _buildLoadingIndicator(context),
+          child: _buildLoadingIndicator(),
         ),
       );
     }
@@ -155,7 +155,7 @@ class MilestonesScreenState extends State<MilestonesScreen>
   }
 }
 
-Widget _buildLoadingIndicator(BuildContext context) {
+Widget _buildLoadingIndicator() {
   return Center(
     child: CustomLoader(
       width: 50.w,
@@ -192,7 +192,7 @@ Widget _buildAnniversaryTab(BuildContext context) {
       children: [
         Icon(
           MingCuteIcons.mgc_anniversary_fill,
-          size: 20.r,
+          size: 20.sp,
         ),
         SizedBox(width: 8.w),
         Text(AppLocalizations.of(context)!
@@ -209,7 +209,7 @@ Widget _buildDayversaryTab(BuildContext context) {
       children: [
         Icon(
           MingCuteIcons.mgc_love_fill,
-          size: 20.r,
+          size: 20.sp,
         ),
         SizedBox(width: 8.w),
         Text(AppLocalizations.of(context)!

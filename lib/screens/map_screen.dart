@@ -179,7 +179,7 @@ class MapScreenState extends State<MapScreen> {
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
-                            return _buildLoadingIndicator(context);
+                            return _buildLoadingIndicator();
                           } else if (snapshot.hasError) {
                             return Center(
                               child: Text(
@@ -317,7 +317,7 @@ class MapScreenState extends State<MapScreen> {
     );
   }
 
-  Widget _buildLoadingIndicator(BuildContext context) {
+  Widget _buildLoadingIndicator() {
     return Center(
       child: CustomLoader(
         width: 50.w,
@@ -375,7 +375,7 @@ class MapScreenState extends State<MapScreen> {
                 future: eventsListFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return _buildLoadingIndicator(context);
+                    return _buildLoadingIndicator();
                   } else if (snapshot.hasError) {
                     return Center(
                       child: Text(

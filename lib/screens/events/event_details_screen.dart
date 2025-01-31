@@ -39,7 +39,7 @@ class EventDetailsScreenState extends State<EventDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     if (isEventDeleted) {
-      return _buildLoadingIndicator(context);
+      return _buildLoadingIndicator();
     }
     return _buildEventStream(context);
   }
@@ -49,7 +49,7 @@ class EventDetailsScreenState extends State<EventDetailsScreen> {
       stream: _eventService.getEventStreamById(widget.eventId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return _buildLoadingIndicator(context);
+          return _buildLoadingIndicator();
         }
 
         if (snapshot.hasError) {
@@ -163,7 +163,7 @@ class EventDetailsScreenState extends State<EventDetailsScreen> {
     );
   }
 
-  Widget _buildLoadingIndicator(BuildContext context) {
+  Widget _buildLoadingIndicator() {
     return Center(
       child: CustomLoader(
         width: 50.w,
@@ -518,7 +518,7 @@ class EventDetailsScreenState extends State<EventDetailsScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return DeleteDialog(
+        return CustomDeleteDialog(
           title: AppLocalizations.of(context)!
               .event_details_screen_delete_dialog_title,
           content: AppLocalizations.of(context)!

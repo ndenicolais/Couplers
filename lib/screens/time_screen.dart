@@ -102,7 +102,7 @@ class TimeScreenState extends State<TimeScreen> {
   Widget _buildBody(BuildContext context) {
     return Obx(() {
       if (homepageController.isLoading.value) {
-        return _buildLoadingIndicator(context);
+        return _buildLoadingIndicator();
       } else if (homepageController.hasError.value) {
         return _buildErrorState(context);
       } else {
@@ -116,7 +116,7 @@ class TimeScreenState extends State<TimeScreen> {
     });
   }
 
-  Widget _buildLoadingIndicator(BuildContext context) {
+  Widget _buildLoadingIndicator() {
     return Center(
       child: CustomLoader(
         width: 50.w,

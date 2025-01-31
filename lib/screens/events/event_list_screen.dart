@@ -132,7 +132,7 @@ class EventListScreenState extends State<EventListScreen> {
     );
   }
 
-  Widget _buildLoadingIndicator(BuildContext context) {
+  Widget _buildLoadingIndicator() {
     return Center(
       child: CustomLoader(
         width: 50.w,
@@ -177,7 +177,7 @@ class EventListScreenState extends State<EventListScreen> {
       stream: _eventService.getEvents(currentUser!.uid),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return _buildLoadingIndicator(context);
+          return _buildLoadingIndicator();
         }
 
         if (snapshot.hasError) {

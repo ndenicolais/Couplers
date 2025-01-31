@@ -52,7 +52,7 @@ class UsersDetailsScreenState extends State<UsersDetailsScreen>
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: SafeArea(
         child: isLoading
-            ? Center(child: _buildLoadingIndicator(context))
+            ? Center(child: _buildLoadingIndicator())
             : Column(
                 children: [
                   _buildTabBar(context, tabController),
@@ -154,7 +154,7 @@ class UsersDetailsScreenState extends State<UsersDetailsScreen>
           icon: const Icon(MingCuteIcons.mgc_edit_2_fill),
           onPressed: () {
             Get.off(
-              () => UserUpdaterScreen(userId: currentUser!.uid),
+              () => UsersUpdaterScreen(userId: currentUser!.uid),
               transition: Transition.fade,
               duration: const Duration(milliseconds: 500),
             );
@@ -164,7 +164,7 @@ class UsersDetailsScreenState extends State<UsersDetailsScreen>
     );
   }
 
-  Widget _buildLoadingIndicator(BuildContext context) {
+  Widget _buildLoadingIndicator() {
     return Center(
       child: CustomLoader(
         width: 50.w,
@@ -194,7 +194,7 @@ class UsersDetailsScreenState extends State<UsersDetailsScreen>
             children: [
               Icon(
                 MingCuteIcons.mgc_user_heart_fill,
-                size: 20.r,
+                size: 20.sp,
               ),
               SizedBox(width: 8.w),
               Text(
@@ -209,7 +209,7 @@ class UsersDetailsScreenState extends State<UsersDetailsScreen>
             children: [
               Icon(
                 MingCuteIcons.mgc_user_heart_fill,
-                size: 20.r,
+                size: 20.sp,
               ),
               SizedBox(width: 8.w),
               Text(
