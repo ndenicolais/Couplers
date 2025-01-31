@@ -112,7 +112,7 @@ class NoteAddUpdateScreenState extends State<NoteAddUpdateScreen> {
             AppLocalizations.of(context)!.notes_adder_screen_picker_color_title,
             style: GoogleFonts.josefinSans(
               color: Theme.of(context).colorScheme.secondary,
-              fontSize: 24.r,
+              fontSize: 24.sp,
             ),
           ),
           content: SingleChildScrollView(
@@ -158,7 +158,7 @@ class NoteAddUpdateScreenState extends State<NoteAddUpdateScreen> {
             AppLocalizations.of(context)!.notes_adder_screen_picker_color_title,
             style: GoogleFonts.josefinSans(
               color: Theme.of(context).colorScheme.secondary,
-              fontSize: 24.r,
+              fontSize: 24.sp,
             ),
           ),
           content: SingleChildScrollView(
@@ -314,7 +314,7 @@ class NoteAddUpdateScreenState extends State<NoteAddUpdateScreen> {
               borderRadius: BorderRadius.circular(15),
               border: Border.all(
                 color: Colors.grey.shade300,
-                width: 1.r,
+                width: 1.w,
               ),
             ),
           ),
@@ -360,8 +360,8 @@ class NoteAddUpdateScreenState extends State<NoteAddUpdateScreen> {
 
   Widget _buildSaveButton() {
     return SizedBox(
-      width: 120.r,
-      height: 60.r,
+      width: 120.w,
+      height: 60.h,
       child: MaterialButton(
         onPressed: _saveNote,
         shape: RoundedRectangleBorder(

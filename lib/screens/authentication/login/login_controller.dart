@@ -68,7 +68,10 @@ class LoginController extends GetxController {
       rememberMe.value = false;
 
       if (context.mounted) {
-        showSuccessToast(context, "A presto!");
+        showSuccessToast(
+          context,
+          AppLocalizations.of(context)!.logout_toast_success,
+        );
       }
 
       Get.offAll(() => const WelcomeScreen(),
@@ -76,7 +79,10 @@ class LoginController extends GetxController {
           duration: const Duration(milliseconds: 500));
     } catch (e) {
       if (context.mounted) {
-        showErrorToast(context, "Errore durante il logout");
+        showErrorToast(
+          context,
+          AppLocalizations.of(context)!.logout_toast_error_generic,
+        );
       }
     }
   }

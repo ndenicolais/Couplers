@@ -22,17 +22,17 @@ import 'package:ming_cute_icons/ming_cute_icons.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
-class UserUpdaterScreen extends StatefulWidget {
+class UsersUpdaterScreen extends StatefulWidget {
   final String userId;
   final bool isFirstTime;
-  const UserUpdaterScreen(
+  const UsersUpdaterScreen(
       {super.key, required this.userId, this.isFirstTime = false});
 
   @override
-  UserUpdaterScreenState createState() => UserUpdaterScreenState();
+  UsersUpdaterScreenState createState() => UsersUpdaterScreenState();
 }
 
-class UserUpdaterScreenState extends State<UserUpdaterScreen>
+class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
     with SingleTickerProviderStateMixin {
   final Logger _logger = Logger();
   final User? currentUser = FirebaseAuth.instance.currentUser;
@@ -61,7 +61,7 @@ class UserUpdaterScreenState extends State<UserUpdaterScreen>
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: SafeArea(
         child: isLoading
-            ? Center(child: _buildLoadingIndicator(context))
+            ? Center(child: _buildLoadingIndicator())
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -426,7 +426,7 @@ class UserUpdaterScreenState extends State<UserUpdaterScreen>
     );
   }
 
-  Widget _buildLoadingIndicator(BuildContext context) {
+  Widget _buildLoadingIndicator() {
     return Center(
       child: CustomLoader(
         width: 50.w,
@@ -456,7 +456,7 @@ class UserUpdaterScreenState extends State<UserUpdaterScreen>
             children: [
               Icon(
                 MingCuteIcons.mgc_user_heart_fill,
-                size: 20.r,
+                size: 20.sp,
               ),
               SizedBox(width: 8.w),
               Text(
@@ -471,7 +471,7 @@ class UserUpdaterScreenState extends State<UserUpdaterScreen>
             children: [
               Icon(
                 MingCuteIcons.mgc_user_heart_fill,
-                size: 20.r,
+                size: 20.sp,
               ),
               SizedBox(width: 8.w),
               Text(
@@ -486,7 +486,7 @@ class UserUpdaterScreenState extends State<UserUpdaterScreen>
             children: [
               Icon(
                 MingCuteIcons.mgc_user_heart_fill,
-                size: 20.r,
+                size: 20.sp,
               ),
               SizedBox(width: 8.w),
               Text(

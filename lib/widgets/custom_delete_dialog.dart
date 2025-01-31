@@ -3,13 +3,13 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class DeleteDialog extends StatelessWidget {
+class CustomDeleteDialog extends StatelessWidget {
   final String title;
   final String content;
   final VoidCallback onCancelPressed;
   final VoidCallback onConfirmPressed;
 
-  const DeleteDialog({
+  const CustomDeleteDialog({
     super.key,
     required this.title,
     required this.content,

@@ -58,6 +58,29 @@ class SupportScreen extends StatelessWidget {
     );
   }
 
+  AppBar _buildAppBar(BuildContext context) {
+    return AppBar(
+      leading: IconButton(
+        icon: Icon(
+          MingCuteIcons.mgc_large_arrow_left_fill,
+          color: Theme.of(context).colorScheme.secondary,
+        ),
+        onPressed: () {
+          Get.back();
+        },
+      ),
+      title: Text(
+        AppLocalizations.of(context)!.support_screen_title,
+        style: GoogleFonts.josefinSans(
+          color: Theme.of(context).colorScheme.secondary,
+        ),
+      ),
+      centerTitle: true,
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      foregroundColor: Theme.of(context).colorScheme.secondary,
+    );
+  }
+
   Widget _buildContactSection(
     BuildContext context, {
     required String title,
@@ -175,29 +198,6 @@ class SupportScreen extends StatelessWidget {
           answer: AppLocalizations.of(context)!.support_screen_faq_a8,
         ),
       ],
-    );
-  }
-
-  AppBar _buildAppBar(BuildContext context) {
-    return AppBar(
-      leading: IconButton(
-        icon: Icon(
-          MingCuteIcons.mgc_large_arrow_left_fill,
-          color: Theme.of(context).colorScheme.secondary,
-        ),
-        onPressed: () {
-          Get.back();
-        },
-      ),
-      title: Text(
-        AppLocalizations.of(context)!.support_screen_title,
-        style: GoogleFonts.josefinSans(
-          color: Theme.of(context).colorScheme.secondary,
-        ),
-      ),
-      centerTitle: true,
-      backgroundColor: Theme.of(context).colorScheme.primary,
-      foregroundColor: Theme.of(context).colorScheme.secondary,
     );
   }
 
