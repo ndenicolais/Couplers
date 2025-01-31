@@ -1,3 +1,4 @@
+import 'package:couplers/services/user_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:couplers/models/couple_model.dart';
@@ -9,6 +10,7 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   User? get currentUser => _auth.currentUser;
+  final UserService _userService = UserService();
 
   // SIGNUP
   Future<User?> signup(CoupleModel couple, String password) async {
@@ -125,6 +127,7 @@ class AuthService {
       await _auth.signOut();
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.remove('remember_me');
+      await prefs.remove('user_id');
     } catch (e) {
       throw Exception('Error during logout.');
     }
@@ -174,8 +177,9 @@ class AuthService {
     if (user != null) {
       try {
         await _deleteEntireUserCollection(user.uid);
+        await _userService.deleteUserFolderSupabase(user.uid);
         await user.delete();
-        await _auth.signOut();
+        await logout();
       } catch (e) {
         throw Exception("Error while deleting: $e");
       }

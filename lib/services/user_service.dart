@@ -74,6 +74,7 @@ class UserService {
           .i('Deleting all files in Supabase folder with prefix: $pathPrefix');
 
       try {
+        // List all files in the folder
         final result =
             await _client.storage.from('images').list(path: pathPrefix);
 
@@ -82,12 +83,35 @@ class UserService {
           continue;
         }
 
-        final filePaths =
-            result.map((file) => '$pathPrefix${file.name}').toList();
+        // Handle nested files in the 'events' folder
+        if (folder == 'events') {
+          for (final directory in result) {
+            final nestedPathPrefix = '$pathPrefix${directory.name}/';
+            final nestedResult = await _client.storage
+                .from('images')
+                .list(path: nestedPathPrefix);
 
-        await _client.storage.from('images').remove(filePaths);
-        _logger.i(
-            "All files successfully deleted from Supabase folder: $pathPrefix");
+            if (nestedResult.isEmpty) {
+              _logger.i(
+                  "No files found in nested Supabase folder: $nestedPathPrefix");
+              continue;
+            }
+
+            final nestedFilePaths = nestedResult
+                .map((file) => '$nestedPathPrefix${file.name}')
+                .toList();
+            await _client.storage.from('images').remove(nestedFilePaths);
+            _logger.i(
+                "All files successfully deleted from nested Supabase folder: $nestedPathPrefix");
+          }
+        } else {
+          // Handle files in the 'users' folder
+          final filePaths =
+              result.map((file) => '$pathPrefix${file.name}').toList();
+          await _client.storage.from('images').remove(filePaths);
+          _logger.i(
+              "All files successfully deleted from Supabase folder: $pathPrefix");
+        }
       } catch (e) {
         _logger.e("Error in deleting user folder from Supabase: $e");
       }

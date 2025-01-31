@@ -1,6 +1,5 @@
 import 'package:couplers/screens/welcome_screen.dart';
 import 'package:couplers/services/auth_service.dart';
-import 'package:couplers/services/user_service.dart';
 import 'package:couplers/widgets/custom_delete_dialog.dart';
 import 'package:couplers/widgets/custom_toast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -22,7 +21,6 @@ class DeleteAccountScreenState extends State<DeleteAccountScreen>
     with TickerProviderStateMixin {
   final User? currentUser = FirebaseAuth.instance.currentUser;
   final AuthService _authService = AuthService();
-  final UserService _userService = UserService();
   late AnimationController _loadingController;
   bool _isLoading = false;
 
@@ -39,9 +37,9 @@ class DeleteAccountScreenState extends State<DeleteAccountScreen>
               child: Center(
                 child: Column(
                   children: [
-                    40.verticalSpace,
+                    SizedBox(height: 40.h),
                     _buildBodyText(context),
-                    40.verticalSpace,
+                    SizedBox(height: 40.h),
                     _buildDeleteButton(context),
                   ],
                 ),
@@ -83,7 +81,6 @@ class DeleteAccountScreenState extends State<DeleteAccountScreen>
           if (!mounted) return;
 
           await _authService.deleteAccount();
-          await _userService.deleteUserFolderSupabase(currentUser!.uid);
 
           setState(() {
             _isLoading = false;
@@ -112,7 +109,7 @@ class DeleteAccountScreenState extends State<DeleteAccountScreen>
     return await showDialog<bool>(
           context: context,
           builder: (BuildContext context) {
-            return DeleteDialog(
+            return CustomDeleteDialog(
               title: AppLocalizations.of(context)!
                   .delete_account_screen_delete_dialog_title,
               content: AppLocalizations.of(context)!
@@ -159,7 +156,7 @@ class DeleteAccountScreenState extends State<DeleteAccountScreen>
         Icon(
           MingCuteIcons.mgc_warning_fill,
           color: Theme.of(context).colorScheme.secondary,
-          size: 100.r,
+          size: 100.sp,
         ),
         SizedBox(height: 40.h),
         Text(
