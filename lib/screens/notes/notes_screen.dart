@@ -137,7 +137,7 @@ class NotesScreenState extends State<NotesScreen> {
       stream: _noteService.getNotes(currentUser!.uid),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return _buildLoadingIndicator();
+          return _buildLoadingIndicator(context);
         }
 
         if (snapshot.hasError) {
@@ -156,7 +156,7 @@ class NotesScreenState extends State<NotesScreen> {
     );
   }
 
-  Widget _buildLoadingIndicator() {
+  Widget _buildLoadingIndicator(BuildContext context) {
     return Center(
       child: CustomLoader(
         width: 50.w,

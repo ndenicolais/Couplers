@@ -3,7 +3,7 @@ import 'package:couplers/models/event_model.dart';
 import 'package:couplers/screens/events/event_adder_screen.dart';
 import 'package:couplers/screens/events/event_details_screen.dart';
 import 'package:couplers/services/event_service.dart';
-import 'package:couplers/utils/event_type_translations.dart';
+import 'package:couplers/utils/event_category_translations.dart';
 import 'package:couplers/widgets/custom_loader.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +28,7 @@ class EventListScreenState extends State<EventListScreen> {
   final TextEditingController _searchController = TextEditingController();
   String searchQuery = "";
   bool isAscending = false;
-  String? selectedType;
+  String? selectedCategory;
   int? selectedYear;
 
   @override
@@ -69,8 +69,9 @@ class EventListScreenState extends State<EventListScreen> {
       }).toList();
     }
 
-    if (selectedType != null && selectedType != 'All') {
-      events = events.where((event) => event.type == selectedType).toList();
+    if (selectedCategory != null && selectedCategory != 'All') {
+      events =
+          events.where((event) => event.category == selectedCategory).toList();
     }
 
     if (selectedYear != null) {
@@ -89,7 +90,7 @@ class EventListScreenState extends State<EventListScreen> {
 
   void _resetFilters() {
     searchQuery = '';
-    selectedType = 'All';
+    selectedCategory = 'All';
     selectedYear = null;
     isAscending = false;
     _searchController.clear();
@@ -132,7 +133,7 @@ class EventListScreenState extends State<EventListScreen> {
     );
   }
 
-  Widget _buildLoadingIndicator() {
+  Widget _buildLoadingIndicator(BuildContext context) {
     return Center(
       child: CustomLoader(
         width: 50.w,
@@ -177,7 +178,7 @@ class EventListScreenState extends State<EventListScreen> {
       stream: _eventService.getEvents(currentUser!.uid),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return _buildLoadingIndicator();
+          return _buildLoadingIndicator(context);
         }
 
         if (snapshot.hasError) {
@@ -191,20 +192,23 @@ class EventListScreenState extends State<EventListScreen> {
           return _buildEmptyState(context);
         }
 
-        return _buildEventList(events, context);
+        return _buildEventList(context, events);
       },
     );
   }
 
-  Widget _buildEventList(List<EventModel> events, BuildContext context) {
-    return ListView(
-      children: events.map((event) {
-        return _buildEventCard(event, context);
-      }).toList(),
+  Widget _buildEventList(BuildContext context, List<EventModel> events) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.r),
+      child: ListView(
+        children: events.map((event) {
+          return _buildEventCard(context, event);
+        }).toList(),
+      ),
     );
   }
 
-  Widget _buildEventCard(EventModel event, BuildContext context) {
+  Widget _buildEventCard(BuildContext context, EventModel event) {
     final formattedDate = DateFormat('dd/MM/yyyy').format(event.startDate);
 
     return InkWell(
@@ -217,7 +221,6 @@ class EventListScreenState extends State<EventListScreen> {
       },
       child: Card(
         color: event.getColor().withValues(alpha: 0.3),
-        margin: EdgeInsets.all(12.r),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20.r),
         ),
@@ -231,7 +234,7 @@ class EventListScreenState extends State<EventListScreen> {
                       topRight: Radius.circular(20.r),
                       topLeft: Radius.circular(20.r),
                     ),
-                    child: _buildImage(event.images!.first),
+                    child: _buildImage(context, event.images!.first),
                   )
                 : const SizedBox.shrink(),
             Container(
@@ -242,30 +245,35 @@ class EventListScreenState extends State<EventListScreen> {
                   Row(
                     children: <Widget>[
                       event.getIcon(
-                          color: Theme.of(context).colorScheme.tertiary),
+                        color: Theme.of(context).colorScheme.tertiary,
+                      ),
                       SizedBox(width: 10.w),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            formattedDate,
-                            style: GoogleFonts.josefinSans(
-                              color: Theme.of(context).colorScheme.tertiary,
-                              fontSize: 20.sp,
-                              fontWeight: FontWeight.bold,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              formattedDate,
+                              style: GoogleFonts.josefinSans(
+                                color: Theme.of(context).colorScheme.tertiary,
+                                fontSize: 20.sp,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          Text(
-                            event.title,
-                            style: GoogleFonts.josefinSans(
-                              color: Theme.of(context).colorScheme.tertiary,
-                              fontSize: 16.sp,
+                            Text(
+                              event.title,
+                              style: GoogleFonts.josefinSans(
+                                color: Theme.of(context).colorScheme.tertiary,
+                                fontSize: 16.sp,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                       const Spacer(),
-                      _buildFavoriteButton(event, context),
+                      _buildFavoriteButton(context, event),
                     ],
                   ),
                 ],
@@ -277,7 +285,7 @@ class EventListScreenState extends State<EventListScreen> {
     );
   }
 
-  Widget _buildImage(String imageUrl) {
+  Widget _buildImage(BuildContext context, String imageUrl) {
     if (imageUrl.startsWith('http')) {
       return CachedNetworkImage(
         imageUrl: imageUrl,
@@ -291,7 +299,7 @@ class EventListScreenState extends State<EventListScreen> {
           ),
         ),
         errorWidget: (context, url, error) => Icon(
-          MingCuteIcons.mgc_fault_fill,
+          MingCuteIcons.mgc_close_fill,
           color: Theme.of(context).colorScheme.secondary,
         ),
       );
@@ -305,7 +313,7 @@ class EventListScreenState extends State<EventListScreen> {
     }
   }
 
-  Widget _buildFavoriteButton(EventModel event, BuildContext context) {
+  Widget _buildFavoriteButton(BuildContext context, EventModel event) {
     return IconButton(
       icon: Icon(
         event.isFavorite
@@ -334,7 +342,7 @@ class EventListScreenState extends State<EventListScreen> {
                 _buildFilterSearchField(context),
                 SizedBox(height: 10.h),
                 _buildFilterOrderTile(context),
-                _buildFilterTypeTile(context),
+                _buildFilterCategoryTile(context),
                 _buildFilterYearTile(context),
               ],
             ),
@@ -374,6 +382,17 @@ class EventListScreenState extends State<EventListScreen> {
             MingCuteIcons.mgc_search_2_line,
             color: Theme.of(context).colorScheme.secondary,
           ),
+          suffixIcon: _searchController.text.trim().isEmpty
+              ? null
+              : IconButton(
+                  padding: EdgeInsets.zero,
+                  icon: Icon(
+                    MingCuteIcons.mgc_close_fill,
+                    color: Theme.of(context).colorScheme.tertiary,
+                  ),
+                  onPressed: _resetFilters,
+                  visualDensity: VisualDensity.compact,
+                ),
         ),
         style: GoogleFonts.josefinSans(
           color: Theme.of(context).colorScheme.tertiary,
@@ -433,7 +452,7 @@ class EventListScreenState extends State<EventListScreen> {
     );
   }
 
-  ExpansionTile _buildFilterTypeTile(BuildContext context) {
+  ExpansionTile _buildFilterCategoryTile(BuildContext context) {
     return ExpansionTile(
       tilePadding: const EdgeInsets.symmetric(horizontal: 22.0),
       leading: Icon(
@@ -441,28 +460,28 @@ class EventListScreenState extends State<EventListScreen> {
         color: Theme.of(context).colorScheme.secondary,
       ),
       title: Text(
-        AppLocalizations.of(context)!.events_list_screen_filter_type,
+        AppLocalizations.of(context)!.events_list_screen_filter_category,
         style: GoogleFonts.josefinSans(
           color: Theme.of(context).colorScheme.secondary,
         ),
       ),
-      children: EventModel.filterTypes.map((String type) {
+      children: EventModel.categoryFilter.map((String category) {
         return ListTile(
           leading: Icon(
-            type == 'All'
+            category == 'All'
                 ? MingCuteIcons.mgc_list_check_fill
-                : EventModel.typeIconMap[type]!,
+                : EventModel.categoryIconMap[category]!,
             color: Theme.of(context).colorScheme.secondary,
           ),
           title: Text(
-            getTranslatedEventType(context, type),
+            getTranslatedEventCategory(context, category),
             style: GoogleFonts.josefinSans(
               color: Theme.of(context).colorScheme.secondary,
             ),
           ),
           onTap: () {
             setState(() {
-              selectedType = type;
+              selectedCategory = category;
             });
             Get.back();
           },
@@ -533,7 +552,7 @@ class EventListScreenState extends State<EventListScreen> {
       backgroundColor: Theme.of(context).colorScheme.secondary,
       elevation: 0,
       onPressed: () {
-        Get.off(
+        Get.to(
           () => const EventAdderScreen(),
           transition: Transition.fadeIn,
           duration: const Duration(milliseconds: 500),

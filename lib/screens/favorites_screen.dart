@@ -1,7 +1,7 @@
 import 'package:couplers/models/event_model.dart';
 import 'package:couplers/screens/events/event_details_screen.dart';
 import 'package:couplers/services/event_service.dart';
-import 'package:couplers/utils/event_type_translations.dart';
+import 'package:couplers/utils/event_category_translations.dart';
 import 'package:couplers/widgets/custom_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -20,7 +20,7 @@ class FavoritesScreen extends StatefulWidget {
 
 class FavoritesScreenState extends State<FavoritesScreen> {
   final EventService _eventService = EventService();
-  String? selectedType;
+  String? selectedCategory;
   List<EventModel> currentFilteredEvents = [];
 
   @override
@@ -60,24 +60,24 @@ class FavoritesScreenState extends State<FavoritesScreen> {
           ),
           onSelected: (String value) {
             setState(() {
-              selectedType = value;
+              selectedCategory = value;
             });
           },
           itemBuilder: (BuildContext context) {
-            return EventModel.filterTypes.map((String type) {
+            return EventModel.categoryFilter.map((String category) {
               return PopupMenuItem<String>(
-                value: type,
+                value: category,
                 child: Row(
                   children: [
                     Icon(
-                      type == 'All'
+                      category == 'All'
                           ? MingCuteIcons.mgc_list_check_fill
-                          : EventModel.typeIconMap[type]!,
+                          : EventModel.categoryIconMap[category]!,
                       color: Theme.of(context).colorScheme.primary,
                     ),
                     SizedBox(width: 10.w),
                     Text(
-                      getTranslatedEventType(context, type),
+                      getTranslatedEventCategory(context, category),
                       style: GoogleFonts.josefinSans(
                         color: Theme.of(context).colorScheme.primary,
                       ),
@@ -97,12 +97,14 @@ class FavoritesScreenState extends State<FavoritesScreen> {
       stream: _eventService.getFavoriteEvents(_eventService.currentUser!.uid),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return _buildLoadingIndicator();
+          return _buildLoadingIndicator(context);
         }
 
         var events = snapshot.data ?? [];
-        if (selectedType != null && selectedType != 'All') {
-          events = events.where((event) => event.type == selectedType).toList();
+        if (selectedCategory != null && selectedCategory != 'All') {
+          events = events
+              .where((event) => event.category == selectedCategory)
+              .toList();
         }
         events.sort((a, b) => b.startDate.compareTo(a.startDate));
 
@@ -115,7 +117,7 @@ class FavoritesScreenState extends State<FavoritesScreen> {
     );
   }
 
-  Widget _buildLoadingIndicator() {
+  Widget _buildLoadingIndicator(BuildContext context) {
     return Center(
       child: CustomLoader(
         width: 50.w,

@@ -29,8 +29,8 @@ class TimeScreenState extends State<TimeScreen> {
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(24.r),
-          child: SingleChildScrollView(
-            child: Center(
+          child: Center(
+            child: SingleChildScrollView(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -102,7 +102,7 @@ class TimeScreenState extends State<TimeScreen> {
   Widget _buildBody(BuildContext context) {
     return Obx(() {
       if (homepageController.isLoading.value) {
-        return _buildLoadingIndicator();
+        return _buildLoadingIndicator(context);
       } else if (homepageController.hasError.value) {
         return _buildErrorState(context);
       } else {
@@ -116,7 +116,7 @@ class TimeScreenState extends State<TimeScreen> {
     });
   }
 
-  Widget _buildLoadingIndicator() {
+  Widget _buildLoadingIndicator(BuildContext context) {
     return Center(
       child: CustomLoader(
         width: 50.w,
@@ -193,7 +193,10 @@ class TimeScreenState extends State<TimeScreen> {
   }
 
   Widget _buildDynamicTitle(
-      BuildContext context, String userName1, String userName2) {
+    BuildContext context,
+    String userName1,
+    String userName2,
+  ) {
     return Text(
       '$userName1 & $userName2',
       style: GoogleFonts.josefinSans(
@@ -218,7 +221,11 @@ class TimeScreenState extends State<TimeScreen> {
   }
 
   Widget _buildTextSection(
-      BuildContext context, String text, double fontSize, Color color) {
+    BuildContext context,
+    String text,
+    double fontSize,
+    Color color,
+  ) {
     return Text(
       text,
       style: GoogleFonts.josefinSans(

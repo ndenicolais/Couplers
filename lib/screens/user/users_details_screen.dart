@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:couplers/models/couple_model.dart';
 import 'package:couplers/screens/user/users_updater_screen.dart';
 import 'package:couplers/services/user_service.dart';
@@ -52,7 +53,7 @@ class UsersDetailsScreenState extends State<UsersDetailsScreen>
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: SafeArea(
         child: isLoading
-            ? Center(child: _buildLoadingIndicator())
+            ? Center(child: _buildLoadingIndicator(context))
             : Column(
                 children: [
                   _buildTabBar(context, tabController),
@@ -164,7 +165,7 @@ class UsersDetailsScreenState extends State<UsersDetailsScreen>
     );
   }
 
-  Widget _buildLoadingIndicator() {
+  Widget _buildLoadingIndicator(BuildContext context) {
     return Center(
       child: CustomLoader(
         width: 50.w,
@@ -222,10 +223,7 @@ class UsersDetailsScreenState extends State<UsersDetailsScreen>
     );
   }
 
-  Widget _buildTabBarView(
-    BuildContext context,
-    TabController tabController,
-  ) {
+  Widget _buildTabBarView(BuildContext context, TabController tabController) {
     return Expanded(
       child: TabBarView(
         controller: tabController,
@@ -270,15 +268,12 @@ class UsersDetailsScreenState extends State<UsersDetailsScreen>
         padding: EdgeInsets.all(66.r),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          spacing: 15.h,
           children: [
             _buildUserImage(context, userImage),
-            SizedBox(height: 10.h),
             _buildUserName(context, userName),
-            SizedBox(height: 10.h),
             _buildUserGender(context, userGender),
-            SizedBox(height: 15.h),
             _buildUserBirthday(context, userBirthday),
-            SizedBox(height: 10.h),
             _buildUserEmail(context, userEmail),
           ],
         ),
@@ -286,25 +281,24 @@ class UsersDetailsScreenState extends State<UsersDetailsScreen>
     );
   }
 
-  Widget _buildImage(String imagePath) {
-    if (Uri.parse(imagePath).isAbsolute) {
-      return Image.network(
-        imagePath,
+  Widget _buildImage(String imageUrl) {
+    if (imageUrl.startsWith('http')) {
+      return CachedNetworkImage(
+        imageUrl: imageUrl,
         width: 160.w,
         height: 160.h,
         fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return Image.asset(
-            "assets/images/user_image_default.png",
-            width: 160.w,
-            height: 160.h,
-            fit: BoxFit.cover,
-          );
-        },
+        placeholder: (context, url) => _buildLoadingIndicator(context),
+        errorWidget: (context, url, error) => Image.asset(
+          "assets/images/user_image_default.png",
+          width: 160.w,
+          height: 160.h,
+          fit: BoxFit.cover,
+        ),
       );
     } else {
       return Image.file(
-        File(imagePath),
+        File(imageUrl),
         width: 160.w,
         height: 160.h,
         fit: BoxFit.cover,

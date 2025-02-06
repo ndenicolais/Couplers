@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:couplers/models/couple_model.dart';
 import 'package:couplers/models/user_model.dart';
 import 'package:couplers/screens/user/users_details_screen.dart';
@@ -61,7 +62,7 @@ class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: SafeArea(
         child: isLoading
-            ? Center(child: _buildLoadingIndicator())
+            ? Center(child: _buildLoadingIndicator(context))
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -417,7 +418,7 @@ class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
       foregroundColor: Theme.of(context).colorScheme.secondary,
       actions: [
         IconButton(
-          icon: const Icon(MingCuteIcons.mgc_check_2_fill),
+          icon: const Icon(MingCuteIcons.mgc_check_fill),
           onPressed: () {
             _saveData();
           },
@@ -426,7 +427,7 @@ class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
     );
   }
 
-  Widget _buildLoadingIndicator() {
+  Widget _buildLoadingIndicator(BuildContext context) {
     return Center(
       child: CustomLoader(
         width: 50.w,
@@ -540,8 +541,11 @@ class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
     );
   }
 
-  Widget _buildUserForm(BuildContext context, int userIndex,
-      TextEditingController userNameController) {
+  Widget _buildUserForm(
+    BuildContext context,
+    int userIndex,
+    TextEditingController userNameController,
+  ) {
     return Card(
       color: Theme.of(context).colorScheme.tertiaryFixed,
       elevation: 0,
@@ -554,7 +558,7 @@ class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
         child: Column(
           children: [
             SizedBox(height: 10.h),
-            _buildUserImage(userIndex),
+            _buildUserImage(context, userIndex),
             _buildTextField(
               controller: userNameController,
               labelText: userIndex == 1
@@ -579,7 +583,7 @@ class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
     );
   }
 
-  Widget _buildUserImage(int userIndex) {
+  Widget _buildUserImage(BuildContext context, int userIndex) {
     final userImage = userIndex == 1 ? userImage1 : userImage2;
 
     if (userImage == null || userImage.path.isEmpty) {
@@ -615,12 +619,12 @@ class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
       return Stack(
         children: [
           ClipOval(
-            child: Image.network(
-              userImage.path,
+            child: CachedNetworkImage(
+              imageUrl: userImage.path,
               width: 160.w,
               height: 160.h,
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
+              errorWidget: (context, url, error) {
                 return Image.asset(
                   "assets/images/user_image_default.png",
                   width: 160.w,
@@ -716,59 +720,81 @@ class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
   }
 
   Widget _buildGenderSelector(BuildContext context, int userIndex) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Column(
       children: [
-        CircleAvatar(
-          backgroundColor: (userIndex == 1 ? userGender1 : userGender2) ==
-                  'Male'
-              ? Theme.of(context).colorScheme.primary
-              : Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5),
-          child: IconButton(
-            icon: Icon(
-              MingCuteIcons.mgc_male_line,
-              color: (userIndex == 1 ? userGender1 : userGender2) == 'Male'
-                  ? Theme.of(context).colorScheme.secondary
-                  : Theme.of(context).colorScheme.primary,
-            ),
-            onPressed: () {
-              setState(
-                () {
-                  if (userIndex == 1) {
-                    userGender1 = 'Male';
-                  } else if (userIndex == 2) {
-                    userGender2 = 'Male';
-                  }
-                },
-              );
-            },
+        Text(
+          _getUserBirthday(userIndex) == null
+              ? AppLocalizations.of(context)!
+                  .users_updater_screen_couple_gender_select
+              : AppLocalizations.of(context)!
+                  .users_updater_screen_couple_gender_update,
+          style: GoogleFonts.josefinSans(
+            color: Theme.of(context).colorScheme.tertiary,
+            fontSize: 16.sp,
           ),
         ),
-        SizedBox(width: 20.w),
-        CircleAvatar(
-          backgroundColor: (userIndex == 1 ? userGender1 : userGender2) ==
-                  'Female'
-              ? Theme.of(context).colorScheme.primary
-              : Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5),
-          child: IconButton(
-            icon: Icon(
-              MingCuteIcons.mgc_female_line,
-              color: (userIndex == 1 ? userGender1 : userGender2) == 'Male'
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.secondary,
-            ),
-            onPressed: () {
-              setState(
-                () {
-                  if (userIndex == 1) {
-                    userGender1 = 'Female';
-                  } else if (userIndex == 2) {
-                    userGender2 = 'Female';
-                  }
+        SizedBox(height: 10.h),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircleAvatar(
+              backgroundColor:
+                  (userIndex == 1 ? userGender1 : userGender2) == 'Male'
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context)
+                          .colorScheme
+                          .secondary
+                          .withValues(alpha: 0.5),
+              child: IconButton(
+                icon: Icon(
+                  MingCuteIcons.mgc_male_line,
+                  color: (userIndex == 1 ? userGender1 : userGender2) == 'Male'
+                      ? Theme.of(context).colorScheme.secondary
+                      : Theme.of(context).colorScheme.primary,
+                ),
+                onPressed: () {
+                  setState(
+                    () {
+                      if (userIndex == 1) {
+                        userGender1 = 'Male';
+                      } else if (userIndex == 2) {
+                        userGender2 = 'Male';
+                      }
+                    },
+                  );
                 },
-              );
-            },
-          ),
+              ),
+            ),
+            SizedBox(width: 20.w),
+            CircleAvatar(
+              backgroundColor:
+                  (userIndex == 1 ? userGender1 : userGender2) == 'Female'
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context)
+                          .colorScheme
+                          .secondary
+                          .withValues(alpha: 0.5),
+              child: IconButton(
+                icon: Icon(
+                  MingCuteIcons.mgc_female_line,
+                  color: (userIndex == 1 ? userGender1 : userGender2) == 'Male'
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.secondary,
+                ),
+                onPressed: () {
+                  setState(
+                    () {
+                      if (userIndex == 1) {
+                        userGender1 = 'Female';
+                      } else if (userIndex == 2) {
+                        userGender2 = 'Female';
+                      }
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -777,6 +803,18 @@ class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
   Widget _buildBirthdaySelector(BuildContext context, int userIndex) {
     return Column(
       children: [
+        Text(
+          _getUserBirthday(userIndex) == null
+              ? AppLocalizations.of(context)!
+                  .users_updater_screen_couple_date_select
+              : AppLocalizations.of(context)!
+                  .users_updater_screen_couple_date_update,
+          style: GoogleFonts.josefinSans(
+            color: Theme.of(context).colorScheme.tertiary,
+            fontSize: 16.sp,
+          ),
+        ),
+        SizedBox(height: 10.h),
         SizedBox(
           width: 160.w,
           height: 60.h,
@@ -811,18 +849,6 @@ class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-          ),
-        ),
-        SizedBox(height: 10.h),
-        Text(
-          _getUserBirthday(userIndex) == null
-              ? AppLocalizations.of(context)!
-                  .users_updater_screen_couple_date_select
-              : AppLocalizations.of(context)!
-                  .users_updater_screen_couple_date_update,
-          style: GoogleFonts.josefinSans(
-            color: Theme.of(context).colorScheme.tertiary,
-            fontSize: 16.sp,
           ),
         ),
       ],

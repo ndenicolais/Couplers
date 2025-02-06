@@ -21,6 +21,7 @@ class NoteAddUpdateScreen extends StatefulWidget {
 
 class NoteAddUpdateScreenState extends State<NoteAddUpdateScreen> {
   final NoteService _noteService = NoteService();
+  final _formKey = GlobalKey<FormState>();
   late TextEditingController _titleController;
   late TextEditingController _descriptionController;
   late Color _backgroundColor;
@@ -28,10 +29,13 @@ class NoteAddUpdateScreenState extends State<NoteAddUpdateScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildAppBar(context),
-      backgroundColor: Theme.of(context).colorScheme.primary,
-      body: _buildBody(context),
+    return Form(
+      key: _formKey,
+      child: Scaffold(
+        appBar: _buildAppBar(context),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        body: _buildBody(context),
+      ),
     );
   }
 
@@ -49,51 +53,40 @@ class NoteAddUpdateScreenState extends State<NoteAddUpdateScreen> {
   }
 
   void _saveNote() {
-    if (_titleController.text.trim().isEmpty) {
-      showErrorToast(
-        context,
-        AppLocalizations.of(context)!.notes_adder_screen_toast_error_title,
-      );
-      return;
-    }
-    if (_descriptionController.text.trim().isEmpty) {
-      showErrorToast(
-        context,
-        AppLocalizations.of(context)!
-            .notes_adder_screen_toast_error_description,
-      );
-      return;
-    }
-    if (widget.note == null) {
-      final newNote = NoteModel(
-        id: '',
-        date: DateTime.now(),
-        title: _titleController.text.trim(),
-        description: _descriptionController.text.trim(),
-        backgroundColor: _backgroundColor,
-        textColor: _textColor,
-      );
+    if (_formKey.currentState!.validate()) {
+      if (widget.note == null) {
+        final newNote = NoteModel(
+          id: '',
+          date: DateTime.now(),
+          title: _titleController.text.trim(),
+          description: _descriptionController.text.trim(),
+          backgroundColor: _backgroundColor,
+          textColor: _textColor,
+        );
 
-      _noteService.addNote(newNote);
-      Get.back(result: newNote);
-      showSuccessToast(context,
-          AppLocalizations.of(context)!.notes_adder_screen_toast_success_added);
-    } else {
-      final updatedNote = NoteModel(
-        id: widget.note!.id,
-        date: DateTime.now(),
-        title: _titleController.text.trim(),
-        description: _descriptionController.text.trim(),
-        backgroundColor: _backgroundColor,
-        textColor: _textColor,
-      );
+        _noteService.addNote(newNote);
+        Get.back(result: newNote);
+        showSuccessToast(
+            context,
+            AppLocalizations.of(context)!
+                .notes_adder_screen_toast_success_added);
+      } else {
+        final updatedNote = NoteModel(
+          id: widget.note!.id,
+          date: DateTime.now(),
+          title: _titleController.text.trim(),
+          description: _descriptionController.text.trim(),
+          backgroundColor: _backgroundColor,
+          textColor: _textColor,
+        );
 
-      _noteService.updateNote(updatedNote);
-      Get.back(result: updatedNote);
-      showSuccessToast(
-          context,
-          AppLocalizations.of(context)!
-              .notes_adder_screen_toast_success_updated);
+        _noteService.updateNote(updatedNote);
+        Get.back(result: updatedNote);
+        showSuccessToast(
+            context,
+            AppLocalizations.of(context)!
+                .notes_adder_screen_toast_success_updated);
+      }
     }
   }
 
@@ -231,7 +224,7 @@ class NoteAddUpdateScreenState extends State<NoteAddUpdateScreen> {
           SizedBox(height: 16.h),
           _buildColorPickerSection(context),
           SizedBox(height: 32.h),
-          _buildSaveButton(),
+          _buildSaveButton(context),
         ],
       ),
     );
@@ -241,6 +234,7 @@ class NoteAddUpdateScreenState extends State<NoteAddUpdateScreen> {
     return Column(
       children: [
         _buildTextField(
+          context,
           _titleController,
           AppLocalizations.of(context)!.notes_adder_screen_form_title,
           AppLocalizations.of(context)!.notes_adder_screen_form_title_field,
@@ -248,7 +242,10 @@ class NoteAddUpdateScreenState extends State<NoteAddUpdateScreen> {
           TextInputType.text,
           TextCapitalization.sentences,
           TextInputAction.next,
-          (val) => null,
+          (val) => val!.isEmpty
+              ? AppLocalizations.of(context)!
+                  .notes_adder_screen_toast_error_title
+              : null,
         ),
       ],
     );
@@ -258,6 +255,7 @@ class NoteAddUpdateScreenState extends State<NoteAddUpdateScreen> {
     return Column(
       children: [
         _buildTextField(
+          context,
           _descriptionController,
           AppLocalizations.of(context)!.notes_adder_screen_form_description,
           AppLocalizations.of(context)!
@@ -266,7 +264,10 @@ class NoteAddUpdateScreenState extends State<NoteAddUpdateScreen> {
           TextInputType.text,
           TextCapitalization.sentences,
           TextInputAction.done,
-          (val) => null,
+          (val) => val!.isEmpty
+              ? AppLocalizations.of(context)!
+                  .notes_adder_screen_toast_error_description
+              : null,
           minLines: 6,
         ),
       ],
@@ -293,7 +294,11 @@ class NoteAddUpdateScreenState extends State<NoteAddUpdateScreen> {
   }
 
   Widget _buildColorPickerColumn(
-      BuildContext context, String label, Color color, VoidCallback onTap) {
+    BuildContext context,
+    String label,
+    Color color,
+    VoidCallback onTap,
+  ) {
     return Column(
       children: [
         Text(
@@ -324,15 +329,17 @@ class NoteAddUpdateScreenState extends State<NoteAddUpdateScreen> {
   }
 
   Widget _buildTextField(
-      TextEditingController controller,
-      String labelText,
-      String hintText,
-      IconData prefixIcon,
-      TextInputType keyboardType,
-      TextCapitalization textCapitalization,
-      TextInputAction textInputAction,
-      String? Function(String?) validator,
-      {int? minLines = 1}) {
+    BuildContext context,
+    TextEditingController controller,
+    String labelText,
+    String hintText,
+    IconData prefixIcon,
+    TextInputType keyboardType,
+    TextCapitalization textCapitalization,
+    TextInputAction textInputAction,
+    String? Function(String?) validator, {
+    int? minLines = 1,
+  }) {
     return TextFormField(
       controller: controller,
       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -358,23 +365,14 @@ class NoteAddUpdateScreenState extends State<NoteAddUpdateScreen> {
     );
   }
 
-  Widget _buildSaveButton() {
-    return SizedBox(
-      width: 120.w,
-      height: 60.h,
-      child: MaterialButton(
-        onPressed: _saveNote,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.r),
-        ),
-        color: Theme.of(context).colorScheme.tertiaryFixed,
-        child: Text(
-          AppLocalizations.of(context)!.notes_adder_screen_save_text,
-          style: GoogleFonts.josefinSans(
-            color: Theme.of(context).colorScheme.tertiary,
-            fontSize: 20.sp,
-          ),
-        ),
+  Widget _buildSaveButton(BuildContext context) {
+    return FloatingActionButton(
+      foregroundColor: Theme.of(context).colorScheme.tertiaryFixed,
+      backgroundColor: Theme.of(context).colorScheme.tertiary,
+      elevation: 0,
+      onPressed: _saveNote,
+      child: const Icon(
+        MingCuteIcons.mgc_check_fill,
       ),
     );
   }

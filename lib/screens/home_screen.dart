@@ -84,7 +84,7 @@ class HomepageScreenState extends State<HomepageScreen>
   Widget _buildBody(BuildContext context) {
     return Obx(() {
       if (userController.isLoading.value) {
-        return _buildLoadingIndicator();
+        return _buildLoadingIndicator(context);
       } else if (userController.hasError.value) {
         return _buildErrorState(context);
       } else if (userController.coupleData.value == null) {
@@ -96,7 +96,7 @@ class HomepageScreenState extends State<HomepageScreen>
     });
   }
 
-  Widget _buildLoadingIndicator() {
+  Widget _buildLoadingIndicator(BuildContext context) {
     return Center(
       child: CustomLoader(
         width: 50.w,
@@ -178,6 +178,8 @@ class HomepageScreenState extends State<HomepageScreen>
   Widget _buildMemoriesCard(BuildContext context) {
     final themeNotifier = Provider.of<ThemeNotifier>(context, listen: false);
     final isDarkMode = themeNotifier.isDarkMode;
+    final double cardHeight = ScreenUtil().screenWidth > 600 ? 300.h : 150.h;
+
     return GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
@@ -188,7 +190,7 @@ class HomepageScreenState extends State<HomepageScreen>
         );
       },
       child: SizedBox(
-        height: 150.h,
+        height: cardHeight,
         child: Card(
           color: AppColors.lightBrick,
           elevation: 5,
