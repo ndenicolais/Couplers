@@ -12,6 +12,7 @@ class CustomTextField extends StatelessWidget {
   final TextInputType? keyboardType;
   final TextCapitalization? textCapitalization;
   final TextInputAction? textInputAction;
+  final int? maxLength;
 
   const CustomTextField({
     super.key,
@@ -25,6 +26,7 @@ class CustomTextField extends StatelessWidget {
     this.keyboardType,
     this.textCapitalization = TextCapitalization.none,
     this.textInputAction,
+    this.maxLength,
   });
 
   @override
@@ -50,6 +52,7 @@ class CustomTextField extends StatelessWidget {
       keyboardType: keyboardType,
       textCapitalization: textCapitalization!,
       textInputAction: textInputAction,
+      maxLength: maxLength,
       validator: validator,
     );
   }

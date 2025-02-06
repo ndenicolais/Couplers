@@ -6,17 +6,24 @@ class CustomNote extends StatelessWidget {
     super.key,
     required this.child,
     this.color,
+    this.width,
+    this.height,
   });
 
   final Widget child;
   final Color? color;
+  final double? width;
+  final double? height;
 
   @override
   Widget build(BuildContext context) {
     return Transform.rotate(
       angle: 0.01 * pi,
       child: CustomPaint(
-        painter: StickyNotePainter(color: color ?? Colors.yellow.shade200),
+        painter: StickyNotePainter(
+            color: color ?? Colors.yellow.shade200,
+            width: width,
+            height: height),
         child: Align(alignment: Alignment.topLeft, child: child),
       ),
     );
@@ -24,12 +31,15 @@ class CustomNote extends StatelessWidget {
 }
 
 class StickyNotePainter extends CustomPainter {
-  StickyNotePainter({required this.color});
+  StickyNotePainter({required this.color, this.width, this.height});
 
-  Color color;
+  final Color color;
+  final double? width;
+  final double? height;
 
   @override
   void paint(Canvas canvas, Size size) {
+    size = Size(width ?? size.width, height ?? size.height);
     _drawShadow(size, canvas);
 
     Paint gradientPaint = _createGradientPaint(size);
@@ -70,7 +80,7 @@ class StickyNotePainter extends CustomPainter {
     Rect rect = Rect.fromLTWH(12, 12, size.width - 24, size.height - 24);
     Path path = Path();
     path.addRect(rect);
-    canvas.drawShadow(path, Colors.black.withValues(alpha: 0.5), 12.0, true);
+    canvas.drawShadow(path, Colors.black.withAlpha(128), 12.0, true);
   }
 
   @override
