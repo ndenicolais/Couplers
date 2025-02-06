@@ -10,7 +10,7 @@ This application was designed to allow couples of engaged to share and celebrate
 The release of version 1.0.0 of the application is now available for download. You can download it from the following link:
 
 [Download v1.0.0](https://github.com/ndenicolais/Couplers/releases/download/v1.0.0/Couplers_v1.0.0.apk)
-    
+
 ## 🔑 Features
 - A single account with the emails of both partners
 - Data storage with Firestore Database
@@ -19,8 +19,8 @@ The release of version 1.0.0 of the application is now available for download. Y
 - Detailed calculation of time spent together from the date of engagement
 - Keep track of all your anniversaries (365 days) and dayversaries (100 days)
 - A personalized calendar that displays all your milestones and events
-- Single or multiple events with dates, type, photo, location and notes
-- A map showing event markers based on locations
+- Events with dates, type, images, locations and notes
+- A map showing all events and the event search function
 - Favorites list of your events
 - Notes to mark everything you need to remember
 - Light and dark theme variants
@@ -39,4 +39,4 @@ Below is a list of some of the most relevant packages:
 - [intl](https://pub.dev/packages/intl)
 - [shared_preferences](https://pub.dev/packages/shared_preferences)
 - [table_calendar](https://pub.dev/packages/table_calendar)
-- [flutter_map](https://pub.dev/packages/flutter_map)
+- [free_map](https://pub.dev/packages/free_map)
