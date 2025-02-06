@@ -27,7 +27,7 @@ class PolicyScreen extends StatelessWidget {
           child: Center(
             child: Column(
               children: [
-                _buildBody(),
+                _buildBody(context),
               ],
             ),
           ),
@@ -59,7 +59,7 @@ class PolicyScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBody() {
+  Widget _buildBody(BuildContext context) {
     return Expanded(
       child: WebViewWidget(
         controller: _controller,

@@ -28,13 +28,13 @@ class WelcomeScreenState extends State<WelcomeScreen> {
               child: Column(
                 children: [
                   const Spacer(flex: 1),
-                  _buildTitle(),
+                  _buildTitle(context),
                   const Spacer(flex: 2),
-                  _buildLogo(),
+                  _buildLogo(context),
                   const Spacer(flex: 2),
-                  _buildLoginButton(),
+                  _buildLoginButton(context),
                   SizedBox(height: 20.h),
-                  _buildSignupButton(),
+                  _buildSignupButton(context),
                   const Spacer(flex: 1),
                 ],
               ),
@@ -45,7 +45,7 @@ class WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
-  Widget _buildTitle() {
+  Widget _buildTitle(BuildContext context) {
     return Center(
       child: Text(
         AppLocalizations.of(context)!.welcome_text,
@@ -58,7 +58,7 @@ class WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
-  Widget _buildLogo() {
+  Widget _buildLogo(BuildContext context) {
     return Image.asset(
       'assets/images/logo_app.png',
       width: 280.w,
@@ -66,7 +66,7 @@ class WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
-  Widget _buildLoginButton() {
+  Widget _buildLoginButton(BuildContext context) {
     return CustomButton(
       title: AppLocalizations.of(context)!.welcome_login,
       backgroundColor: Theme.of(context).colorScheme.secondary,
@@ -82,7 +82,7 @@ class WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
-  Widget _buildSignupButton() {
+  Widget _buildSignupButton(BuildContext context) {
     return CustomButton(
       title: AppLocalizations.of(context)!.welcome_signup,
       backgroundColor: Theme.of(context).colorScheme.primary,

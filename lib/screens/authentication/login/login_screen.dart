@@ -34,7 +34,7 @@ class LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(),
+      appBar: _buildAppBar(context),
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: SafeArea(
         child: Padding(
@@ -44,7 +44,7 @@ class LoginScreenState extends State<LoginScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _buildTopImage(),
+                  _buildTopImage(context),
                   SizedBox(height: 50.h),
                   LoginForm(
                     context: context,
@@ -63,15 +63,15 @@ class LoginScreenState extends State<LoginScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _buildRememberMeCheckbox(controller),
-                        _buildForgotPasswordText(),
+                        _buildRememberMeCheckbox(context, controller),
+                        _buildForgotPasswordText(context),
                       ],
                     ),
                   ),
                   SizedBox(height: 20.h),
                   _buildLoginButton(controller),
                   SizedBox(height: 20.h),
-                  _buildSignupText(),
+                  _buildSignupText(context),
                 ],
               ),
             ),
@@ -90,7 +90,7 @@ class LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  AppBar _buildAppBar() {
+  AppBar _buildAppBar(BuildContext context) {
     return AppBar(
       leading: IconButton(
         icon: Icon(
@@ -114,7 +114,7 @@ class LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildTopImage() {
+  Widget _buildTopImage(BuildContext context) {
     return Image.asset(
       'assets/images/logo_app.png',
       width: 180.w,
@@ -135,7 +135,8 @@ class LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildRememberMeCheckbox(LoginController controller) {
+  Widget _buildRememberMeCheckbox(
+      BuildContext context, LoginController controller) {
     return Row(
       children: [
         Transform.scale(
@@ -162,7 +163,7 @@ class LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildForgotPasswordText() {
+  Widget _buildForgotPasswordText(BuildContext context) {
     return RichText(
       text: TextSpan(
         text: AppLocalizations.of(context)!.login_screen_password,
@@ -181,7 +182,7 @@ class LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildSignupText() {
+  Widget _buildSignupText(BuildContext context) {
     return RichText(
       text: TextSpan(
         text: AppLocalizations.of(context)!.login_screen_account,

@@ -22,7 +22,7 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(),
+      appBar: _buildAppBar(context),
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: SafeArea(
         child: Padding(
@@ -32,16 +32,16 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _buildTopImage(),
+                  _buildTopImage(context),
                   SizedBox(height: 50.h),
-                  _buildTextDescription(),
+                  _buildTextDescription(context),
                   SizedBox(height: 50.h),
                   ResetPasswordForm(
                       context: context,
                       formKey: _formKey,
                       emailController: controller.emailController),
                   SizedBox(height: 20.h),
-                  _buildResetButton(controller),
+                  _buildResetButton(context, controller),
                 ],
               ),
             ),
@@ -51,7 +51,7 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
     );
   }
 
-  AppBar _buildAppBar() {
+  AppBar _buildAppBar(BuildContext context) {
     return AppBar(
       leading: IconButton(
         icon: Icon(
@@ -75,7 +75,7 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
     );
   }
 
-  Widget _buildTopImage() {
+  Widget _buildTopImage(BuildContext context) {
     return Image.asset(
       'assets/images/logo_app.png',
       width: 180.w,
@@ -83,7 +83,7 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
     );
   }
 
-  Widget _buildTextDescription() {
+  Widget _buildTextDescription(BuildContext context) {
     return SizedBox(
       width: 320.w,
       child: Text(
@@ -97,7 +97,8 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
     );
   }
 
-  Widget _buildResetButton(ResetPasswordController controller) {
+  Widget _buildResetButton(
+      BuildContext context, ResetPasswordController controller) {
     return CustomButton(
       title: AppLocalizations.of(context)!.reset_password_screen_text,
       backgroundColor: Theme.of(context).colorScheme.secondary,

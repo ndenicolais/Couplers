@@ -21,7 +21,7 @@ class InfoScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildLogo(),
+                  _buildLogo(context),
                   SizedBox(height: 20.h),
                   _buildAppName(context),
                   SizedBox(height: 20.h),
@@ -62,7 +62,7 @@ class InfoScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLogo() {
+  Widget _buildLogo(BuildContext context) {
     return Center(
       child: Image.asset(
         'assets/images/logo_app.png',

@@ -37,7 +37,7 @@ class MilestonesScreenState extends State<MilestonesScreen>
         appBar: _buildAppBar(context),
         backgroundColor: Theme.of(context).colorScheme.primary,
         body: Center(
-          child: _buildLoadingIndicator(),
+          child: _buildLoadingIndicator(context),
         ),
       );
     }
@@ -155,7 +155,7 @@ class MilestonesScreenState extends State<MilestonesScreen>
   }
 }
 
-Widget _buildLoadingIndicator() {
+Widget _buildLoadingIndicator(BuildContext context) {
   return Center(
     child: CustomLoader(
       width: 50.w,
@@ -246,8 +246,11 @@ Widget _buildTabBarView(
   );
 }
 
-Widget _buildDateTabAnniversary(BuildContext context,
-    double sliderValueAnniversary, Function calculateAnniversaries) {
+Widget _buildDateTabAnniversary(
+  BuildContext context,
+  double sliderValueAnniversary,
+  Function calculateAnniversaries,
+) {
   return DateTab(
     sliderValue: sliderValueAnniversary,
     sliderMaxValue: 365,
@@ -258,8 +261,11 @@ Widget _buildDateTabAnniversary(BuildContext context,
   );
 }
 
-Widget _buildDateTabDayversary(BuildContext context,
-    double sliderValueDayversary, Function calculateDayversaries) {
+Widget _buildDateTabDayversary(
+  BuildContext context,
+  double sliderValueDayversary,
+  Function calculateDayversaries,
+) {
   return DateTab(
     sliderValue: sliderValueDayversary,
     sliderMaxValue: 100,
@@ -360,53 +366,56 @@ class DateTab extends StatelessWidget {
                   ),
                 )
               : ListView(
-                  children: items.asMap().entries.map((entry) {
-                    int index = entry.key;
-                    Map<String, String> item = entry.value;
-                    return SizedBox(
-                      height: 140.h,
-                      child: Card(
-                        color: cardColors[index % cardColors.length],
-                        elevation: 5,
-                        margin: EdgeInsets.all(8.r),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.r),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              leadingIcon,
-                              size: 50.sp,
-                              color: isDarkMode
-                                  ? Theme.of(context).colorScheme.secondary
-                                  : Theme.of(context).colorScheme.primary,
-                            ),
-                            SizedBox(height: 8.h),
-                            Text(
-                              item['anniversary'] ?? item['dayversary'] ?? '',
-                              style: GoogleFonts.josefinSans(
+                  children: items.asMap().entries.map(
+                    (entry) {
+                      int index = entry.key;
+                      Map<String, String> item = entry.value;
+                      return SizedBox(
+                        height: 140.h,
+                        child: Card(
+                          color: cardColors[index % cardColors.length],
+                          elevation: 5,
+                          margin: EdgeInsets.all(8.r),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                leadingIcon,
+                                size: 50.sp,
                                 color: isDarkMode
                                     ? Theme.of(context).colorScheme.secondary
                                     : Theme.of(context).colorScheme.primary,
-                                fontSize: 20.sp,
-                                fontWeight: FontWeight.bold,
                               ),
-                            ),
-                            SizedBox(height: 4.h),
-                            Text(
-                              item['date'] ?? '',
-                              style: GoogleFonts.josefinSans(
-                                color:
-                                    Theme.of(context).colorScheme.tertiaryFixed,
-                                fontSize: 16.sp,
+                              SizedBox(height: 8.h),
+                              Text(
+                                item['anniversary'] ?? item['dayversary'] ?? '',
+                                style: GoogleFonts.josefinSans(
+                                  color: isDarkMode
+                                      ? Theme.of(context).colorScheme.secondary
+                                      : Theme.of(context).colorScheme.primary,
+                                  fontSize: 20.sp,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                          ],
+                              SizedBox(height: 4.h),
+                              Text(
+                                item['date'] ?? '',
+                                style: GoogleFonts.josefinSans(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .tertiaryFixed,
+                                  fontSize: 16.sp,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  }).toList(),
+                      );
+                    },
+                  ).toList(),
                 ),
         ),
       ],

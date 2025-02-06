@@ -180,11 +180,13 @@ class SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildSettingOption(BuildContext context,
-      {required IconData icon,
-      required String title,
-      required Function() onTap,
-      String? selectedOption}) {
+  Widget _buildSettingOption(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required Function() onTap,
+    String? selectedOption,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -225,11 +227,13 @@ class SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildThemeSwitch(BuildContext context,
-      {required IconData icon,
-      required String title,
-      required bool value,
-      required ValueChanged<bool> onChanged}) {
+  Widget _buildThemeSwitch(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
     return SizedBox(
       child: Row(
         children: [
@@ -270,12 +274,14 @@ class SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildLanguageSwitch(BuildContext context,
-      {required IconData icon,
-      required String title,
-      required String currentValue,
-      required ValueChanged<String> onChanged,
-      required List<String> options}) {
+  Widget _buildLanguageSwitch(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String currentValue,
+    required ValueChanged<String> onChanged,
+    required List<String> options,
+  }) {
     return SizedBox(
       child: Row(
         children: [

@@ -24,7 +24,7 @@ class SignupScreenState extends State<SignupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(),
+      appBar: _buildAppBar(context),
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: SafeArea(
         child: Padding(
@@ -34,7 +34,7 @@ class SignupScreenState extends State<SignupScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _buildTopImage(),
+                  _buildTopImage(context),
                   SizedBox(height: 50.h),
                   SignupForm(
                     context: context,
@@ -47,11 +47,11 @@ class SignupScreenState extends State<SignupScreen> {
                         controller.togglePasswordVisibility,
                   ),
                   SizedBox(height: 20.h),
-                  _buildPasswordNote(),
+                  _buildPasswordNote(context),
                   SizedBox(height: 20.h),
-                  _buildButton(controller),
+                  _buildButton(context, controller),
                   SizedBox(height: 20.h),
-                  _buildSignupText(),
+                  _buildSignupText(context),
                 ],
               ),
             ),
@@ -61,7 +61,7 @@ class SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  AppBar _buildAppBar() {
+  AppBar _buildAppBar(BuildContext context) {
     return AppBar(
       leading: IconButton(
         icon: Icon(
@@ -85,7 +85,7 @@ class SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  Widget _buildTopImage() {
+  Widget _buildTopImage(BuildContext context) {
     return Image.asset(
       'assets/images/logo_app.png',
       width: 180.w,
@@ -93,7 +93,7 @@ class SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  Widget _buildButton(SignupController controller) {
+  Widget _buildButton(BuildContext context, SignupController controller) {
     return CustomButton(
       title: AppLocalizations.of(context)!.signup_screen_text,
       backgroundColor: Theme.of(context).colorScheme.secondary,
@@ -102,7 +102,7 @@ class SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  Widget _buildSignupText() {
+  Widget _buildSignupText(BuildContext context) {
     return RichText(
       text: TextSpan(
         text: AppLocalizations.of(context)!.signup_screen_account,
@@ -132,7 +132,7 @@ class SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  Widget _buildPasswordNote() {
+  Widget _buildPasswordNote(BuildContext context) {
     return SizedBox(
       width: 320.w,
       child: Text(

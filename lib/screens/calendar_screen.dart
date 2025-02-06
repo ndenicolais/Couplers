@@ -40,8 +40,8 @@ class CalendarScreenState extends State<CalendarScreen> {
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: Column(
         children: [
-          _buildCalendar(),
-          _buildEventStream(),
+          _buildCalendar(context),
+          _buildEventStream(context),
         ],
       ),
     );
@@ -129,7 +129,7 @@ class CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
-  Widget _buildLoadingIndicator() {
+  Widget _buildLoadingIndicator(BuildContext context) {
     return Center(
       child: CustomLoader(
         width: 50.w,
@@ -138,7 +138,7 @@ class CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
-  Widget _buildCalendar() {
+  Widget _buildCalendar(BuildContext context) {
     return TableCalendar(
       focusedDay: _focusedDay,
       firstDay: DateTime.utc(1990, 1, 1),
@@ -229,13 +229,13 @@ class CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
-  Widget _buildEventStream() {
+  Widget _buildEventStream(BuildContext context) {
     return Expanded(
       child: StreamBuilder<List<EventModel>>(
         stream: _eventService.getEvents(_auth.currentUser!.uid),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return _buildLoadingIndicator();
+            return _buildLoadingIndicator(context);
           }
 
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -275,7 +275,9 @@ class CalendarScreenState extends State<CalendarScreen> {
   }
 
   Widget _buildEventListView(
-      List<EventModel> filteredEvents, BuildContext context) {
+    List<EventModel> filteredEvents,
+    BuildContext context,
+  ) {
     Locale locale = Localizations.localeOf(context);
     final selectedEvents = filteredEvents.where((event) {
       if (_selectedDay == null) {

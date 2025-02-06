@@ -46,7 +46,7 @@ class UserInitScreenState extends State<UserInitScreen>
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: SafeArea(
         child: isLoading
-            ? Center(child: _buildLoadingIndicator())
+            ? Center(child: _buildLoadingIndicator(context))
             : Center(
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 30.r),
@@ -216,7 +216,7 @@ class UserInitScreenState extends State<UserInitScreen>
     );
   }
 
-  Widget _buildLoadingIndicator() {
+  Widget _buildLoadingIndicator(BuildContext context) {
     return Center(
       child: CustomLoader(
         width: 50.w,
@@ -260,7 +260,7 @@ class UserInitScreenState extends State<UserInitScreen>
         SizedBox(height: 40.h),
         _buildCoupleDateSelector(context),
         SizedBox(height: 40.h),
-        _buildSaveButton(),
+        _buildSaveButton(context),
         SizedBox(height: 20.h),
       ],
     );
@@ -351,14 +351,14 @@ class UserInitScreenState extends State<UserInitScreen>
     );
   }
 
-  Widget _buildSaveButton() {
+  Widget _buildSaveButton(BuildContext context) {
     return FloatingActionButton(
-      foregroundColor: Theme.of(context).colorScheme.primary,
-      backgroundColor: Theme.of(context).colorScheme.secondary,
+      foregroundColor: Theme.of(context).colorScheme.tertiaryFixed,
+      backgroundColor: Theme.of(context).colorScheme.tertiary,
       elevation: 0,
       onPressed: _saveData,
       child: const Icon(
-        MingCuteIcons.mgc_check_2_fill,
+        MingCuteIcons.mgc_check_fill,
       ),
     );
   }
