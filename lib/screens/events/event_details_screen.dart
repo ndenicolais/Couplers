@@ -2,10 +2,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:couplers/models/event_model.dart';
 import 'package:couplers/screens/events/event_updater_screen.dart';
-import 'package:couplers/widgets/custom_full_image.dart';
+import 'package:couplers/widgets/full_screen_image.dart';
 import 'package:couplers/services/event_service.dart';
 import 'package:couplers/theme/app_colors.dart';
-import 'package:couplers/utils/event_type_translations.dart';
+import 'package:couplers/utils/event_category_translations.dart';
 import 'package:couplers/widgets/custom_delete_dialog.dart';
 import 'package:couplers/widgets/custom_loader.dart';
 import 'package:couplers/widgets/custom_note.dart';
@@ -13,12 +13,11 @@ import 'package:couplers/widgets/custom_toast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:free_map/free_map.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:ming_cute_icons/ming_cute_icons.dart';
 
 class EventDetailsScreen extends StatefulWidget {
@@ -39,7 +38,7 @@ class EventDetailsScreenState extends State<EventDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     if (isEventDeleted) {
-      return _buildLoadingIndicator();
+      return _buildLoadingIndicator(context);
     }
     return _buildEventStream(context);
   }
@@ -49,7 +48,7 @@ class EventDetailsScreenState extends State<EventDetailsScreen> {
       stream: _eventService.getEventStreamById(widget.eventId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return _buildLoadingIndicator();
+          return _buildLoadingIndicator(context);
         }
 
         if (snapshot.hasError) {
@@ -141,7 +140,11 @@ class EventDetailsScreenState extends State<EventDetailsScreen> {
   }
 
   PopupMenuItem<String> _buildPopupMenuItem(
-      BuildContext context, String value, IconData icon, String text) {
+    BuildContext context,
+    String value,
+    IconData icon,
+    String text,
+  ) {
     return PopupMenuItem<String>(
       value: value,
       child: Row(
@@ -163,7 +166,7 @@ class EventDetailsScreenState extends State<EventDetailsScreen> {
     );
   }
 
-  Widget _buildLoadingIndicator() {
+  Widget _buildLoadingIndicator(BuildContext context) {
     return Center(
       child: CustomLoader(
         width: 50.w,
@@ -204,7 +207,7 @@ class EventDetailsScreenState extends State<EventDetailsScreen> {
       BuildContext context, EventModel event, List<LatLng> eventLocations) {
     return SingleChildScrollView(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.r),
+        padding: EdgeInsets.all(16.r),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -213,16 +216,12 @@ class EventDetailsScreenState extends State<EventDetailsScreen> {
             SizedBox(height: 10.h),
             _buildDate(context, event),
             SizedBox(height: 10.h),
-            _buildType(context, event),
+            _buildCategory(context, event),
             SizedBox(height: 20.h),
-            _buildImageTitle(context),
-            SizedBox(height: 10.h),
-            _buildImageCard(event),
+            _buildImageCard(context, event),
             SizedBox(height: 20.h),
-            _buildLocationTitle(context),
-            SizedBox(height: 10.h),
-            _buildLocationCardList(eventLocations, event),
-            SizedBox(height: 20.h),
+            _buildLocationCard(context, eventLocations, event),
+            SizedBox(height: 30.h),
             _buildNoteCard(context, event),
             SizedBox(height: 10.h),
           ],
@@ -232,12 +231,18 @@ class EventDetailsScreenState extends State<EventDetailsScreen> {
   }
 
   Widget _buildTitle(BuildContext context, EventModel event) {
-    return Text(
-      event.title,
-      style: GoogleFonts.josefinSans(
-        color: Theme.of(context).colorScheme.tertiary,
-        fontSize: 32.sp,
-        fontWeight: FontWeight.bold,
+    return SizedBox(
+      width: 280.w,
+      child: Text(
+        event.title,
+        style: GoogleFonts.josefinSans(
+          color: Theme.of(context).colorScheme.tertiary,
+          fontSize: 32.sp,
+          fontWeight: FontWeight.bold,
+        ),
+        textAlign: TextAlign.center,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }
@@ -266,15 +271,16 @@ class EventDetailsScreenState extends State<EventDetailsScreen> {
     }
   }
 
-  Widget _buildType(BuildContext context, EventModel event) {
-    String translatedType = getTranslatedEventType(context, event.type);
+  Widget _buildCategory(BuildContext context, EventModel event) {
+    String translatedCategory =
+        getTranslatedEventCategory(context, event.category);
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         event.getIcon(color: Theme.of(context).colorScheme.tertiary),
         SizedBox(width: 10.w),
         Text(
-          translatedType,
+          translatedCategory,
           style: GoogleFonts.josefinSans(
             color: Theme.of(context).colorScheme.tertiary,
             fontSize: 24.sp,
@@ -285,80 +291,61 @@ class EventDetailsScreenState extends State<EventDetailsScreen> {
     );
   }
 
-  Widget _buildImageTitle(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(
-          MingCuteIcons.mgc_photo_album_2_fill,
-          color: Theme.of(context).colorScheme.tertiary,
-        ),
-        SizedBox(width: 10.w),
-        Text(
-          AppLocalizations.of(context)!.event_details_screen_images_title,
-          style: GoogleFonts.josefinSans(
-            color: Theme.of(context).colorScheme.tertiary,
-            fontSize: 18.sp,
-          ),
-        ),
-      ],
-    );
-  }
+  Widget _buildImage(BuildContext context, String imageUrl) {
+    final double imageHeight = ScreenUtil().screenWidth > 600 ? 400.h : 200.h;
+    final double imageWidth = ScreenUtil().screenWidth > 600 ? 600.w : 300.w;
 
-  Widget _buildImage(String imageUrl) {
     if (imageUrl.startsWith('http')) {
       return CachedNetworkImage(
         imageUrl: imageUrl,
-        width: double.infinity,
-        height: 160.h,
+        width: imageWidth,
+        height: imageHeight,
         fit: BoxFit.cover,
-        placeholder: (context, url) => Center(
-          child: CustomLoader(
-            width: 50.w,
-            height: 50.h,
-          ),
-        ),
+        placeholder: (context, url) =>
+            Center(child: _buildLoadingIndicator(context)),
         errorWidget: (context, url, error) => Icon(
-          MingCuteIcons.mgc_fault_fill,
+          MingCuteIcons.mgc_close_fill,
           color: Theme.of(context).colorScheme.secondary,
         ),
       );
     } else {
       return Image.asset(
         imageUrl,
-        width: double.infinity,
-        height: 160.h,
+        width: imageWidth,
+        height: imageHeight,
         fit: BoxFit.cover,
       );
     }
   }
 
-  Widget _buildImageCard(EventModel event) {
+  Widget _buildImageCard(BuildContext context, EventModel event) {
     if (event.images == null || event.images!.isEmpty) {
-      return _buildImage('assets/images/img_default.png');
+      return _buildImage(context, 'assets/images/img_default.png');
     } else if (event.images!.length == 1) {
       return GestureDetector(
         onTap: () {
           Get.to(
-            () => CustomFullImage(imageUrl: event.images!.first),
+            () => FullScreenImage(imageUrl: event.images!.first),
             transition: Transition.fadeIn,
             duration: const Duration(milliseconds: 500),
           );
         },
         child: ClipRRect(
           borderRadius: BorderRadius.all(Radius.circular(20.r)),
-          child: _buildImage(event.images!.first),
+          child: _buildImage(context, event.images!.first),
         ),
       );
     } else {
-      return _buildImagesSlider(event.images!);
+      return _buildImagesSlider(context, event.images!);
     }
   }
 
-  Widget _buildImagesSlider(List<String> images) {
+  Widget _buildImagesSlider(BuildContext context, List<String> images) {
+    final double imageHeight = ScreenUtil().screenWidth > 600 ? 400.h : 200.h;
+
     return CarouselSlider(
       options: CarouselOptions(
-        height: 200.h,
+        height: imageHeight,
         enlargeCenterPage: true,
         enableInfiniteScroll: false,
         autoPlay: false,
@@ -369,14 +356,14 @@ class EventDetailsScreenState extends State<EventDetailsScreen> {
             return GestureDetector(
               onTap: () {
                 Get.to(
-                  () => CustomFullImage(imageUrl: image),
+                  () => FullScreenImage(imageUrl: image),
                   transition: Transition.fadeIn,
                   duration: const Duration(milliseconds: 500),
                 );
               },
               child: ClipRRect(
                 borderRadius: BorderRadius.all(Radius.circular(20.r)),
-                child: _buildImage(image),
+                child: _buildImage(context, image),
               ),
             );
           },
@@ -385,94 +372,70 @@ class EventDetailsScreenState extends State<EventDetailsScreen> {
     );
   }
 
-  Widget _buildLocationTitle(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(
-          MingCuteIcons.mgc_location_2_fill,
-          color: Theme.of(context).colorScheme.tertiary,
-        ),
-        SizedBox(width: 10.w),
-        Text(
-          AppLocalizations.of(context)!.event_details_screen_locations_title,
-          style: GoogleFonts.josefinSans(
-            color: Theme.of(context).colorScheme.tertiary,
-            fontSize: 18.sp,
+  Widget _buildLocation(
+    BuildContext context,
+    LatLng location,
+    EventModel event,
+    MapController mapController,
+  ) {
+    return ClipRRect(
+      borderRadius: BorderRadius.all(Radius.circular(20.r)),
+      child: SizedBox(
+        width: 300.w,
+        height: 200.h,
+        child: FmMap(
+          mapController: mapController,
+          mapOptions: MapOptions(
+            initialCenter: location,
+            initialZoom: 10.r,
+            interactionOptions:
+                const InteractionOptions(flags: InteractiveFlag.none),
           ),
+          markers: [
+            Marker(
+              point: location,
+              child: Icon(
+                MingCuteIcons.mgc_location_fill,
+                color: AppColors.toastDarkRed,
+                size: 20.sp,
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
-  Widget _buildLocationCardList(List<LatLng> locations, EventModel event) {
+  Widget _buildLocationCard(
+    BuildContext context,
+    List<LatLng> locations,
+    EventModel event,
+  ) {
     if (locations.length > 1) {
-      return _buildLocationsSlider(locations, event);
+      return _buildLocationsSlider(context, locations, event);
     } else {
       return Column(
         children: locations.map((location) {
           final mapController = MapController();
-          return _buildLocationCard(location, event, mapController);
+          return _buildLocation(context, location, event, mapController);
         }).toList(),
       );
     }
   }
 
-  Widget _buildLocationsSlider(List<LatLng> locations, EventModel event) {
+  Widget _buildLocationsSlider(
+      BuildContext context, List<LatLng> locations, EventModel event) {
     return CarouselSlider(
       options: CarouselOptions(
-        height: 150.h,
+        height: 200.h,
         enlargeCenterPage: true,
         enableInfiniteScroll: false,
         autoPlay: false,
       ),
       items: locations.map((location) {
         final mapController = MapController();
-        return _buildLocationCard(location, event, mapController);
+        return _buildLocation(context, location, event, mapController);
       }).toList(),
-    );
-  }
-
-  Widget _buildLocationCard(
-      LatLng location, EventModel event, MapController mapController) {
-    return ClipRRect(
-      borderRadius: BorderRadius.all(Radius.circular(20.r)),
-      child: SizedBox(
-        height: 150.h,
-        width: double.infinity,
-        child: FlutterMap(
-          mapController: mapController,
-          options: MapOptions(
-            initialCenter: location,
-            initialZoom: 10.r,
-            interactionOptions:
-                const InteractionOptions(flags: InteractiveFlag.none),
-          ),
-          children: [
-            TileLayer(
-              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              subdomains: const ['a', 'b', 'c'],
-            ),
-            MarkerLayer(
-              markers: [
-                Marker(
-                  width: 40.w,
-                  height: 40.h,
-                  point: location,
-                  child: Tooltip(
-                    message: event.title,
-                    child: Icon(
-                      MingCuteIcons.mgc_location_fill,
-                      color: AppColors.darkBrick,
-                      size: 30.sp,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -485,7 +448,7 @@ class EventDetailsScreenState extends State<EventDetailsScreen> {
         children: [
           CustomNote(
             child: Padding(
-              padding: EdgeInsets.only(left: 4.r, top: 12.r, right: 4.r),
+              padding: EdgeInsets.all(16.r),
               child: Text(
                 event.note?.isNotEmpty == true
                     ? event.note!
@@ -497,20 +460,94 @@ class EventDetailsScreenState extends State<EventDetailsScreen> {
                 ),
                 textAlign: TextAlign.center,
                 maxLines: 6,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ),
           Positioned(
-            top: -12,
-            right: 78,
+            top: -12.r,
+            right: 78.r,
             child: Icon(
               MingCuteIcons.mgc_attachment_2_fill,
               color: Theme.of(context).colorScheme.secondary,
               size: 20.sp,
             ),
           ),
+          if (event.note?.isNotEmpty == true)
+            Positioned(
+              bottom: 0.r,
+              right: 66.r,
+              child: IconButton(
+                icon: Icon(
+                  MingCuteIcons.mgc_information_fill,
+                  size: 20.sp,
+                ),
+                color: AppColors.charcoal,
+                onPressed: () => _showFullTextDialog(context, event.note!),
+              ),
+            ),
         ],
       ),
+    );
+  }
+
+  void _showFullTextDialog(BuildContext context, String note) {
+    final double noteHeight = ScreenUtil().screenWidth > 600 ? 320.h : 260.h;
+    final double noteWidth = ScreenUtil().screenWidth > 600 ? 320.w : 260.w;
+    final double containerHeight =
+        ScreenUtil().screenWidth > 600 ? 300.h : 240.h;
+    final double containerWidth =
+        ScreenUtil().screenWidth > 600 ? 300.w : 240.w;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.transparent,
+          alignment: Alignment.center,
+          content: CustomNote(
+            width: noteWidth,
+            height: noteHeight,
+            child: Padding(
+              padding: EdgeInsets.all(8.r),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    width: containerWidth,
+                    height: containerHeight,
+                    padding: EdgeInsets.all(16.r),
+                    child: Center(
+                      child: Text(
+                        note,
+                        style: GoogleFonts.josefinSans(
+                          color: AppColors.charcoal,
+                          fontSize: 18.sp,
+                          fontStyle: FontStyle.italic,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0.r,
+                    left: 0.r,
+                    right: 0.r,
+                    child: IconButton(
+                      icon: Icon(
+                        MingCuteIcons.mgc_close_fill,
+                        size: 20.sp,
+                      ),
+                      color: AppColors.charcoal,
+                      onPressed: () => Get.back(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 

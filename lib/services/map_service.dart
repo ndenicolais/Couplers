@@ -2,10 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:couplers/models/event_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:free_map/free_map.dart';
 import 'package:logger/logger.dart';
 import 'package:ming_cute_icons/ming_cute_icons.dart';
 
@@ -41,22 +39,13 @@ class MapService {
           final numberOfEvents = await _getEventCountForMarker(event);
 
           return Marker(
-            width: 20.w,
-            height: 20.h,
             point: position!,
             child: GestureDetector(
               onTap: () => onMarkerTap(doc.id, data, numberOfEvents),
               child: Icon(
-                MingCuteIcons.mgc_pin_2_fill,
+                MingCuteIcons.mgc_location_fill,
                 color: event.getColor(),
                 size: 20.sp,
-                shadows: const [
-                  Shadow(
-                    color: Colors.grey,
-                    offset: Offset(1, 1),
-                    blurRadius: 1,
-                  ),
-                ],
               ),
             ),
           );
@@ -96,6 +85,39 @@ class MapService {
     }
   }
 
+  // Function to load all events
+  Future<List<EventModel>> loadAllEvents() async {
+    try {
+      final snapshot = await _markersCollection.get();
+      List<EventModel> events = snapshot.docs.map((doc) {
+        final data = doc.data();
+        return EventModel.fromFirestore(doc.id, data);
+      }).toList();
+      return events;
+    } catch (e) {
+      _logger.e("Error while loading events: $e");
+      throw Exception("Error while loading events.");
+    }
+  }
+
+  // Function that searches events by keyword in title or locations
+  Future<List<EventModel>> searchEvents(String keyword) async {
+    try {
+      final events = await loadAllEvents();
+      final filteredEvents = events.where((event) {
+        final titleLower = event.title.toLowerCase();
+        final locationsLower = event.locations.join(' ').toLowerCase();
+        final searchLower = keyword.toLowerCase();
+        return titleLower.contains(searchLower) ||
+            locationsLower.contains(searchLower);
+      }).toList();
+      return filteredEvents;
+    } catch (e) {
+      _logger.e("Error while searching events: $e");
+      throw Exception("Error while searching events.");
+    }
+  }
+
   // Function to get the number of events associated with a marker
   Future<int> _getEventCountForMarker(EventModel event) async {
     try {
@@ -117,25 +139,6 @@ class MapService {
     } catch (e) {
       _logger.e("Error in calculating number of events: $e");
       return 0;
-    }
-  }
-
-  // Function to obtain coordinates from an address
-  Future<LatLng?> getCoordinatesFromAddress(String location) async {
-    try {
-      List<Location> locations = await locationFromAddress(location);
-
-      if (locations.isNotEmpty) {
-        double latitude = locations[0].latitude;
-        double longitude = locations[0].longitude;
-
-        return LatLng(latitude, longitude);
-      } else {
-        return null;
-      }
-    } catch (e) {
-      _logger.e("Error in geocoding: $e");
-      return null;
     }
   }
 }

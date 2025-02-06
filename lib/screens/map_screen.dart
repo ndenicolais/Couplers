@@ -1,15 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:couplers/models/event_model.dart';
 import 'package:couplers/services/map_service.dart';
 import 'package:couplers/widgets/custom_loader.dart';
 import 'package:couplers/widgets/custom_toast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:free_map/free_map.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:logger/logger.dart';
 import 'package:ming_cute_icons/ming_cute_icons.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -30,34 +30,23 @@ class MapScreenState extends State<MapScreen> {
   final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
   final FocusNode _focusNode = FocusNode();
-
-  @override
-  void dispose() {
-    _focusNode.dispose();
-    super.dispose();
-  }
+  final List<EventModel> _allEvents = [];
+  List<EventModel> _filteredEvents = [];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(context),
-      backgroundColor: Theme.of(context).colorScheme.primary,
+      appBar: _buildAppBar(),
       body: _isLocationGranted
-          ? FlutterMap(
-              options: MapOptions(
+          ? FmMap(
+              mapOptions: MapOptions(
                 initialCenter: const LatLng(41.9099533, 12.371192),
                 initialZoom: 5.5.r,
                 interactionOptions: const InteractionOptions(
                   flags: InteractiveFlag.pinchZoom | InteractiveFlag.drag,
                 ),
               ),
-              children: [
-                TileLayer(
-                  urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-                  subdomains: const ['a', 'b', 'c'],
-                ),
-                MarkerLayer(markers: _markers),
-              ],
+              markers: _markers,
             )
           : Center(
               child: Text(
@@ -143,6 +132,44 @@ class MapScreenState extends State<MapScreen> {
     } catch (e) {
       _logger.e("Error while loading markers: $e");
     }
+  }
+
+  void _filterEvents(String query) async {
+    try {
+      final events = await _mapService.searchEvents(query);
+      setState(() {
+        _filteredEvents = events;
+        _isSearching = query.isNotEmpty;
+        _logger.d("Filtered events: ${_filteredEvents.length} events found");
+
+        if (_filteredEvents.isNotEmpty) {
+          _showEventsBottomSheet(_filteredEvents);
+        }
+      });
+    } catch (e) {
+      _logger.e("Error while filtering events: $e");
+    }
+  }
+
+  void _clearSearch() {
+    setState(() {
+      _isSearching = false;
+      _searchController.clear();
+      _filteredEvents = _allEvents;
+
+      if (_filteredEvents.isNotEmpty) {
+        _showEventsBottomSheet(_filteredEvents);
+      }
+
+      _logger.d(
+          "Search cleared and markers updated: ${_filteredEvents.length} events");
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
   }
 
   void _showMarkerOptions(
@@ -255,7 +282,7 @@ class MapScreenState extends State<MapScreen> {
     }
   }
 
-  AppBar _buildAppBar(BuildContext context) {
+  AppBar _buildAppBar() {
     return AppBar(
       leading: IconButton(
         icon: Icon(
@@ -281,7 +308,7 @@ class MapScreenState extends State<MapScreen> {
               ),
               textCapitalization: TextCapitalization.sentences,
               onSubmitted: (query) {
-                _searchLocation(query.trim());
+                _filterEvents(query.trim());
               },
             )
           : Text(
@@ -310,6 +337,7 @@ class MapScreenState extends State<MapScreen> {
             } else {
               _searchController.clear();
               _loadMarkers();
+              _clearSearch;
             }
           },
         ),
@@ -326,42 +354,7 @@ class MapScreenState extends State<MapScreen> {
     );
   }
 
-  Future<void> _searchLocation(String query) async {
-    _logger.i("Search by location: $query");
-
-    try {
-      final markers = await _mapService
-          .loadMarkersFromFirestore((docId, data, numberOfEvents) {
-        String location = data['location'];
-        if (location.toLowerCase().contains(query.toLowerCase())) {
-          _logger.d("Marker found for the location: $location");
-          _showMarkerOptions(docId, data, numberOfEvents);
-        }
-      });
-
-      setState(() {
-        _markers = markers;
-      });
-
-      if (_markers.isEmpty) {
-        if (mounted) {
-          showErrorToast(
-            context,
-            AppLocalizations.of(context)!.map_screen_search_empty,
-          );
-        }
-      } else {
-        _showEventsBottomSheet(query, _markers.length);
-      }
-    } catch (e) {
-      _logger.e("Error while searching for location: $e");
-    }
-  }
-
-  void _showEventsBottomSheet(String location, int numberOfEvents) async {
-    Future<List<Map<String, dynamic>>> eventsListFuture =
-        _mapService.loadEventsForMarker(location);
-
+  void _showEventsBottomSheet(List<EventModel> events) async {
     showModalBottomSheet(
       context: context,
       backgroundColor: Theme.of(context).colorScheme.primary,
@@ -371,67 +364,45 @@ class MapScreenState extends State<MapScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              FutureBuilder<List<Map<String, dynamic>>>(
-                future: eventsListFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return _buildLoadingIndicator();
-                  } else if (snapshot.hasError) {
-                    return Center(
-                      child: Text(
-                        AppLocalizations.of(context)!
-                            .map_screen_error_events_data,
+              if (events.isEmpty)
+                Center(
+                  child: Text(
+                    AppLocalizations.of(context)!
+                        .map_screen_error_events_location,
+                    style: GoogleFonts.josefinSans(
+                      color: Theme.of(context).colorScheme.tertiary,
+                      fontSize: 22.sp,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                )
+              else
+                ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: events.length,
+                  itemBuilder: (context, index) {
+                    var event = events[index];
+                    DateTime eventDate = event.startDate;
+
+                    return ListTile(
+                      title: Text(
+                        event.title,
                         style: GoogleFonts.josefinSans(
                           color: Theme.of(context).colorScheme.tertiary,
-                          fontSize: 24.sp,
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: Text(
+                        eventDate.toLocal().toString().split(' ')[0],
+                        style: GoogleFonts.josefinSans(
+                          color: Theme.of(context).colorScheme.tertiary,
+                          fontSize: 14.sp,
                         ),
                       ),
                     );
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(
-                      child: Text(
-                        AppLocalizations.of(context)!
-                            .map_screen_error_events_location,
-                        style: GoogleFonts.josefinSans(
-                          color: Theme.of(context).colorScheme.tertiary,
-                          fontSize: 22.sp,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    );
-                  } else {
-                    List<Map<String, dynamic>> eventsList = snapshot.data!;
-
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: eventsList.length,
-                      itemBuilder: (context, index) {
-                        var event = eventsList[index];
-                        DateTime eventDate =
-                            (event['startDate'] as Timestamp).toDate();
-
-                        return ListTile(
-                          title: Text(
-                            event['title'],
-                            style: GoogleFonts.josefinSans(
-                              color: Theme.of(context).colorScheme.tertiary,
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          subtitle: Text(
-                            eventDate.toLocal().toString().split(' ')[0],
-                            style: GoogleFonts.josefinSans(
-                              color: Theme.of(context).colorScheme.tertiary,
-                              fontSize: 14.sp,
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  }
-                },
-              ),
+                  },
+                ),
               SizedBox(height: 16.h),
               ElevatedButton(
                 onPressed: () {
