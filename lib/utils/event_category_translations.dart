@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-String getTranslatedEventType(BuildContext context, String type) {
-  switch (type) {
+String getTranslatedEventCategory(BuildContext context, String category) {
+  switch (category) {
     case 'Anniversary':
       return AppLocalizations.of(context)!.event_type_anniversary;
     case 'Valentines Day':
@@ -28,6 +28,6 @@ String getTranslatedEventType(BuildContext context, String type) {
     case 'Other':
       return AppLocalizations.of(context)!.event_type_other;
     default:
-      return type;
+      return category;
   }
 }

@@ -5,10 +5,10 @@ import 'package:get/get.dart';
 import 'package:ming_cute_icons/ming_cute_icons.dart';
 import 'package:photo_view/photo_view.dart';
 
-class CustomFullImage extends StatelessWidget {
+class FullScreenImage extends StatelessWidget {
   final String imageUrl;
 
-  const CustomFullImage({super.key, required this.imageUrl});
+  const FullScreenImage({super.key, required this.imageUrl});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +20,7 @@ class CustomFullImage extends StatelessWidget {
         actions: [
           IconButton(
             icon: Icon(
-              MingCuteIcons.mgc_close_line,
+              MingCuteIcons.mgc_close_fill,
               color: Theme.of(context).colorScheme.primary,
             ),
             onPressed: () {
