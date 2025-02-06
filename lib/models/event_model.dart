@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:couplers/theme/app_colors.dart';
 import 'package:couplers/utils/custom_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:free_map/free_map.dart';
 import 'package:ming_cute_icons/ming_cute_icons.dart';
 
 class EventModel {
@@ -10,7 +10,7 @@ class EventModel {
   String title;
   DateTime startDate;
   DateTime? endDate;
-  String type;
+  String category;
   List<String>? images;
   List<String> locations;
   List<LatLng?> positions;
@@ -22,10 +22,10 @@ class EventModel {
     required this.title,
     required this.startDate,
     this.endDate,
-    required this.type,
+    required this.category,
     this.images,
-    required this.locations,
-    required this.positions,
+    this.locations = const [],
+    this.positions = const [],
     this.note,
     this.isFavorite = false,
   });
@@ -35,7 +35,7 @@ class EventModel {
       'title': title,
       'startDate': startDate,
       'endDate': endDate,
-      'type': type,
+      'category': category,
       'images': images,
       'locations': locations,
       'positions': positions
@@ -57,7 +57,7 @@ class EventModel {
       endDate: data['endDate'] != null
           ? (data['endDate'] as Timestamp).toDate()
           : null,
-      type: data['type'],
+      category: data['category'],
       images: List<String>.from(data['images'] ?? []),
       locations: List<String>.from(data['locations'] ?? []),
       positions: (data['positions'] as List)
@@ -68,7 +68,7 @@ class EventModel {
     );
   }
 
-  static const Map<String, IconData> typeIconMap = {
+  static const Map<String, IconData> categoryIconMap = {
     'Anniversary': CouplersIcons.icontypeanniversary,
     'Valentines Day': CouplersIcons.icontypevalentine,
     'Birthday': CouplersIcons.icontypebirthday,
@@ -83,10 +83,10 @@ class EventModel {
     'Other': CouplersIcons.icontypeother,
   };
 
-  static Map<String, Color> typeColorMap = {
+  static Map<String, Color> categoryColorMap = {
     'Anniversary': Colors.red[300]!,
     'Valentines Day': Colors.pink[300]!,
-    'Birthday': Colors.yellow[300]!,
+    'Birthday': Colors.blue[300]!,
     'Dinner': Colors.brown[300]!,
     'Night': Colors.indigo[300]!,
     'Weekend': Colors.amber[300]!,
@@ -98,7 +98,7 @@ class EventModel {
     'Other': Colors.purple[300]!,
   };
 
-  static Map<String, String> typeImageMap = {
+  static Map<String, String> categoryImageMap = {
     'Anniversary': 'assets/images/img_default.png',
     'Valentines Day': 'assets/images/img_default.png',
     'Birthday': 'assets/images/img_default.png',
@@ -115,16 +115,16 @@ class EventModel {
 
   Icon getIcon({Color color = AppColors.charcoal}) {
     return Icon(
-      typeIconMap[type] ?? MingCuteIcons.mgc_question_line,
+      categoryIconMap[category] ?? MingCuteIcons.mgc_question_line,
       color: color,
     );
   }
 
   Color getColor() {
-    return typeColorMap[type] ?? Colors.black;
+    return categoryColorMap[category] ?? Colors.black;
   }
 
-  static const List<String> filterTypes = [
+  static const List<String> categoryFilter = [
     'All',
     'Anniversary',
     'Valentines Day',
