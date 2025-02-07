@@ -76,7 +76,6 @@ class SignupScreenState extends State<SignupScreen> {
         AppLocalizations.of(context)!.signup_screen_title,
         style: GoogleFonts.josefinSans(
           color: Theme.of(context).colorScheme.secondary,
-          fontWeight: FontWeight.bold,
         ),
       ),
       centerTitle: true,

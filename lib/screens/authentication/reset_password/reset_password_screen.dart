@@ -66,7 +66,6 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
         AppLocalizations.of(context)!.reset_password_screen_title,
         style: GoogleFonts.josefinSans(
           color: Theme.of(context).colorScheme.secondary,
-          fontWeight: FontWeight.bold,
         ),
       ),
       centerTitle: true,

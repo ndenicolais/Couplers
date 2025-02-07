@@ -292,8 +292,8 @@ class EventDetailsScreenState extends State<EventDetailsScreen> {
   }
 
   Widget _buildImage(BuildContext context, String imageUrl) {
-    final double imageHeight = ScreenUtil().screenWidth > 600 ? 400.h : 200.h;
     final double imageWidth = ScreenUtil().screenWidth > 600 ? 600.w : 300.w;
+    final double imageHeight = ScreenUtil().screenWidth > 600 ? 400.h : 200.h;
 
     if (imageUrl.startsWith('http')) {
       return CachedNetworkImage(

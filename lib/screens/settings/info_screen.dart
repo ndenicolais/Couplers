@@ -16,22 +16,20 @@ class InfoScreen extends StatelessWidget {
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(30.r),
-          child: Center(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildLogo(context),
-                  SizedBox(height: 20.h),
-                  _buildAppName(context),
-                  SizedBox(height: 20.h),
-                  _buildDescription(context),
-                  SizedBox(height: 20.h),
-                  _buildCredits(context),
-                  SizedBox(height: 20.h),
-                  _buildVersion(context),
-                ],
-              ),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildLogo(context),
+                SizedBox(height: 20.h),
+                _buildAppName(context),
+                SizedBox(height: 20.h),
+                _buildDescription(context),
+                SizedBox(height: 20.h),
+                _buildCredits(context),
+                SizedBox(height: 20.h),
+                _buildVersion(context),
+              ],
             ),
           ),
         ),

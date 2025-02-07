@@ -210,7 +210,7 @@
   "event_updater_screen_image_crop": "Ritaglia immagine",
   "event_updater_screen_image_select": "Immagini",
   "event_updater_screen_image_update": "Clicca sull'immagine per aggiornarla",
-  "event_updater_screen_location_title": "Luoghi",
+  "event_updater_screen_location_text": "Luoghi",
   "event_updater_screen_save_text": "Salva",
 
   "event_details_screen_title": "Dettagli Evento",

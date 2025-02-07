@@ -1,3 +1,4 @@
+import 'package:couplers/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -12,8 +13,7 @@ class PolicyScreen extends StatelessWidget {
   final WebViewController _controller = WebViewController()
     ..setJavaScriptMode(JavaScriptMode.unrestricted)
     ..loadRequest(
-      Uri.parse(
-          "https://www.freeprivacypolicy.com/live/7bb8b2f9-4930-4604-836b-9abe325a8e01"),
+      AppConstants.uriPrivacyPolicy,
     );
 
   @override

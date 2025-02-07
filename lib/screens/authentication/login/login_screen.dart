@@ -69,7 +69,7 @@ class LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   SizedBox(height: 20.h),
-                  _buildLoginButton(controller),
+                  _buildLoginButton(context, controller),
                   SizedBox(height: 20.h),
                   _buildSignupText(context),
                 ],
@@ -105,7 +105,6 @@ class LoginScreenState extends State<LoginScreen> {
         AppLocalizations.of(context)!.login_screen_title,
         style: GoogleFonts.josefinSans(
           color: Theme.of(context).colorScheme.secondary,
-          fontWeight: FontWeight.bold,
         ),
       ),
       centerTitle: true,
@@ -122,7 +121,7 @@ class LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildLoginButton(LoginController controller) {
+  Widget _buildLoginButton(BuildContext context, LoginController controller) {
     return Column(
       children: [
         CustomButton(
