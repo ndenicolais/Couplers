@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:couplers/onboarding/onboarding_screen.dart';
 import 'package:couplers/screens/home_screen.dart';
 import 'package:couplers/screens/welcome_screen.dart';
 import 'package:flutter/material.dart';
@@ -41,29 +42,8 @@ class IntroScreenState extends State<IntroScreen> {
     _startSplashScreen();
   }
 
-  Widget _buildLogo(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Image.asset(
-          'assets/images/logo_app.png',
-          width: 280.w,
-          height: 280.h,
-        ),
-        Text(
-          AppLocalizations.of(context)!.intro_title,
-          style: GoogleFonts.josefinSans(
-            color: Theme.of(context).colorScheme.secondary,
-            fontSize: 60.sp,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    );
-  }
-
   Future<void> _startSplashScreen() async {
-    await Future.delayed(const Duration(milliseconds: 1200));
+    await Future.delayed(const Duration(milliseconds: 800));
     _checkRememberMe();
   }
 
@@ -84,19 +64,34 @@ class IntroScreenState extends State<IntroScreen> {
 
   Future<void> _checkRememberMe() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool onboardingCompleted = prefs.getBool('onboarding_completed') ?? false;
     bool rememberMe = prefs.getBool('remember_me') ?? false;
 
-    if (rememberMe) {
-      String? userId = prefs.getString('user_id');
-      if (userId != null) {
-        try {
-          await _loadUserData(userId);
-          Get.to(
-            () => const HomepageScreen(),
-            transition: Transition.fade,
-            duration: const Duration(milliseconds: 500),
-          );
-        } catch (e) {
+    if (!onboardingCompleted) {
+      Get.to(
+        () => const OnboardingScreen(),
+        transition: Transition.fade,
+        duration: const Duration(milliseconds: 500),
+      );
+    } else {
+      if (rememberMe) {
+        String? userId = prefs.getString('user_id');
+        if (userId != null) {
+          try {
+            await _loadUserData(userId);
+            Get.to(
+              () => const HomeScreen(),
+              transition: Transition.fade,
+              duration: const Duration(milliseconds: 500),
+            );
+          } catch (e) {
+            Get.to(
+              () => const WelcomeScreen(),
+              transition: Transition.fade,
+              duration: const Duration(milliseconds: 500),
+            );
+          }
+        } else {
           Get.to(
             () => const WelcomeScreen(),
             transition: Transition.fade,
@@ -110,12 +105,27 @@ class IntroScreenState extends State<IntroScreen> {
           duration: const Duration(milliseconds: 500),
         );
       }
-    } else {
-      Get.to(
-        () => const WelcomeScreen(),
-        transition: Transition.fade,
-        duration: const Duration(milliseconds: 500),
-      );
     }
+  }
+
+  Widget _buildLogo(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Image.asset(
+          'assets/images/logo_app.png',
+          width: 280.w,
+          height: 280.h,
+        ),
+        Text(
+          AppLocalizations.of(context)!.intro_title,
+          style: GoogleFonts.josefinSans(
+            color: Theme.of(context).colorScheme.secondary,
+            fontSize: 60.sp,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
   }
 }
