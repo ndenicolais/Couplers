@@ -4,6 +4,8 @@ import 'package:couplers/services/event_service.dart';
 import 'package:couplers/theme/app_colors.dart';
 import 'package:couplers/theme/theme_notifier.dart';
 import 'package:couplers/utils/event_category_translations.dart';
+import 'package:couplers/utils/permission_helper.dart';
+import 'package:couplers/widgets/custom_loader.dart';
 import 'package:couplers/widgets/full_screen_map.dart';
 import 'package:couplers/widgets/custom_textfield.dart';
 import 'package:couplers/widgets/custom_toast.dart';
@@ -54,6 +56,7 @@ class EventAdderScreenState extends State<EventAdderScreen> {
       List.generate(maxSelectors, (_) => MapController());
   int currentLocationIndex = 0;
   final _noteController = TextEditingController();
+  bool isSaveLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -62,57 +65,73 @@ class EventAdderScreenState extends State<EventAdderScreen> {
       child: Scaffold(
         appBar: _buildAppBar(context),
         backgroundColor: Theme.of(context).colorScheme.primary,
-        body: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 30.r),
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  _buildTextField(
-                    _titleController,
-                    AppLocalizations.of(context)!.event_adder_screen_form_title,
-                    AppLocalizations.of(context)!
-                        .event_adder_screen_form_title_field,
-                    MingCuteIcons.mgc_text_2_fill,
-                    TextInputType.text,
-                    TextCapitalization.sentences,
-                    TextInputAction.done,
-                    null,
-                    (val) => val!.isEmpty
-                        ? AppLocalizations.of(context)!
-                            .event_adder_screen_toast_error_title
-                        : null,
+        body: Stack(
+          children: [
+            SafeArea(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 30.r),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      _buildTextField(
+                        _titleController,
+                        AppLocalizations.of(context)!
+                            .event_adder_screen_form_title,
+                        AppLocalizations.of(context)!
+                            .event_adder_screen_form_title_field,
+                        MingCuteIcons.mgc_text_2_fill,
+                        TextInputType.text,
+                        TextCapitalization.sentences,
+                        TextInputAction.done,
+                        null,
+                        (val) => val!.isEmpty
+                            ? AppLocalizations.of(context)!
+                                .event_adder_screen_toast_error_title
+                            : null,
+                      ),
+                      SizedBox(height: 20.h),
+                      _buildDateSwitch(context),
+                      SizedBox(height: 20.h),
+                      _buildDateSelector(context),
+                      SizedBox(height: 20.h),
+                      _buildCategorySelector(context),
+                      SizedBox(height: 20.h),
+                      _buildImageSelector(context),
+                      SizedBox(height: 20.h),
+                      _buildLocationSelector(context),
+                      SizedBox(height: 20.h),
+                      _buildTextField(
+                        _noteController,
+                        AppLocalizations.of(context)!
+                            .event_adder_screen_form_notes,
+                        AppLocalizations.of(context)!
+                            .event_adder_screen_form_notes_field,
+                        MingCuteIcons.mgc_edit_4_fill,
+                        TextInputType.text,
+                        TextCapitalization.none,
+                        TextInputAction.done,
+                        180,
+                        (val) => null,
+                      ),
+                      SizedBox(height: 20.h),
+                      _buildSaveButton(context),
+                      SizedBox(height: 20.h),
+                    ],
                   ),
-                  SizedBox(height: 20.h),
-                  _buildDateSwitch(context),
-                  SizedBox(height: 20.h),
-                  _buildDateSelector(context),
-                  SizedBox(height: 20.h),
-                  _buildCategorySelector(context),
-                  SizedBox(height: 20.h),
-                  _buildImageSelector(context),
-                  SizedBox(height: 20.h),
-                  _buildLocationSelector(context),
-                  SizedBox(height: 20.h),
-                  _buildTextField(
-                    _noteController,
-                    AppLocalizations.of(context)!.event_adder_screen_form_notes,
-                    AppLocalizations.of(context)!
-                        .event_adder_screen_form_notes_field,
-                    MingCuteIcons.mgc_edit_4_fill,
-                    TextInputType.text,
-                    TextCapitalization.none,
-                    TextInputAction.done,
-                    180,
-                    (val) => null,
-                  ),
-                  SizedBox(height: 20.h),
-                  _buildSaveButton(context),
-                  SizedBox(height: 20.h),
-                ],
+                ),
               ),
             ),
-          ),
+            if (isSaveLoading)
+              Container(
+                color: Theme.of(context)
+                    .colorScheme
+                    .tertiary
+                    .withValues(alpha: 0.7),
+                child: Center(
+                  child: _buildLoadingIndicator(context),
+                ),
+              ),
+          ],
         ),
       ),
     );
@@ -182,19 +201,21 @@ class EventAdderScreenState extends State<EventAdderScreen> {
   }
 
   Future<void> _pickImage() async {
-    final XFile? pickedFile =
-        await _picker.pickImage(source: ImageSource.gallery);
+    await requestStoragePermission(context, () async {
+      final XFile? pickedFile =
+          await _picker.pickImage(source: ImageSource.gallery);
 
-    if (pickedFile != null) {
-      File? croppedImage = await _cropImage(File(pickedFile.path));
-      if (croppedImage != null) {
-        setState(() {
-          _imageFiles.add(croppedImage);
-        });
+      if (pickedFile != null) {
+        File? croppedImage = await _cropImage(File(pickedFile.path));
+        if (croppedImage != null) {
+          setState(() {
+            _imageFiles.add(croppedImage);
+          });
+        }
+      } else {
+        _logger.e("Error: no image selected");
       }
-    } else {
-      _logger.e("Error: no image selected");
-    }
+    });
   }
 
   void _removeImage(File file) {
@@ -277,6 +298,10 @@ class EventAdderScreenState extends State<EventAdderScreen> {
         return;
       }
 
+      setState(() {
+        isSaveLoading = true;
+      });
+
       final newEvent = EventModel(
         id: '',
         title: _titleController.text.trim(),
@@ -352,6 +377,10 @@ class EventAdderScreenState extends State<EventAdderScreen> {
         );
         Get.back();
       }
+
+      setState(() {
+        isSaveLoading = false;
+      });
     }
   }
 
@@ -375,6 +404,15 @@ class EventAdderScreenState extends State<EventAdderScreen> {
       centerTitle: true,
       backgroundColor: Theme.of(context).colorScheme.primary,
       foregroundColor: Theme.of(context).colorScheme.secondary,
+    );
+  }
+
+  Widget _buildLoadingIndicator(BuildContext context) {
+    return Center(
+      child: CustomLoader(
+        width: 50.w,
+        height: 50.h,
+      ),
     );
   }
 
@@ -609,8 +647,9 @@ class EventAdderScreenState extends State<EventAdderScreen> {
                     });
                   },
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 14.r),
-                    margin: EdgeInsets.symmetric(horizontal: 2.w),
+                    width: 120.w,
+                    padding: EdgeInsets.symmetric(horizontal: 8.r),
+                    margin: EdgeInsets.symmetric(horizontal: 2.r),
                     decoration: BoxDecoration(
                       color: this.category == category
                           ? Theme.of(context).colorScheme.tertiary
@@ -737,10 +776,11 @@ class EventAdderScreenState extends State<EventAdderScreen> {
                       child: FmMap(
                         mapController: mapControllers[index],
                         mapOptions: MapOptions(
+                          initialCenter: eventPositions[index]!,
                           initialZoom: 6.r,
                           interactionOptions: const InteractionOptions(
-                              flags: InteractiveFlag.none),
-                          initialCenter: eventPositions[index]!,
+                            flags: InteractiveFlag.none,
+                          ),
                         ),
                         markers: [
                           Marker(

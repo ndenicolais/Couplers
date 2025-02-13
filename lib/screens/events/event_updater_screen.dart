@@ -1,10 +1,10 @@
 import 'dart:io';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:couplers/models/event_model.dart';
 import 'package:couplers/services/event_service.dart';
 import 'package:couplers/theme/app_colors.dart';
 import 'package:couplers/theme/theme_notifier.dart';
 import 'package:couplers/utils/event_category_translations.dart';
+import 'package:couplers/utils/permission_helper.dart';
 import 'package:couplers/widgets/custom_loader.dart';
 import 'package:couplers/widgets/custom_textfield.dart';
 import 'package:couplers/widgets/custom_toast.dart';
@@ -38,7 +38,7 @@ class EventUpdaterScreenState extends State<EventUpdaterScreen> {
   final EventService _eventService = EventService();
   final _formKey = GlobalKey<FormState>();
   late EventModel event;
-  bool isLoading = true;
+  bool isInitialLoading = true;
   bool isMultiDate = false;
   final TextEditingController _titleController = TextEditingController();
   DateTime? _selectedStartDate;
@@ -61,10 +61,11 @@ class EventUpdaterScreenState extends State<EventUpdaterScreen> {
       List.generate(maxSelectors, (_) => MapController());
   int currentLocationIndex = 0;
   final _noteController = TextEditingController();
+  bool isSaveLoading = false;
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
+    if (isInitialLoading) {
       return Center(
         child: _buildLoadingIndicator(context),
       );
@@ -74,58 +75,72 @@ class EventUpdaterScreenState extends State<EventUpdaterScreen> {
       child: Scaffold(
         appBar: _buildAppBar(context),
         backgroundColor: Theme.of(context).colorScheme.primary,
-        body: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 30.r),
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  _buildTextField(
-                    _titleController,
-                    AppLocalizations.of(context)!
-                        .event_updater_screen_form_title,
-                    AppLocalizations.of(context)!
-                        .event_updater_screen_form_title_field,
-                    MingCuteIcons.mgc_text_2_fill,
-                    TextInputType.text,
-                    TextCapitalization.sentences,
-                    TextInputAction.done,
-                    null,
-                    (val) => val!.isEmpty
-                        ? AppLocalizations.of(context)!
-                            .event_updater_screen_toast_error_title
-                        : null,
+        body: Stack(
+          children: [
+            SafeArea(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 30.r),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      _buildTextField(
+                        _titleController,
+                        AppLocalizations.of(context)!
+                            .event_updater_screen_form_title,
+                        AppLocalizations.of(context)!
+                            .event_updater_screen_form_title_field,
+                        MingCuteIcons.mgc_text_2_fill,
+                        TextInputType.text,
+                        TextCapitalization.sentences,
+                        TextInputAction.done,
+                        null,
+                        (val) => val!.isEmpty
+                            ? AppLocalizations.of(context)!
+                                .event_updater_screen_toast_error_title
+                            : null,
+                      ),
+                      _buildDateSwitch(context),
+                      SizedBox(height: 20.h),
+                      _buildDateSelector(context),
+                      SizedBox(height: 20.h),
+                      _buildCategorySelector(context),
+                      SizedBox(height: 20.h),
+                      _buildImageSelector(context),
+                      SizedBox(height: 20.h),
+                      _buildLocationSelector(context),
+                      SizedBox(height: 20.h),
+                      _buildTextField(
+                        _noteController,
+                        AppLocalizations.of(context)!
+                            .event_updater_screen_form_notes,
+                        AppLocalizations.of(context)!
+                            .event_updater_screen_form_notees_field,
+                        MingCuteIcons.mgc_edit_4_fill,
+                        TextInputType.text,
+                        TextCapitalization.none,
+                        TextInputAction.done,
+                        180,
+                        (val) => null,
+                      ),
+                      SizedBox(height: 20.h),
+                      _buildSaveButton(context),
+                      SizedBox(height: 20.h),
+                    ],
                   ),
-                  _buildDateSwitch(context),
-                  SizedBox(height: 20.h),
-                  _buildDateSelector(context),
-                  SizedBox(height: 20.h),
-                  _buildCategorySelector(context),
-                  SizedBox(height: 20.h),
-                  _buildImageSelector(context),
-                  SizedBox(height: 20.h),
-                  _buildLocationSelector(context),
-                  SizedBox(height: 20.h),
-                  _buildTextField(
-                    _noteController,
-                    AppLocalizations.of(context)!
-                        .event_updater_screen_form_notes,
-                    AppLocalizations.of(context)!
-                        .event_updater_screen_form_notees_field,
-                    MingCuteIcons.mgc_edit_4_fill,
-                    TextInputType.text,
-                    TextCapitalization.none,
-                    TextInputAction.done,
-                    180,
-                    (val) => null,
-                  ),
-                  SizedBox(height: 20.h),
-                  _buildSaveButton(context),
-                  SizedBox(height: 20.h),
-                ],
+                ),
               ),
             ),
-          ),
+            if (isSaveLoading)
+              Container(
+                color: Theme.of(context)
+                    .colorScheme
+                    .tertiary
+                    .withValues(alpha: 0.7),
+                child: Center(
+                  child: _buildLoadingIndicator(context),
+                ),
+              ),
+          ],
         ),
       ),
     );
@@ -162,7 +177,7 @@ class EventUpdaterScreenState extends State<EventUpdaterScreen> {
 
     isMultiDate = event.endDate != null;
     setState(() {
-      isLoading = false;
+      isInitialLoading = false;
     });
   }
 
@@ -176,7 +191,7 @@ class EventUpdaterScreenState extends State<EventUpdaterScreen> {
       confirmText:
           AppLocalizations.of(context)!.event_updater_screen_date_confirm_text,
       initialDate: initialDate ?? DateTime.now(),
-      firstDate: DateTime(1990),
+      firstDate: DateTime(1970),
       lastDate: DateTime(2100),
       builder: (BuildContext context, Widget? child) {
         return Theme(
@@ -221,19 +236,21 @@ class EventUpdaterScreenState extends State<EventUpdaterScreen> {
   }
 
   Future<void> _pickImage() async {
-    final XFile? pickedFile =
-        await _picker.pickImage(source: ImageSource.gallery);
+    await requestStoragePermission(context, () async {
+      final XFile? pickedFile =
+          await _picker.pickImage(source: ImageSource.gallery);
 
-    if (pickedFile != null) {
-      File? croppedImage = await _cropImage(File(pickedFile.path));
-      if (croppedImage != null) {
-        setState(() {
-          _newImages.add(croppedImage);
-        });
+      if (pickedFile != null) {
+        File? croppedImage = await _cropImage(File(pickedFile.path));
+        if (croppedImage != null) {
+          setState(() {
+            _newImages.add(croppedImage);
+          });
+        }
+      } else {
+        _logger.e("Error: no image selected");
       }
-    } else {
-      _logger.e("Error: no image selected");
-    }
+    });
   }
 
   void _removeExistingImage(int index) {
@@ -324,6 +341,10 @@ class EventUpdaterScreenState extends State<EventUpdaterScreen> {
         }
       }
 
+      setState(() {
+        isSaveLoading = true;
+      });
+
       final updatedEvent = EventModel(
         id: event.id,
         title: _titleController.text.trim(),
@@ -364,6 +385,10 @@ class EventUpdaterScreenState extends State<EventUpdaterScreen> {
         );
         Get.back();
       }
+
+      setState(() {
+        isSaveLoading = false;
+      });
     }
   }
 
@@ -631,6 +656,7 @@ class EventUpdaterScreenState extends State<EventUpdaterScreen> {
                     });
                   },
                   child: Container(
+                    width: 120.w,
                     padding: EdgeInsets.symmetric(horizontal: 14.r),
                     margin: EdgeInsets.symmetric(horizontal: 2.w),
                     decoration: BoxDecoration(
@@ -689,14 +715,14 @@ class EventUpdaterScreenState extends State<EventUpdaterScreen> {
                       child: imageUrl.startsWith('assets/')
                           ? Image.asset(
                               imageUrl,
-                              width: 100,
-                              height: 100,
+                              width: 100.w,
+                              height: 100.h,
                               fit: BoxFit.cover,
                             )
-                          : CachedNetworkImage(
-                              imageUrl: imageUrl,
-                              width: 100,
-                              height: 100,
+                          : Image.network(
+                              imageUrl,
+                              width: 100.w,
+                              height: 100.h,
                               fit: BoxFit.cover,
                             ),
                     ),
@@ -724,8 +750,8 @@ class EventUpdaterScreenState extends State<EventUpdaterScreen> {
                     borderRadius: const BorderRadius.all(Radius.circular(10)),
                     child: Image.file(
                       file,
-                      width: 100,
-                      height: 100,
+                      width: 100.w,
+                      height: 100.h,
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -800,10 +826,11 @@ class EventUpdaterScreenState extends State<EventUpdaterScreen> {
                       child: FmMap(
                         mapController: mapControllers[index],
                         mapOptions: MapOptions(
+                          initialCenter: eventPositions[index]!,
                           initialZoom: 6.r,
                           interactionOptions: const InteractionOptions(
-                              flags: InteractiveFlag.none),
-                          initialCenter: eventPositions[index]!,
+                            flags: InteractiveFlag.none,
+                          ),
                         ),
                         markers: [
                           Marker(
