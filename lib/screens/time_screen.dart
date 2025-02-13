@@ -1,8 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:couplers/models/couple_model.dart';
 import 'package:couplers/screens/user/user_controller.dart';
+import 'package:couplers/theme/theme_notifier.dart';
 import 'package:couplers/utils/time_utils.dart';
 import 'package:couplers/widgets/custom_loader.dart';
 import 'package:couplers/widgets/custom_time_display.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -10,6 +13,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:ming_cute_icons/ming_cute_icons.dart';
+import 'package:provider/provider.dart';
 
 class TimeScreen extends StatefulWidget {
   const TimeScreen({super.key});
@@ -20,6 +24,8 @@ class TimeScreen extends StatefulWidget {
 
 class TimeScreenState extends State<TimeScreen> {
   final UserController homepageController = Get.put(UserController());
+  final User? currentUser = FirebaseAuth.instance.currentUser;
+  DateTime? coupleDate;
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +50,83 @@ class TimeScreenState extends State<TimeScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCoupleDate();
+  }
+
+  Future<void> _loadCoupleDate() async {
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance
+        .collection('couple')
+        .doc(currentUser!.uid)
+        .get();
+
+    if (userDoc.exists) {
+      var data = userDoc.data() as Map<String, dynamic>;
+      CoupleModel couple = CoupleModel.fromFirestore(data);
+      if (mounted) {
+        setState(() {
+          coupleDate = couple.coupleDate;
+        });
+      }
+    }
+  }
+
+  Future<void> _selectAndSetDate(BuildContext context) async {
+    final themeNotifier = Provider.of<ThemeNotifier>(context, listen: false);
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      cancelText: AppLocalizations.of(context)!
+          .users_updater_screen_date_field_cancel_text,
+      confirmText: AppLocalizations.of(context)!
+          .users_updater_screen_date_field_confirm_text,
+      initialDate: coupleDate ?? DateTime.now(),
+      firstDate: DateTime(1950),
+      lastDate: DateTime(2100),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: themeNotifier.currentTheme,
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null && picked != coupleDate) {
+      setState(() {
+        coupleDate = picked;
+      });
+      await _updateCoupleDate(picked);
+    }
+  }
+
+  Future<void> _updateCoupleDate(DateTime date) async {
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance
+        .collection('couple')
+        .doc(currentUser!.uid)
+        .get();
+
+    if (userDoc.exists) {
+      var data = userDoc.data() as Map<String, dynamic>;
+      CoupleModel couple = CoupleModel.fromFirestore(data);
+
+      couple = CoupleModel(
+        user1: couple.user1,
+        user2: couple.user2,
+        coupleDate: date,
+      );
+
+      await FirebaseFirestore.instance
+          .collection('couple')
+          .doc(currentUser!.uid)
+          .update(couple.toFirestore());
+
+      setState(() {
+        coupleDate = date;
+      });
+    }
   }
 
   int calculateTotalDays(DateTime fromDate) {
@@ -96,6 +179,14 @@ class TimeScreenState extends State<TimeScreen> {
       centerTitle: true,
       backgroundColor: Theme.of(context).colorScheme.primary,
       foregroundColor: Theme.of(context).colorScheme.secondary,
+      actions: [
+        IconButton(
+          icon: const Icon(MingCuteIcons.mgc_edit_2_fill),
+          onPressed: () {
+            _selectAndSetDate(context);
+          },
+        ),
+      ],
     );
   }
 
@@ -175,7 +266,7 @@ class TimeScreenState extends State<TimeScreen> {
             AppLocalizations.of(context)!.time_screen_text_b,
             22.sp,
             Theme.of(context).colorScheme.tertiary),
-        _buildDateText(context, coupleDate),
+        _buildDateText(context),
         _buildTextSection(
             context,
             AppLocalizations.of(context)!.time_screen_text_c,
@@ -208,9 +299,11 @@ class TimeScreenState extends State<TimeScreen> {
     );
   }
 
-  Widget _buildDateText(BuildContext context, DateTime coupleDate) {
+  Widget _buildDateText(BuildContext context) {
     return Text(
-      DateFormat('dd/MM/yyyy').format(coupleDate),
+      coupleDate != null
+          ? DateFormat('dd/MM/yyyy').format(coupleDate!)
+          : AppLocalizations.of(context)!.time_screen_date_empty,
       style: GoogleFonts.josefinSans(
         color: Theme.of(context).colorScheme.secondary,
         fontSize: 32.sp,
