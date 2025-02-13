@@ -167,7 +167,7 @@ class EventService {
     }
   }
 
-  // Function to get the count of events created by the current user
+  // Function to get the count of events
   Future<int> getEventCount() async {
     try {
       if (currentUser == null) {
@@ -187,7 +187,7 @@ class EventService {
     }
   }
 
-  // Function to get the count of events created by the current user per year
+  // Function to get the count of events per year
   Future<Map<int, int>> getEventCountPerYear() async {
     try {
       if (currentUser == null) {
@@ -215,6 +215,41 @@ class EventService {
       return eventCountPerYear;
     } catch (e) {
       _logger.e("Error retrieving event count per year: $e");
+      return {};
+    }
+  }
+
+  // Function to get the count of events per category
+  Future<Map<String, int>> countEventsByCategory() async {
+    if (currentUser == null) {
+      throw "User not logged in";
+    }
+
+    try {
+      final snapshot = await _firestore
+          .collection('couple')
+          .doc(currentUser!.uid)
+          .collection('events')
+          .get();
+
+      Map<String, int> eventCountByCategory = {};
+
+      for (var doc in snapshot.docs) {
+        String? category = doc.data()['category'] as String?;
+
+        if (category != null) {
+          if (eventCountByCategory.containsKey(category)) {
+            eventCountByCategory[category] =
+                eventCountByCategory[category]! + 1;
+          } else {
+            eventCountByCategory[category] = 1;
+          }
+        }
+      }
+
+      return eventCountByCategory;
+    } catch (e) {
+      _logger.e("Error counting events by category: $e");
       return {};
     }
   }
