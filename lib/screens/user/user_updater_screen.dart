@@ -2,12 +2,11 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:couplers/models/couple_model.dart';
 import 'package:couplers/models/user_model.dart';
-import 'package:couplers/screens/user/users_details_screen.dart';
 import 'package:couplers/services/user_service.dart';
 import 'package:couplers/theme/theme_notifier.dart';
+import 'package:couplers/utils/permission_helper.dart';
 import 'package:couplers/widgets/custom_loader.dart';
 import 'package:couplers/widgets/custom_toast.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -20,20 +19,17 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:ming_cute_icons/ming_cute_icons.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
-class UsersUpdaterScreen extends StatefulWidget {
+class UserUpdaterScreen extends StatefulWidget {
   final String userId;
-  final bool isFirstTime;
-  const UsersUpdaterScreen(
-      {super.key, required this.userId, this.isFirstTime = false});
+  const UserUpdaterScreen({super.key, required this.userId});
 
   @override
-  UsersUpdaterScreenState createState() => UsersUpdaterScreenState();
+  UserUpdaterScreenState createState() => UserUpdaterScreenState();
 }
 
-class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
+class UserUpdaterScreenState extends State<UserUpdaterScreen>
     with SingleTickerProviderStateMixin {
   final Logger _logger = Logger();
   final User? currentUser = FirebaseAuth.instance.currentUser;
@@ -52,7 +48,6 @@ class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
   DateTime? userBirthday2;
   String? userGender1;
   String? userGender2;
-  DateTime? coupleDate;
   bool isLoading = true;
 
   @override
@@ -78,63 +73,7 @@ class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
   void initState() {
     super.initState();
     _loadProfileData();
-    tabController = TabController(length: 3, vsync: this);
-  }
-
-  Future<void> _requestPermissionAndPickImage(int userIndex) async {
-    if (Platform.isAndroid) {
-      final androidInfo = await DeviceInfoPlugin().androidInfo;
-      int sdkVersion = androidInfo.version.sdkInt;
-
-      // If SDK version is <= 32 (Android 12 or earlier)
-      if (sdkVersion <= 32) {
-        PermissionStatus filePermission = await Permission.storage.status;
-
-        if (filePermission.isGranted) {
-          _pickImage(userIndex);
-        } else {
-          filePermission = await Permission.storage.request();
-
-          if (filePermission.isGranted) {
-            _pickImage(userIndex);
-          } else if (filePermission.isDenied) {
-            if (mounted) {
-              showErrorToast(
-                context,
-                AppLocalizations.of(context)!
-                    .users_updater_screen_permission_error,
-              );
-            }
-          } else if (filePermission.isPermanentlyDenied) {
-            openAppSettings();
-          }
-        }
-      }
-      // If SDK version is >= 33 (Android 13+)
-      else {
-        PermissionStatus filePermission = await Permission.photos.status;
-
-        if (filePermission.isGranted) {
-          _pickImage(userIndex);
-        } else {
-          filePermission = await Permission.photos.request();
-
-          if (filePermission.isGranted) {
-            _pickImage(userIndex);
-          } else if (filePermission.isDenied) {
-            if (mounted) {
-              showErrorToast(
-                context,
-                AppLocalizations.of(context)!
-                    .users_updater_screen_permission_error,
-              );
-            }
-          } else if (filePermission.isPermanentlyDenied) {
-            openAppSettings();
-          }
-        }
-      }
-    }
+    tabController = TabController(length: 2, vsync: this);
   }
 
   Future<void> _loadProfileData() async {
@@ -161,7 +100,6 @@ class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
           userBirthday2 = couple.user2.birthday;
           userGender1 = couple.user1.gender;
           userGender2 = couple.user2.gender;
-          coupleDate = couple.coupleDate;
 
           _logger.d('Email 1: $userEmail1, Email 2: $userEmail2');
         });
@@ -231,21 +169,15 @@ class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
   }
 
   Future<void> _pickImage(int userIndex) async {
-    final XFile? pickedFile =
-        await _picker.pickImage(source: ImageSource.gallery);
+    await requestStoragePermission(context, () async {
+      final XFile? pickedFile =
+          await _picker.pickImage(source: ImageSource.gallery);
 
-    if (pickedFile != null) {
-      File? croppedImage = await _cropImage(File(pickedFile.path));
+      if (pickedFile != null) {
+        File? croppedImage = await _cropImage(File(pickedFile.path));
 
-      if (croppedImage != null) {
-        setState(() {
-          if (widget.isFirstTime) {
-            if (userIndex == 1) {
-              userImage1 = croppedImage;
-            } else {
-              userImage2 = croppedImage;
-            }
-          } else {
+        if (croppedImage != null) {
+          setState(() {
             if (userIndex == 1) {
               if (_imageUrl1 != null) {
                 final oldFileName1 = _imageUrl1!.split('/').last;
@@ -261,14 +193,14 @@ class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
               }
               userImage2 = croppedImage;
             }
-          }
-        });
+          });
+        } else {
+          _logger.i("Cropping deleted, image not updated");
+        }
       } else {
         _logger.i("Cropping deleted, image not updated");
       }
-    } else {
-      _logger.i("Cropping deleted, image not updated");
-    }
+    });
   }
 
   DateTime? _getUserBirthday(int userIndex) {
@@ -288,8 +220,8 @@ class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
           .users_updater_screen_date_field_cancel_text,
       confirmText: AppLocalizations.of(context)!
           .users_updater_screen_date_field_confirm_text,
-      initialDate: coupleDate ?? DateTime.now(),
-      firstDate: DateTime(1990),
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1950),
       lastDate: DateTime(2100),
       builder: (BuildContext context, Widget? child) {
         return Theme(
@@ -316,15 +248,6 @@ class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
         context,
         AppLocalizations.of(context)!
             .users_updater_screen_user2_name_field_error,
-      );
-      return;
-    }
-
-    if (coupleDate == null) {
-      showErrorToast(
-        context,
-        AppLocalizations.of(context)!
-            .users_updater_screen_couple_date_field_error,
       );
       return;
     }
@@ -372,7 +295,6 @@ class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
           birthday: userBirthday2,
           gender: userGender2,
         ),
-        coupleDate: coupleDate,
       );
 
       await FirebaseFirestore.instance
@@ -381,16 +303,10 @@ class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
           .update({
         'user1': couple.user1.toFirestore(),
         'user2': couple.user2.toFirestore(),
-        'coupleDate':
-            coupleDate != null ? Timestamp.fromDate(coupleDate!) : null,
         'isProfileCompleted': true,
       });
 
-      Get.off(
-        () => UsersDetailsScreen(userId: currentUser!.uid),
-        transition: Transition.fade,
-        duration: const Duration(milliseconds: 500),
-      );
+      Get.back(result: true);
     } catch (e) {
       _logger.e("Error during data saving: $e");
     }
@@ -481,21 +397,6 @@ class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
             ],
           ),
         ),
-        Tab(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                MingCuteIcons.mgc_user_heart_fill,
-                size: 20.sp,
-              ),
-              SizedBox(width: 8.w),
-              Text(
-                AppLocalizations.of(context)!.users_updater_screen_date_title,
-              ),
-            ],
-          ),
-        ),
       ],
     );
   }
@@ -510,7 +411,6 @@ class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
         children: [
           _buildRegistrationForm(context, 1),
           _buildRegistrationForm(context, 2),
-          _buildDateForm(context),
         ],
       ),
     );
@@ -529,15 +429,6 @@ class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildDateForm(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _buildCoupleDateSelector(context),
-      ],
     );
   }
 
@@ -608,7 +499,7 @@ class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
                     MingCuteIcons.mgc_camera_2_fill,
                     color: Theme.of(context).colorScheme.primary,
                   ),
-                  onPressed: () => _requestPermissionAndPickImage(userIndex),
+                  onPressed: () => _pickImage(userIndex),
                 ),
               ),
             ),
@@ -645,7 +536,7 @@ class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
                     MingCuteIcons.mgc_edit_2_fill,
                     color: Theme.of(context).colorScheme.primary,
                   ),
-                  onPressed: () => _requestPermissionAndPickImage(userIndex),
+                  onPressed: () => _pickImage(userIndex),
                 ),
               ),
             ),
@@ -682,7 +573,7 @@ class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
                     MingCuteIcons.mgc_edit_2_fill,
                     color: Theme.of(context).colorScheme.primary,
                   ),
-                  onPressed: () => _requestPermissionAndPickImage(userIndex),
+                  onPressed: () => _pickImage(userIndex),
                 ),
               ),
             ),
@@ -725,9 +616,9 @@ class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
         Text(
           _getUserBirthday(userIndex) == null
               ? AppLocalizations.of(context)!
-                  .users_updater_screen_couple_gender_select
+                  .users_updater_screen_user_gender_select
               : AppLocalizations.of(context)!
-                  .users_updater_screen_couple_gender_update,
+                  .users_updater_screen_user_gender_update,
           style: GoogleFonts.josefinSans(
             color: Theme.of(context).colorScheme.tertiary,
             fontSize: 16.sp,
@@ -743,7 +634,7 @@ class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
                       ? Theme.of(context).colorScheme.primary
                       : Theme.of(context)
                           .colorScheme
-                          .secondary
+                          .tertiary
                           .withValues(alpha: 0.5),
               child: IconButton(
                 icon: Icon(
@@ -772,7 +663,7 @@ class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
                       ? Theme.of(context).colorScheme.primary
                       : Theme.of(context)
                           .colorScheme
-                          .secondary
+                          .tertiary
                           .withValues(alpha: 0.5),
               child: IconButton(
                 icon: Icon(
@@ -806,9 +697,9 @@ class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
         Text(
           _getUserBirthday(userIndex) == null
               ? AppLocalizations.of(context)!
-                  .users_updater_screen_couple_date_select
+                  .users_updater_screen_user_date_select
               : AppLocalizations.of(context)!
-                  .users_updater_screen_couple_date_update,
+                  .users_updater_screen_user_date_update,
           style: GoogleFonts.josefinSans(
             color: Theme.of(context).colorScheme.tertiary,
             fontSize: 16.sp,
@@ -849,64 +740,6 @@ class UsersUpdaterScreenState extends State<UsersUpdaterScreen>
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCoupleDateSelector(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          AppLocalizations.of(context)!.users_updater_screen_couple_date_field,
-          style: GoogleFonts.josefinSans(
-            color: Theme.of(context).colorScheme.tertiary,
-            fontSize: 20.sp,
-          ),
-        ),
-        SizedBox(height: 20.h),
-        SizedBox(
-          width: 160.w,
-          height: 60.h,
-          child: MaterialButton(
-            onPressed: () async {
-              final DateTime? selectedDate = await _selectDate(context);
-              if (selectedDate != null) {
-                setState(() {
-                  coupleDate = selectedDate;
-                });
-              }
-            },
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.r)),
-            color: Theme.of(context).colorScheme.secondary,
-            child: coupleDate == null
-                ? Icon(
-                    MingCuteIcons.mgc_calendar_add_line,
-                    color: Theme.of(context).colorScheme.primary,
-                    size: 26.sp,
-                  )
-                : Text(
-                    DateFormat('dd/MM/yyyy').format(coupleDate!),
-                    style: GoogleFonts.josefinSans(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-          ),
-        ),
-        SizedBox(height: 10.h),
-        Text(
-          coupleDate == null
-              ? AppLocalizations.of(context)!
-                  .users_updater_screen_couple_date_select
-              : AppLocalizations.of(context)!
-                  .users_updater_screen_couple_date_update,
-          style: GoogleFonts.josefinSans(
-            color: Theme.of(context).colorScheme.tertiary,
-            fontSize: 16.sp,
           ),
         ),
       ],

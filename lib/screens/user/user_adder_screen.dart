@@ -3,6 +3,7 @@ import 'package:couplers/models/user_model.dart';
 import 'package:couplers/screens/home_screen.dart';
 import 'package:couplers/theme/theme_notifier.dart';
 import 'package:couplers/widgets/custom_loader.dart';
+import 'package:couplers/widgets/custom_textfield.dart';
 import 'package:couplers/widgets/custom_toast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -16,17 +17,15 @@ import 'package:logger/logger.dart';
 import 'package:ming_cute_icons/ming_cute_icons.dart';
 import 'package:provider/provider.dart';
 
-class UserInitScreen extends StatefulWidget {
+class UserAdderScreen extends StatefulWidget {
   final String userId;
-  final bool isFirstTime;
-  const UserInitScreen(
-      {super.key, required this.userId, this.isFirstTime = false});
+  const UserAdderScreen({super.key, required this.userId});
 
   @override
-  UserInitScreenState createState() => UserInitScreenState();
+  UserAdderScreenState createState() => UserAdderScreenState();
 }
 
-class UserInitScreenState extends State<UserInitScreen>
+class UserAdderScreenState extends State<UserAdderScreen>
     with SingleTickerProviderStateMixin {
   final Logger _logger = Logger();
   final User? currentUser = FirebaseAuth.instance.currentUser;
@@ -112,11 +111,11 @@ class UserInitScreenState extends State<UserInitScreen>
     final DateTime? picked = await showDatePicker(
       context: context,
       cancelText: AppLocalizations.of(context)!
-          .user_init_screen_couple_date_field_cancel_text,
+          .user_adder_screen_couple_date_field_cancel_text,
       confirmText: AppLocalizations.of(context)!
-          .user_init_screen_couple_date_field_confirm_text,
+          .user_adder_screen_couple_date_field_confirm_text,
       initialDate: coupleDate ?? DateTime.now(),
-      firstDate: DateTime(1990),
+      firstDate: DateTime(1970),
       lastDate: DateTime(2100),
       builder: (BuildContext context, Widget? child) {
         return Theme(
@@ -133,26 +132,10 @@ class UserInitScreenState extends State<UserInitScreen>
       return;
     }
 
-    if (userName1Controller.text.trim().isEmpty) {
-      showErrorToast(
-        context,
-        AppLocalizations.of(context)!.user_init_screen_user1_name_field_error,
-      );
-      return;
-    }
-
-    if (userName2Controller.text.trim().isEmpty) {
-      showErrorToast(
-        context,
-        AppLocalizations.of(context)!.user_init_screen_user2_name_field_error,
-      );
-      return;
-    }
-
     if (coupleDate == null) {
       showErrorToast(
         context,
-        AppLocalizations.of(context)!.user_init_screen_couple_date_field,
+        AppLocalizations.of(context)!.user_adder_screen_couple_date_field_error,
       );
       return;
     }
@@ -182,12 +165,12 @@ class UserInitScreenState extends State<UserInitScreen>
     if (mounted) {
       showSuccessToast(
         context,
-        AppLocalizations.of(context)!.user_init_screen_toast_success,
+        AppLocalizations.of(context)!.user_adder_screen_toast_success,
       );
     }
 
     Get.off(
-      () => const HomepageScreen(),
+      () => const HomeScreen(),
       transition: Transition.fade,
       duration: const Duration(milliseconds: 500),
     );
@@ -205,7 +188,7 @@ class UserInitScreenState extends State<UserInitScreen>
         },
       ),
       title: Text(
-        AppLocalizations.of(context)!.user_init_screen_title,
+        AppLocalizations.of(context)!.user_adder_screen_title,
         style: GoogleFonts.josefinSans(
           color: Theme.of(context).colorScheme.secondary,
         ),
@@ -229,33 +212,47 @@ class UserInitScreenState extends State<UserInitScreen>
     return Column(
       children: [
         Text(
-          AppLocalizations.of(context)!.user_init_screen_user1_name,
+          AppLocalizations.of(context)!.user_adder_screen_user1_name,
           style: GoogleFonts.josefinSans(
             color: Theme.of(context).colorScheme.tertiary,
             fontSize: 20.sp,
           ),
         ),
         _buildTextField(
-          controller: userName1Controller,
-          labelText:
-              AppLocalizations.of(context)!.user_init_screen_user1_name_label,
-          hintText:
-              AppLocalizations.of(context)!.user_init_screen_user1_name_hint,
+          userName1Controller,
+          AppLocalizations.of(context)!.user_adder_screen_user1_name_label,
+          AppLocalizations.of(context)!.user_adder_screen_user1_name_hint,
+          MingCuteIcons.mgc_text_2_fill,
+          TextInputType.text,
+          TextCapitalization.sentences,
+          TextInputAction.done,
+          null,
+          (val) => val!.isEmpty
+              ? AppLocalizations.of(context)!
+                  .user_adder_screen_user1_name_field_error
+              : null,
         ),
         SizedBox(height: 40.h),
         Text(
-          AppLocalizations.of(context)!.user_init_screen_user2_name,
+          AppLocalizations.of(context)!.user_adder_screen_user2_name,
           style: GoogleFonts.josefinSans(
             color: Theme.of(context).colorScheme.tertiary,
             fontSize: 20.sp,
           ),
         ),
         _buildTextField(
-          controller: userName2Controller,
-          labelText:
-              AppLocalizations.of(context)!.user_init_screen_user2_name_label,
-          hintText:
-              AppLocalizations.of(context)!.user_init_screen_user2_name_hint,
+          userName2Controller,
+          AppLocalizations.of(context)!.user_adder_screen_user2_name_label,
+          AppLocalizations.of(context)!.user_adder_screen_user2_name_hint,
+          MingCuteIcons.mgc_text_2_fill,
+          TextInputType.text,
+          TextCapitalization.sentences,
+          TextInputAction.done,
+          null,
+          (val) => val!.isEmpty
+              ? AppLocalizations.of(context)!
+                  .user_adder_screen_user2_name_field_error
+              : null,
         ),
         SizedBox(height: 40.h),
         _buildCoupleDateSelector(context),
@@ -266,30 +263,27 @@ class UserInitScreenState extends State<UserInitScreen>
     );
   }
 
-  Widget _buildTextField({
-    TextEditingController? controller,
-    String? labelText,
-    String? hintText,
-    FormFieldValidator<String>? validator,
-  }) {
-    final decoration = InputDecoration(
-      labelText: labelText,
-      hintText: hintText,
-    );
-
-    return SizedBox(
-      width: 180.w,
-      child: TextFormField(
-        controller: controller,
-        decoration: decoration,
-        textCapitalization: TextCapitalization.sentences,
-        textInputAction: TextInputAction.done,
-        onTapOutside: (event) => FocusManager.instance.primaryFocus?.unfocus(),
-        cursorColor: Theme.of(context).colorScheme.secondary,
-        style: GoogleFonts.josefinSans(
-            color: Theme.of(context).colorScheme.tertiary),
-        validator: validator,
-      ),
+  Widget _buildTextField(
+    TextEditingController controller,
+    String label,
+    String hint,
+    IconData prefixIcon,
+    TextInputType keyboardType,
+    TextCapitalization textCapitalization,
+    TextInputAction textInputAction,
+    int? maxLength,
+    String? Function(String?) validator,
+  ) {
+    return CustomTextField(
+      controller: controller,
+      labelText: label,
+      hintText: hint,
+      prefixIcon: prefixIcon,
+      keyboardType: keyboardType,
+      textInputAction: textInputAction,
+      textCapitalization: textCapitalization,
+      maxLength: maxLength,
+      validator: validator,
     );
   }
 
@@ -297,7 +291,7 @@ class UserInitScreenState extends State<UserInitScreen>
     return Column(
       children: [
         Text(
-          AppLocalizations.of(context)!.user_init_screen_couple_date_field,
+          AppLocalizations.of(context)!.user_adder_screen_couple_date_field,
           style: GoogleFonts.josefinSans(
             color: Theme.of(context).colorScheme.tertiary,
             fontSize: 20.sp,
@@ -339,9 +333,9 @@ class UserInitScreenState extends State<UserInitScreen>
         Text(
           coupleDate == null
               ? AppLocalizations.of(context)!
-                  .user_init_screen_couple_date_select
+                  .user_adder_screen_couple_date_select
               : AppLocalizations.of(context)!
-                  .user_init_screen_couple_date_update,
+                  .user_adder_screen_couple_date_update,
           style: GoogleFonts.josefinSans(
             color: Theme.of(context).colorScheme.tertiary,
             fontSize: 16.sp,

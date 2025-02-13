@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:couplers/models/couple_model.dart';
-import 'package:couplers/screens/user/users_updater_screen.dart';
+import 'package:couplers/screens/user/user_updater_screen.dart';
 import 'package:couplers/services/user_service.dart';
 import 'package:couplers/widgets/custom_loader.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,18 +15,18 @@ import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:ming_cute_icons/ming_cute_icons.dart';
 
-class UsersDetailsScreen extends StatefulWidget {
+class UserDetailsScreen extends StatefulWidget {
   final String userId;
-  const UsersDetailsScreen({
+  const UserDetailsScreen({
     super.key,
     required this.userId,
   });
 
   @override
-  UsersDetailsScreenState createState() => UsersDetailsScreenState();
+  UserDetailsScreenState createState() => UserDetailsScreenState();
 }
 
-class UsersDetailsScreenState extends State<UsersDetailsScreen>
+class UserDetailsScreenState extends State<UserDetailsScreen>
     with SingleTickerProviderStateMixin {
   final Logger _logger = Logger();
   final User? currentUser = FirebaseAuth.instance.currentUser;
@@ -153,12 +153,17 @@ class UsersDetailsScreenState extends State<UsersDetailsScreen>
       actions: [
         IconButton(
           icon: const Icon(MingCuteIcons.mgc_edit_2_fill),
-          onPressed: () {
-            Get.off(
-              () => UsersUpdaterScreen(userId: currentUser!.uid),
+          onPressed: () async {
+            bool? result = await Get.to(
+              () => UserUpdaterScreen(userId: currentUser!.uid),
               transition: Transition.fade,
               duration: const Duration(milliseconds: 500),
             );
+            if (result == true) {
+              _loadProfileData();
+            } else {
+              _logger.d('User data not updated');
+            }
           },
         ),
       ],
@@ -342,16 +347,13 @@ class UsersDetailsScreenState extends State<UsersDetailsScreen>
   }
 
   Widget _buildUserGender(BuildContext context, String? userGender) {
-    if (userGender ==
-        AppLocalizations.of(context)!.users_details_screen_gender_male_option) {
+    if (userGender == 'Male') {
       return Icon(
         MingCuteIcons.mgc_male_line,
         size: 30.sp,
         color: Theme.of(context).colorScheme.tertiary,
       );
-    } else if (userGender ==
-        AppLocalizations.of(context)!
-            .users_details_screen_gender_female_option) {
+    } else if (userGender == 'Female') {
       return Icon(
         MingCuteIcons.mgc_female_line,
         size: 30.sp,
