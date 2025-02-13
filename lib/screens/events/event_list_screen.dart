@@ -7,6 +7,7 @@ import 'package:couplers/utils/event_category_translations.dart';
 import 'package:couplers/widgets/custom_loader.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -234,11 +235,15 @@ class EventListScreenState extends State<EventListScreen> {
                       topRight: Radius.circular(20.r),
                       topLeft: Radius.circular(20.r),
                     ),
-                    child: _buildImage(context, event.images!.first),
+                    child: SizedBox(
+                      height: 160.h,
+                      width: double.infinity,
+                      child: _buildEventImage(context, event.images!.first),
+                    ),
                   )
                 : const SizedBox.shrink(),
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: EdgeInsets.all(12.r),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -285,24 +290,47 @@ class EventListScreenState extends State<EventListScreen> {
     );
   }
 
-  Widget _buildImage(BuildContext context, String imageUrl) {
+  Widget _buildEventImage(BuildContext context, String imageUrl) {
+    return FutureBuilder<Widget>(
+      future: _buildImage(context, imageUrl),
+      builder: (BuildContext context, AsyncSnapshot<Widget> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: CustomLoader(
+              width: 50.w,
+              height: 50.h,
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Icon(
+            MingCuteIcons.mgc_close_fill,
+            color: Theme.of(context).colorScheme.secondary,
+          );
+        } else {
+          return snapshot.data!;
+        }
+      },
+    );
+  }
+
+  Future<Widget> _buildImage(BuildContext context, String imageUrl) async {
     if (imageUrl.startsWith('http')) {
-      return CachedNetworkImage(
-        imageUrl: imageUrl,
-        width: double.infinity,
-        height: 160.h,
-        fit: BoxFit.cover,
-        placeholder: (context, url) => Center(
-          child: CustomLoader(
-            width: 50.w,
-            height: 50.h,
-          ),
-        ),
-        errorWidget: (context, url, error) => Icon(
-          MingCuteIcons.mgc_close_fill,
-          color: Theme.of(context).colorScheme.secondary,
-        ),
-      );
+      final fileInfo = await DefaultCacheManager().getFileFromCache(imageUrl);
+      if (fileInfo != null) {
+        return Image.file(
+          fileInfo.file,
+          width: double.infinity,
+          height: 160.h,
+          fit: BoxFit.cover,
+        );
+      } else {
+        return CachedNetworkImage(
+          imageUrl: imageUrl,
+          width: double.infinity,
+          height: 160.h,
+          fit: BoxFit.cover,
+        );
+      }
     } else {
       return Image.asset(
         imageUrl,
@@ -408,7 +436,7 @@ class EventListScreenState extends State<EventListScreen> {
 
   ExpansionTile _buildFilterOrderTile(BuildContext context) {
     return ExpansionTile(
-      tilePadding: const EdgeInsets.symmetric(horizontal: 22.0),
+      tilePadding: EdgeInsets.symmetric(horizontal: 22.r),
       leading: Icon(
         isAscending
             ? MingCuteIcons.mgc_sort_ascending_line
@@ -454,7 +482,7 @@ class EventListScreenState extends State<EventListScreen> {
 
   ExpansionTile _buildFilterCategoryTile(BuildContext context) {
     return ExpansionTile(
-      tilePadding: const EdgeInsets.symmetric(horizontal: 22.0),
+      tilePadding: EdgeInsets.symmetric(horizontal: 22.r),
       leading: Icon(
         MingCuteIcons.mgc_filter_line,
         color: Theme.of(context).colorScheme.secondary,
@@ -492,7 +520,7 @@ class EventListScreenState extends State<EventListScreen> {
 
   ExpansionTile _buildFilterYearTile(BuildContext context) {
     return ExpansionTile(
-      tilePadding: const EdgeInsets.symmetric(horizontal: 22.0),
+      tilePadding: EdgeInsets.symmetric(horizontal: 22.r),
       leading: Icon(
         MingCuteIcons.mgc_calendar_2_line,
         color: Theme.of(context).colorScheme.secondary,

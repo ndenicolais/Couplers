@@ -23,7 +23,7 @@ class PolicyScreen extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 30.r, horizontal: 10.r),
+          padding: EdgeInsets.all(10.r),
           child: Center(
             child: Column(
               children: [

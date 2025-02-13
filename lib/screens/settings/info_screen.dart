@@ -15,7 +15,7 @@ class InfoScreen extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.all(30.r),
+          padding: EdgeInsets.symmetric(horizontal: 30.r),
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

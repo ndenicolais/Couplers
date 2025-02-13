@@ -197,6 +197,10 @@ class SupportScreen extends StatelessWidget {
           title: AppLocalizations.of(context)!.support_screen_faq_q8,
           answer: AppLocalizations.of(context)!.support_screen_faq_a8,
         ),
+        CustomExpansionTile(
+          title: AppLocalizations.of(context)!.support_screen_faq_q9,
+          answer: AppLocalizations.of(context)!.support_screen_faq_a9,
+        ),
       ],
     );
   }

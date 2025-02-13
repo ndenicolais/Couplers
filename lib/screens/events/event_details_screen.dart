@@ -276,9 +276,9 @@ class EventDetailsScreenState extends State<EventDetailsScreen> {
         getTranslatedEventCategory(context, event.category);
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
+      spacing: 20.w,
       children: [
         event.getIcon(color: Theme.of(context).colorScheme.tertiary),
-        SizedBox(width: 10.w),
         Text(
           translatedCategory,
           style: GoogleFonts.josefinSans(
@@ -287,6 +287,7 @@ class EventDetailsScreenState extends State<EventDetailsScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
+        event.getIcon(color: Theme.of(context).colorScheme.tertiary),
       ],
     );
   }
