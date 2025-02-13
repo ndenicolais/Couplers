@@ -96,11 +96,56 @@ class NoteAddUpdateScreenState extends State<NoteAddUpdateScreen> {
     super.dispose();
   }
 
+  AppBar _buildAppBar(BuildContext context) {
+    return AppBar(
+      leading: IconButton(
+        icon: Icon(
+          MingCuteIcons.mgc_large_arrow_left_fill,
+          color: Theme.of(context).colorScheme.secondary,
+        ),
+        onPressed: () {
+          Get.back();
+        },
+      ),
+      title: Text(
+        widget.note == null
+            ? AppLocalizations.of(context)!.notes_adder_screen_title_added
+            : AppLocalizations.of(context)!.notes_adder_screen_title_updated,
+        style: GoogleFonts.josefinSans(
+          color: Theme.of(context).colorScheme.secondary,
+        ),
+      ),
+      centerTitle: true,
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      foregroundColor: Theme.of(context).colorScheme.secondary,
+    );
+  }
+
+  Widget _buildBody(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(16.r),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            _buildTitleFieldSection(context),
+            SizedBox(height: 16.h),
+            _buildDescriptionFieldSection(context),
+            SizedBox(height: 16.h),
+            _buildColorPickerSection(context),
+            SizedBox(height: 32.h),
+            _buildSaveButton(context),
+          ],
+        ),
+      ),
+    );
+  }
+
   void pickBackgroundColor(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: Theme.of(context).colorScheme.primary,
           title: Text(
             AppLocalizations.of(context)!.notes_adder_screen_picker_color_title,
             style: GoogleFonts.josefinSans(
@@ -110,8 +155,8 @@ class NoteAddUpdateScreenState extends State<NoteAddUpdateScreen> {
           ),
           content: SingleChildScrollView(
             child: Wrap(
-              spacing: 8.0,
-              runSpacing: 8.0,
+              spacing: 8.r,
+              runSpacing: 8.r,
               alignment: WrapAlignment.center,
               children: notesBackgroundColors.map((color) {
                 return GestureDetector(
@@ -147,6 +192,7 @@ class NoteAddUpdateScreenState extends State<NoteAddUpdateScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: Theme.of(context).colorScheme.primary,
           title: Text(
             AppLocalizations.of(context)!.notes_adder_screen_picker_color_title,
             style: GoogleFonts.josefinSans(
@@ -188,48 +234,6 @@ class NoteAddUpdateScreenState extends State<NoteAddUpdateScreen> {
     );
   }
 
-  AppBar _buildAppBar(BuildContext context) {
-    return AppBar(
-      leading: IconButton(
-        icon: Icon(
-          MingCuteIcons.mgc_large_arrow_left_fill,
-          color: Theme.of(context).colorScheme.secondary,
-        ),
-        onPressed: () {
-          Get.back();
-        },
-      ),
-      title: Text(
-        widget.note == null
-            ? AppLocalizations.of(context)!.notes_adder_screen_title_added
-            : AppLocalizations.of(context)!.notes_adder_screen_title_updated,
-        style: GoogleFonts.josefinSans(
-          color: Theme.of(context).colorScheme.secondary,
-        ),
-      ),
-      centerTitle: true,
-      backgroundColor: Theme.of(context).colorScheme.primary,
-      foregroundColor: Theme.of(context).colorScheme.secondary,
-    );
-  }
-
-  Widget _buildBody(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(16.r),
-      child: Column(
-        children: [
-          _buildTitleFieldSection(context),
-          SizedBox(height: 16.h),
-          _buildDescriptionFieldSection(context),
-          SizedBox(height: 16.h),
-          _buildColorPickerSection(context),
-          SizedBox(height: 32.h),
-          _buildSaveButton(context),
-        ],
-      ),
-    );
-  }
-
   Widget _buildTitleFieldSection(BuildContext context) {
     return Column(
       children: [
@@ -242,6 +246,8 @@ class NoteAddUpdateScreenState extends State<NoteAddUpdateScreen> {
           TextInputType.text,
           TextCapitalization.sentences,
           TextInputAction.next,
+          20,
+          2,
           (val) => val!.isEmpty
               ? AppLocalizations.of(context)!
                   .notes_adder_screen_toast_error_title
@@ -264,11 +270,12 @@ class NoteAddUpdateScreenState extends State<NoteAddUpdateScreen> {
           TextInputType.text,
           TextCapitalization.sentences,
           TextInputAction.done,
+          180,
+          6,
           (val) => val!.isEmpty
               ? AppLocalizations.of(context)!
                   .notes_adder_screen_toast_error_description
               : null,
-          minLines: 6,
         ),
       ],
     );
@@ -337,9 +344,10 @@ class NoteAddUpdateScreenState extends State<NoteAddUpdateScreen> {
     TextInputType keyboardType,
     TextCapitalization textCapitalization,
     TextInputAction textInputAction,
-    String? Function(String?) validator, {
-    int? minLines = 1,
-  }) {
+    int? maxLength,
+    int? minLines,
+    String? Function(String?) validator,
+  ) {
     return TextFormField(
       controller: controller,
       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -360,6 +368,7 @@ class NoteAddUpdateScreenState extends State<NoteAddUpdateScreen> {
       textCapitalization: textCapitalization,
       textInputAction: textInputAction,
       validator: validator,
+      maxLength: maxLength,
       minLines: minLines,
       maxLines: null,
     );
