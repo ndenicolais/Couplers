@@ -61,6 +61,9 @@ class FullScreenMapState extends State<FullScreenMap> {
       mapOptions: MapOptions(
         initialZoom: 6.r,
         initialCenter: _src,
+        interactionOptions: const InteractionOptions(
+          flags: InteractiveFlag.pinchZoom | InteractiveFlag.drag,
+        ),
         onTap: (pos, point) => setState(() {
           _selectedPosition = point;
           _getAddress(point);

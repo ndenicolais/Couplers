@@ -1,5 +1,5 @@
 import 'package:couplers/models/user_model.dart';
-import 'package:couplers/screens/user/user_init_screen.dart';
+import 'package:couplers/screens/user/user_adder_screen.dart';
 import 'package:couplers/widgets/custom_toast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -49,10 +49,7 @@ class SignupController extends GetxController {
             );
           }
           Get.to(
-            () => UserInitScreen(
-              userId: registeredUser.uid,
-              isFirstTime: true,
-            ),
+            () => UserAdderScreen(userId: registeredUser.uid),
             transition: Transition.rightToLeft,
           );
         }

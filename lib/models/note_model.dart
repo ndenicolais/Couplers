@@ -40,14 +40,11 @@ class NoteModel {
   }
 }
 
-// Funzione helper per ottenere il valore ARGB
 int _getColorValue(Color color) {
-  // Convertiamo i componenti di colore in interi (0-255)
   int alpha = (color.a * 255).toInt();
   int red = (color.r * 255).toInt();
   int green = (color.g * 255).toInt();
   int blue = (color.b * 255).toInt();
 
-  // Combiniamo i componenti ARGB in un intero
   return (alpha << 24) | (red << 16) | (green << 8) | blue;
 }

@@ -31,22 +31,18 @@ void main() async {
 }
 
 Future<void> initializeApp() async {
-  try {
-    await Firebase.initializeApp();
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String? savedLocale = prefs.getString('language_code');
-    final ThemeNotifier themeNotifier =
-        await ThemeNotifier.loadThemeFromPreferences();
+  await Firebase.initializeApp();
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  final String? savedLocale = prefs.getString('language_code');
+  final ThemeNotifier themeNotifier =
+      await ThemeNotifier.loadThemeFromPreferences();
 
-    runApp(
-      ChangeNotifierProvider(
-        create: (_) => themeNotifier,
-        child: MyApp(savedLocale: savedLocale),
-      ),
-    );
-  } catch (e, stackTrace) {
-    debugPrint('Error initializing the app: $e\n$stackTrace');
-  }
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => themeNotifier,
+      child: MyApp(savedLocale: savedLocale),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

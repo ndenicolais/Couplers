@@ -21,14 +21,14 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-class HomepageScreen extends StatefulWidget {
-  const HomepageScreen({super.key});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
 
   @override
-  HomepageScreenState createState() => HomepageScreenState();
+  HomeScreenState createState() => HomeScreenState();
 }
 
-class HomepageScreenState extends State<HomepageScreen>
+class HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
   final UserController userController = Get.put(UserController());
   final LoginController loginController = Get.put(LoginController());

@@ -84,7 +84,7 @@ class LoginScreenState extends State<LoginScreen> {
   Future<void> _checkRememberMe() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (prefs.getBool('remember_me') ?? false) {
-      Get.to(() => const HomepageScreen(),
+      Get.to(() => const HomeScreen(),
           transition: Transition.fade,
           duration: const Duration(milliseconds: 500));
     }

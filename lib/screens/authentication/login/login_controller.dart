@@ -37,7 +37,7 @@ class LoginController extends GetxController {
             AppLocalizations.of(context)!.login_toast_success,
           );
         }
-        Get.to(() => const HomepageScreen(), transition: Transition.fade);
+        Get.to(() => const HomeScreen(), transition: Transition.fade);
       }
     } catch (e) {
       String errorMessage = e.toString();
