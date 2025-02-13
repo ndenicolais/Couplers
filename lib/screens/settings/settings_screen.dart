@@ -1,8 +1,6 @@
 import 'package:couplers/screens/authentication/login/login_controller.dart';
 import 'package:couplers/screens/settings/database_screen.dart';
 import 'package:couplers/screens/settings/delete_account_screen.dart';
-import 'package:couplers/screens/user/users_details_screen.dart';
-import 'package:couplers/services/auth_service.dart';
 import 'package:couplers/theme/theme_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -24,7 +22,6 @@ class SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final LoginController controller = Get.find<LoginController>();
-    final AuthService authService = AuthService();
 
     return Scaffold(
       appBar: _buildAppBar(context),
@@ -78,20 +75,6 @@ class SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 SizedBox(height: 10.h),
-                _buildSettingOption(
-                  context,
-                  icon: MingCuteIcons.mgc_user_heart_line,
-                  title:
-                      AppLocalizations.of(context)!.settings_screen_users_title,
-                  onTap: () {
-                    final userId = authService.currentUser?.uid ?? '';
-                    Get.to(
-                      () => UsersDetailsScreen(userId: userId),
-                      transition: Transition.rightToLeft,
-                      duration: const Duration(milliseconds: 500),
-                    );
-                  },
-                ),
                 _buildSettingOption(
                   context,
                   icon: MingCuteIcons.mgc_coin_2_line,
