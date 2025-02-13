@@ -26,7 +26,7 @@ class MapService {
 
   // Function that loads all markers
   Future<List<Marker>> loadMarkersFromFirestore(
-      void Function(String, Map<String, dynamic>, int) onMarkerTap) async {
+      void Function(String, Map<String, dynamic>, LatLng) onMarkerTap) async {
     try {
       final snapshot = await _markersCollection.get();
       final markers = snapshot.docs.expand((doc) {
@@ -35,24 +35,20 @@ class MapService {
 
         return event.positions
             .where((position) => position != null)
-            .map((position) async {
-          final numberOfEvents = await _getEventCountForMarker(event);
-
-          return Marker(
-            point: position!,
-            child: GestureDetector(
-              onTap: () => onMarkerTap(doc.id, data, numberOfEvents),
-              child: Icon(
-                MingCuteIcons.mgc_location_fill,
-                color: event.getColor(),
-                size: 20.sp,
-              ),
-            ),
-          );
-        });
+            .map((position) => Marker(
+                  point: position!,
+                  child: GestureDetector(
+                    onTap: () => onMarkerTap(doc.id, data, position),
+                    child: Icon(
+                      MingCuteIcons.mgc_location_fill,
+                      color: event.getColor(),
+                      size: 30.sp,
+                    ),
+                  ),
+                ));
       }).toList();
 
-      return Future.wait(markers);
+      return markers;
     } catch (e) {
       _logger.e("Error while loading markers: $e");
       throw Exception("Error while loading markers.");
@@ -61,16 +57,19 @@ class MapService {
 
   // Function that loads all events for those markers
   Future<List<Map<String, dynamic>>> loadEventsForMarker(
-      String location) async {
+      LatLng position) async {
     try {
       QuerySnapshot snapshot = await _firestore
           .collection('couple')
           .doc(currentUser!.uid)
           .collection('events')
-          .where('locations', arrayContains: location)
-          .get();
+          .where('positions', arrayContains: {
+        'lat': position.latitude,
+        'lng': position.longitude
+      }).get();
 
-      _logger.d('Events found for $location: ${snapshot.docs.length}');
+      _logger.d(
+          'Events found for ${position.latitude}, ${position.longitude}: ${snapshot.docs.length}');
 
       if (snapshot.docs.isEmpty) {
         return [];
@@ -119,23 +118,19 @@ class MapService {
   }
 
   // Function to get the number of events associated with a marker
-  Future<int> _getEventCountForMarker(EventModel event) async {
+  Future<int> getEventCountForMarker(LatLng position) async {
     try {
       // Query without array-contains filter
       QuerySnapshot snapshot = await _firestore
           .collection('couple')
           .doc(currentUser!.uid)
           .collection('events')
-          .get();
+          .where('positions', arrayContains: {
+        'lat': position.latitude,
+        'lng': position.longitude
+      }).get();
 
-      // Filter results locally
-      final filteredDocs = snapshot.docs.where((doc) {
-        final data = doc.data() as Map<String, dynamic>;
-        final locations = List<String>.from(data['locations'] ?? []);
-        return event.locations.any((location) => locations.contains(location));
-      }).toList();
-
-      return filteredDocs.length;
+      return snapshot.docs.length;
     } catch (e) {
       _logger.e("Error in calculating number of events: $e");
       return 0;
