@@ -1,6 +1,7 @@
 import 'package:couplers/models/note_model.dart';
 import 'package:couplers/screens/notes/notes_adder_screen.dart';
 import 'package:couplers/services/note_service.dart';
+import 'package:couplers/theme/app_colors.dart';
 import 'package:couplers/widgets/custom_delete_dialog.dart';
 import 'package:couplers/widgets/custom_loader.dart';
 import 'package:couplers/widgets/custom_note.dart';
@@ -75,6 +76,13 @@ class NotesScreenState extends State<NotesScreen> {
   }
 
   Future<void> _deleteSelectedNotes() async {
+    if (selectedNotes.isEmpty) {
+      showErrorToast(
+        context,
+        AppLocalizations.of(context)!.notes_screen_toast_error_delete,
+      );
+      return;
+    }
     bool confirmDelete = await _showDeleteDialog(context);
 
     if (confirmDelete) {
@@ -113,7 +121,7 @@ class NotesScreenState extends State<NotesScreen> {
           icon: Icon(
             _isSelectionMode
                 ? MingCuteIcons.mgc_close_fill
-                : MingCuteIcons.mgc_multiselect_fill,
+                : MingCuteIcons.mgc_delete_3_fill,
             color: _isSelectionMode
                 ? Theme.of(context).colorScheme.tertiary
                 : Theme.of(context).colorScheme.secondary,
@@ -228,15 +236,15 @@ class NotesScreenState extends State<NotesScreen> {
         }
       },
       child: SizedBox(
-        width: 180,
-        height: 180,
+        width: 180.w,
+        height: 180.h,
         child: Stack(
           clipBehavior: Clip.none,
           children: [
             CustomNote(
               color: note.backgroundColor,
               child: Padding(
-                padding: EdgeInsets.all(6.r),
+                padding: EdgeInsets.all(16.r),
                 child: Column(
                   children: [
                     Text(
@@ -262,6 +270,24 @@ class NotesScreenState extends State<NotesScreen> {
                         ),
                       ),
                     ),
+                    if (note.description.isNotEmpty == true)
+                      Positioned(
+                        bottom: 0.r,
+                        right: 66.r,
+                        child: IconButton(
+                          icon: Icon(
+                            MingCuteIcons.mgc_information_fill,
+                            size: 20.sp,
+                          ),
+                          color: AppColors.charcoal,
+                          onPressed: () => _showFullTextDialog(
+                            context,
+                            note.description,
+                            note.backgroundColor,
+                            note.textColor,
+                          ),
+                        ),
+                      ),
                     if (isSelected)
                       SizedBox(
                         child: Icon(
@@ -276,6 +302,68 @@ class NotesScreenState extends State<NotesScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showFullTextDialog(BuildContext context, String note,
+      Color backgroundColor, Color textColor) {
+    final double noteHeight = ScreenUtil().screenWidth > 600 ? 320.h : 260.h;
+    final double noteWidth = ScreenUtil().screenWidth > 600 ? 320.w : 260.w;
+    final double containerHeight =
+        ScreenUtil().screenWidth > 600 ? 300.h : 240.h;
+    final double containerWidth =
+        ScreenUtil().screenWidth > 600 ? 300.w : 240.w;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.transparent,
+          alignment: Alignment.center,
+          content: CustomNote(
+            color: backgroundColor,
+            width: noteWidth,
+            height: noteHeight,
+            child: Padding(
+              padding: EdgeInsets.all(8.r),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    width: containerWidth,
+                    height: containerHeight,
+                    padding: EdgeInsets.all(16.r),
+                    child: Center(
+                      child: Text(
+                        note,
+                        style: GoogleFonts.josefinSans(
+                          color: textColor,
+                          fontSize: 18.sp,
+                          fontStyle: FontStyle.italic,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0.r,
+                    left: 0.r,
+                    right: 0.r,
+                    child: IconButton(
+                      icon: Icon(
+                        MingCuteIcons.mgc_close_fill,
+                        size: 20.sp,
+                      ),
+                      color: AppColors.charcoal,
+                      onPressed: () => Get.back(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
