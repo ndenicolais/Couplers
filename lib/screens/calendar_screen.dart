@@ -214,14 +214,15 @@ class CalendarScreenState extends State<CalendarScreen> {
       ),
       calendarBuilders: CalendarBuilders(
         markerBuilder: (context, date, events) {
-          final eventMarkers = _buildEventsMarker(date, events);
           final milestoneMarkers = _buildMilestonesMarkers(date);
+          final eventMarkers = _buildEventsMarker(date, events);
 
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            spacing: 8.h,
             children: [
-              eventMarkers,
               milestoneMarkers,
+              eventMarkers,
             ],
           );
         },
@@ -265,8 +266,16 @@ class CalendarScreenState extends State<CalendarScreen> {
 
             return eventMonth == currentMonth && eventYear == currentYear;
           }).toList();
-
-          filteredEvents.sort((a, b) => b.startDate.compareTo(a.startDate));
+          filteredEvents.sort(
+            (a, b) {
+              int comparison = b.addedDate.compareTo(a.addedDate);
+              if (comparison != 0) {
+                return comparison;
+              } else {
+                return b.startDate.compareTo(a.startDate);
+              }
+            },
+          );
 
           return _buildEventListView(filteredEvents, context);
         },
@@ -451,8 +460,8 @@ class CalendarScreenState extends State<CalendarScreen> {
                   return Positioned(
                     left: index * 6,
                     child: Container(
-                      width: 10.w,
-                      height: 10.h,
+                      width: 4.w,
+                      height: 4.h,
                       decoration: BoxDecoration(
                         color: eventColor,
                         shape: BoxShape.circle,
@@ -507,8 +516,8 @@ class CalendarScreenState extends State<CalendarScreen> {
                   return Positioned(
                     left: index * 6,
                     child: Container(
-                      width: 10.w,
-                      height: 10.h,
+                      width: 4.w,
+                      height: 4.h,
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.secondary,
                         shape: BoxShape.circle,
