@@ -16,6 +16,7 @@ class EventModel {
   List<LatLng?> positions;
   String? note;
   bool isFavorite;
+  DateTime addedDate;
 
   EventModel({
     this.id,
@@ -28,7 +29,8 @@ class EventModel {
     this.positions = const [],
     this.note,
     this.isFavorite = false,
-  });
+    DateTime? addedDate,
+  }) : addedDate = addedDate ?? DateTime.now();
 
   Map<String, dynamic> toFirestore() {
     return {
@@ -46,6 +48,7 @@ class EventModel {
           .toList(),
       'note': note,
       'isFavorite': isFavorite,
+      'addedDate': addedDate,
     };
   }
 
@@ -65,52 +68,42 @@ class EventModel {
           .toList(),
       note: data['note'],
       isFavorite: data['isFavorite'] ?? false,
+      addedDate: (data['addedDate'] as Timestamp).toDate(),
     );
   }
 
   static const Map<String, IconData> categoryIconMap = {
-    'Anniversary': CouplersIcons.icontypeanniversary,
-    'Valentines Day': CouplersIcons.icontypevalentine,
-    'Birthday': CouplersIcons.icontypebirthday,
-    'Dinner': CouplersIcons.icontypedinner,
-    'Night': CouplersIcons.icontypenight,
-    'Weekend': CouplersIcons.icontypeweekend,
-    'Vacation': CouplersIcons.icontypevacation,
-    'Shopping': CouplersIcons.icontypeshopping,
-    'Cinema': CouplersIcons.icontypecinema,
-    'Concert': CouplersIcons.icontypeconcert,
-    'Experience': CouplersIcons.icontypeexperience,
-    'Other': CouplersIcons.icontypeother,
+    'Anniversary': CouplersIcons.iconCategoryAnniversary,
+    'Valentines Day': CouplersIcons.iconCategoryValentine,
+    'Birthday': CouplersIcons.iconCategoryBirthday,
+    'Breakfast': CouplersIcons.iconCategoryBreakfast,
+    'Lunch': CouplersIcons.iconCategoryLunch,
+    'Dinner': CouplersIcons.iconCategoryDinner,
+    'Night': CouplersIcons.iconCategoryNight,
+    'Weekend': CouplersIcons.iconCategoryWeekend,
+    'Vacation': CouplersIcons.iconCategoryVacation,
+    'Shopping': CouplersIcons.iconCategoryShopping,
+    'Cinema': CouplersIcons.iconCategoryCinema,
+    'Concert': CouplersIcons.iconCategoryConcert,
+    'Experience': CouplersIcons.iconCategoryExperience,
+    'Other': CouplersIcons.iconCategoryOther,
   };
 
   static Map<String, Color> categoryColorMap = {
     'Anniversary': Colors.red[300]!,
-    'Valentines Day': Colors.pink[300]!,
+    'Valentines Day': Colors.red[600]!,
     'Birthday': Colors.blue[300]!,
-    'Dinner': Colors.brown[300]!,
+    'Breakfast': Colors.brown[300]!,
+    'Lunch': Colors.brown[600]!,
+    'Dinner': Colors.brown[900]!,
     'Night': Colors.indigo[300]!,
-    'Weekend': Colors.amber[300]!,
-    'Vacation': Colors.cyan[300]!,
-    'Shopping': Colors.orange[300]!,
-    'Cinema': Colors.lime[300]!,
-    'Concert': Colors.teal[300]!,
-    'Experience': Colors.green[300]!,
+    'Weekend': Colors.indigo[600]!,
+    'Vacation': Colors.indigo[900]!,
+    'Shopping': Colors.orange[600]!,
+    'Cinema': Colors.teal[300]!,
+    'Concert': Colors.teal[600]!,
+    'Experience': Colors.teal[900]!,
     'Other': Colors.purple[300]!,
-  };
-
-  static Map<String, String> categoryImageMap = {
-    'Anniversary': 'assets/images/img_default.png',
-    'Valentines Day': 'assets/images/img_default.png',
-    'Birthday': 'assets/images/img_default.png',
-    'Dinner': 'assets/images/img_default.png',
-    'Night': 'assets/images/img_default.png',
-    'Weekend': 'assets/images/img_default.png',
-    'Vacation': 'assets/images/img_default.png',
-    'Shopping': 'assets/images/img_default.png',
-    'Cinema': 'assets/images/img_default.png',
-    'Concert': 'assets/images/img_default.png',
-    'Experience': 'assets/images/img_default.png',
-    'Other': 'assets/images/img_default.png',
   };
 
   Icon getIcon({Color color = AppColors.charcoal}) {
@@ -129,6 +122,8 @@ class EventModel {
     'Anniversary',
     'Valentines Day',
     'Birthday',
+    'Breakfast',
+    'Lunch',
     'Dinner',
     'Night',
     'Weekend',

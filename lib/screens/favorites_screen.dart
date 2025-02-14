@@ -106,7 +106,16 @@ class FavoritesScreenState extends State<FavoritesScreen> {
               .where((event) => event.category == selectedCategory)
               .toList();
         }
-        events.sort((a, b) => b.startDate.compareTo(a.startDate));
+        events.sort(
+          (a, b) {
+            int comparison = b.addedDate.compareTo(a.addedDate);
+            if (comparison != 0) {
+              return comparison;
+            } else {
+              return b.startDate.compareTo(a.startDate);
+            }
+          },
+        );
 
         if (events.isEmpty) {
           return _buildEmptyState(context);

@@ -83,6 +83,9 @@ class EventListScreenState extends State<EventListScreen> {
 
     events.sort((a, b) {
       int comparison = a.startDate.compareTo(b.startDate);
+      if (comparison == 0) {
+        comparison = a.addedDate.compareTo(b.addedDate);
+      }
       return isAscending ? comparison : -comparison;
     });
 
