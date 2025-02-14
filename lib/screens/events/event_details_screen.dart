@@ -321,7 +321,7 @@ class EventDetailsScreenState extends State<EventDetailsScreen> {
 
   Widget _buildImageCard(BuildContext context, EventModel event) {
     if (event.images == null || event.images!.isEmpty) {
-      return _buildImage(context, 'assets/images/img_default.png');
+      return _buildImage(context, 'assets/images/default_event_image.png');
     } else if (event.images!.length == 1) {
       return GestureDetector(
         onTap: () {

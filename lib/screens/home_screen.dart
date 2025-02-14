@@ -201,7 +201,7 @@ class HomeScreenState extends State<HomeScreen>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  CouplersIcons.iconhomememories,
+                  CouplersIcons.iconHomeEvents,
                   size: 48.sp,
                   color: isDarkMode
                       ? Theme.of(context).colorScheme.secondary
@@ -231,32 +231,32 @@ class HomeScreenState extends State<HomeScreen>
     final isDarkMode = themeNotifier.isDarkMode;
     final List<Map<String, dynamic>> localizedItems = [
       {
-        'icon': CouplersIcons.iconhometime,
+        'icon': CouplersIcons.iconHomeTime,
         'label': AppLocalizations.of(context)!.home_menu_time,
         'color': AppColors.homeRedLight,
       },
       {
-        'icon': CouplersIcons.iconhomedates,
+        'icon': CouplersIcons.iconHomeMilestones,
         'label': AppLocalizations.of(context)!.home_menu_milestones,
         'color': AppColors.homeRedLight,
       },
       {
-        'icon': CouplersIcons.iconhomecalendar,
+        'icon': CouplersIcons.iconHomeCalendar,
         'label': AppLocalizations.of(context)!.home_menu_calendar,
         'color': AppColors.homeRedMedium,
       },
       {
-        'icon': CouplersIcons.iconhomemap,
+        'icon': CouplersIcons.iconHomeMap,
         'label': AppLocalizations.of(context)!.home_menu_map,
         'color': AppColors.homeRedMedium,
       },
       {
-        'icon': CouplersIcons.iconhomefavorites,
+        'icon': CouplersIcons.iconHomeFavorites,
         'label': AppLocalizations.of(context)!.home_menu_favorites,
         'color': AppColors.homeRedDark,
       },
       {
-        'icon': CouplersIcons.iconhomenotes,
+        'icon': CouplersIcons.iconHomeNotes,
         'label': AppLocalizations.of(context)!.home_menu_notes,
         'color': AppColors.homeRedDark,
       },

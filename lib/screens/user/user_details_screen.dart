@@ -295,7 +295,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen>
         fit: BoxFit.cover,
         placeholder: (context, url) => _buildLoadingIndicator(context),
         errorWidget: (context, url, error) => Image.asset(
-          "assets/images/user_image_default.png",
+          "assets/images/default_user_image.png",
           width: 160.w,
           height: 160.h,
           fit: BoxFit.cover,
@@ -309,7 +309,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen>
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) {
           return Image.asset(
-            "assets/images/user_image_default.png",
+            "assets/images/default_user_image.png",
             width: 160.w,
             height: 160.h,
             fit: BoxFit.cover,
