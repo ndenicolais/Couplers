@@ -11,6 +11,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -136,8 +137,14 @@ class UserUpdaterScreenState extends State<UserUpdaterScreen>
   }
 
   Future<File?> _cropImage(File imageFile) async {
+    final extension = imageFile.path.split('.').last.toLowerCase();
+    final format = (extension == 'png')
+        ? ImageCompressFormat.png
+        : ImageCompressFormat.jpg;
+
     final croppedFile = await ImageCropper().cropImage(
       sourcePath: imageFile.path,
+      compressFormat: format,
       uiSettings: [
         AndroidUiSettings(
           toolbarTitle: AppLocalizations.of(context)!
@@ -177,6 +184,7 @@ class UserUpdaterScreenState extends State<UserUpdaterScreen>
         File? croppedImage = await _cropImage(File(pickedFile.path));
 
         if (croppedImage != null) {
+          File compressedImage = await _compressImage(croppedImage);
           setState(() {
             if (userIndex == 1) {
               if (_imageUrl1 != null) {
@@ -184,14 +192,14 @@ class UserUpdaterScreenState extends State<UserUpdaterScreen>
                 _userService.deleteUserImageSupabase(
                     currentUser!.uid, oldFileName1);
               }
-              userImage1 = croppedImage;
+              userImage1 = compressedImage;
             } else {
               if (_imageUrl2 != null) {
                 final oldFileName2 = _imageUrl2!.split('/').last;
                 _userService.deleteUserImageSupabase(
                     currentUser!.uid, oldFileName2);
               }
-              userImage2 = croppedImage;
+              userImage2 = compressedImage;
             }
           });
         } else {
@@ -201,6 +209,22 @@ class UserUpdaterScreenState extends State<UserUpdaterScreen>
         _logger.i("Cropping deleted, image not updated");
       }
     });
+  }
+
+  Future<File> _compressImage(File imageFile) async {
+    final extension = imageFile.path.split('.').last.toLowerCase();
+    final format =
+        (extension == 'png') ? CompressFormat.png : CompressFormat.jpeg;
+
+    final compressedBytes = await FlutterImageCompress.compressWithFile(
+      imageFile.path,
+      quality: 70,
+      format: format,
+    );
+
+    final compressedFile = File(imageFile.path);
+    await compressedFile.writeAsBytes(compressedBytes!);
+    return compressedFile;
   }
 
   DateTime? _getUserBirthday(int userIndex) {
@@ -480,12 +504,21 @@ class UserUpdaterScreenState extends State<UserUpdaterScreen>
     if (userImage == null || userImage.path.isEmpty) {
       return Stack(
         children: [
-          ClipOval(
-            child: Image.asset(
-              "assets/images/user_image_default.png",
-              width: 160.w,
-              height: 160.h,
-              fit: BoxFit.cover,
+          Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Theme.of(context).colorScheme.secondary,
+                width: 1,
+              ),
+            ),
+            child: ClipOval(
+              child: Image.asset(
+                "assets/images/default_user_image.png",
+                width: 160.w,
+                height: 160.h,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           Positioned(
@@ -517,7 +550,7 @@ class UserUpdaterScreenState extends State<UserUpdaterScreen>
               fit: BoxFit.cover,
               errorWidget: (context, url, error) {
                 return Image.asset(
-                  "assets/images/user_image_default.png",
+                  "assets/images/default_user_image.png",
                   width: 160.w,
                   height: 160.h,
                   fit: BoxFit.cover,
@@ -554,7 +587,7 @@ class UserUpdaterScreenState extends State<UserUpdaterScreen>
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Image.asset(
-                  "assets/images/user_image_default.png",
+                  "assets/images/default_user_image.png",
                   width: 160.w,
                   height: 160.h,
                   fit: BoxFit.cover,

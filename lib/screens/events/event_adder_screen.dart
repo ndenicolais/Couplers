@@ -12,6 +12,7 @@ import 'package:couplers/widgets/custom_toast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:free_map/free_map.dart';
 import 'package:get/get.dart';
@@ -170,8 +171,14 @@ class EventAdderScreenState extends State<EventAdderScreen> {
   }
 
   Future<File?> _cropImage(File imageFile) async {
+    final extension = imageFile.path.split('.').last.toLowerCase();
+    final format = (extension == 'png')
+        ? ImageCompressFormat.png
+        : ImageCompressFormat.jpg;
+
     final croppedFile = await ImageCropper().cropImage(
       sourcePath: imageFile.path,
+      compressFormat: format,
       uiSettings: [
         AndroidUiSettings(
           toolbarTitle:
@@ -208,14 +215,31 @@ class EventAdderScreenState extends State<EventAdderScreen> {
       if (pickedFile != null) {
         File? croppedImage = await _cropImage(File(pickedFile.path));
         if (croppedImage != null) {
+          File compressedImage = await _compressImage(croppedImage);
           setState(() {
-            _imageFiles.add(croppedImage);
+            _imageFiles.add(compressedImage);
           });
         }
       } else {
         _logger.e("Error: no image selected");
       }
     });
+  }
+
+  Future<File> _compressImage(File imageFile) async {
+    final extension = imageFile.path.split('.').last.toLowerCase();
+    final format =
+        (extension == 'png') ? CompressFormat.png : CompressFormat.jpeg;
+
+    final compressedBytes = await FlutterImageCompress.compressWithFile(
+      imageFile.path,
+      quality: 70,
+      format: format,
+    );
+
+    final compressedFile = File(imageFile.path);
+    await compressedFile.writeAsBytes(compressedBytes!);
+    return compressedFile;
   }
 
   void _removeImage(File file) {
@@ -248,9 +272,16 @@ class EventAdderScreenState extends State<EventAdderScreen> {
   }
 
   void _removeLocation(int index) {
-    setState(() {
-      eventPositions[index] = null;
-    });
+    if (mounted) {
+      setState(() {
+        for (int i = index; i < maxSelectors - 1; i++) {
+          eventPositions[i] = eventPositions[i + 1];
+          _locationControllers[i].text = _locationControllers[i + 1].text;
+        }
+        eventPositions[maxSelectors - 1] = null;
+        _locationControllers[maxSelectors - 1].clear();
+      });
+    }
   }
 
   void _saveEvent() async {
@@ -341,7 +372,7 @@ class EventAdderScreenState extends State<EventAdderScreen> {
         }
       }
 
-      const defaultImage = 'assets/images/img_default.png';
+      const defaultImage = 'assets/images/default_event_image.png';
       if (finalImages.isEmpty) {
         finalImages.add(defaultImage);
       }
@@ -629,7 +660,7 @@ class EventAdderScreenState extends State<EventAdderScreen> {
         ),
         SizedBox(height: 10.h),
         SizedBox(
-          height: 60.h,
+          height: 80.h,
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -727,21 +758,34 @@ class EventAdderScreenState extends State<EventAdderScreen> {
               ),
             ),
             for (int i = _imageFiles.length; i < maxSelectors; i++)
-              Container(
-                width: 100.h,
-                height: 100.h,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.secondary,
-                  borderRadius: BorderRadius.all(Radius.circular(10.r)),
-                ),
-                child: IconButton(
-                  icon: Icon(
-                    MingCuteIcons.mgc_add_fill,
-                    color: Theme.of(context).colorScheme.primary,
-                    size: 40.sp,
+              Stack(
+                children: [
+                  Container(
+                    width: 100.h,
+                    height: 100.h,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondary,
+                      borderRadius: BorderRadius.all(Radius.circular(10.r)),
+                    ),
+                    child: IconButton(
+                      icon: Icon(
+                        MingCuteIcons.mgc_pic_2_fill,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 40.sp,
+                      ),
+                      onPressed: () => _pickImage(),
+                    ),
                   ),
-                  onPressed: () => _pickImage(),
-                ),
+                  Positioned(
+                    bottom: 16,
+                    right: 16,
+                    child: Icon(
+                      MingCuteIcons.mgc_add_fill,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 20.sp,
+                    ),
+                  ),
+                ],
               ),
           ],
         ),
@@ -810,21 +854,34 @@ class EventAdderScreenState extends State<EventAdderScreen> {
                   ),
                 ),
                 if (eventPositions[index] == null)
-                  Container(
-                    width: 100.h,
-                    height: 100.h,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.secondary,
-                      borderRadius: BorderRadius.all(Radius.circular(10.r)),
-                    ),
-                    child: IconButton(
-                      icon: Icon(
-                        MingCuteIcons.mgc_add_fill,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 40.sp,
+                  Stack(
+                    children: [
+                      Container(
+                        width: 100.h,
+                        height: 100.h,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.secondary,
+                          borderRadius: BorderRadius.all(Radius.circular(10.r)),
+                        ),
+                        child: IconButton(
+                          icon: Icon(
+                            MingCuteIcons.mgc_location_2_fill,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 40.sp,
+                          ),
+                          onPressed: () => _openFullScreenMap(index),
+                        ),
                       ),
-                      onPressed: () => _openFullScreenMap(index),
-                    ),
+                      Positioned(
+                        bottom: 16,
+                        right: 16,
+                        child: Icon(
+                          MingCuteIcons.mgc_add_fill,
+                          color: Theme.of(context).colorScheme.primary,
+                          size: 20.sp,
+                        ),
+                      ),
+                    ],
                   ),
               ],
             ),
