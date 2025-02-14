@@ -227,6 +227,8 @@ class MapScreenState extends State<MapScreen> {
       String markerId, Map<String, dynamic> data, LatLng position) async {
     final eventsListFuture = _mapService.loadEventsForMarker(position);
     final numberOfEvents = await _mapService.getEventCountForMarker(position);
+    final Set<String> locations =
+        await _mapService.getEventLocationsForMarker(position);
 
     if (!mounted) return;
 
@@ -243,6 +245,13 @@ class MapScreenState extends State<MapScreen> {
                 color: Theme.of(context).colorScheme.tertiary,
               ),
               title: Text(
+                locations.join(', '),
+                style: GoogleFonts.josefinSans(
+                  color: Theme.of(context).colorScheme.tertiary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              subtitle: Text(
                 '${AppLocalizations.of(context)!.map_screen_sheet_title} $numberOfEvents',
                 style: GoogleFonts.josefinSans(
                     color: Theme.of(context).colorScheme.tertiary),
