@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:couplers/models/event_model.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:logger/logger.dart';
+import 'package:path/path.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
@@ -140,33 +141,6 @@ class EventService {
     });
   }
 
-  // Function that gets types events
-  Future<List<String>> getEventTypes() async {
-    try {
-      if (currentUser == null) {
-        throw "User not logged in";
-      }
-
-      final snapshot = await _firestore
-          .collection('couple')
-          .doc(currentUser!.uid)
-          .collection('events')
-          .get();
-
-      final types = snapshot.docs
-          .map((doc) => doc.data()['type'] as String?)
-          .where((type) => type != null)
-          .cast<String>()
-          .toSet()
-          .toList();
-
-      return types;
-    } catch (e) {
-      _logger.e("Error retrieving event types: $e");
-      return [];
-    }
-  }
-
   // Function to get the count of events
   Future<int> getEventCount() async {
     try {
@@ -294,7 +268,8 @@ class EventService {
       String userId, String eventId, File imageFile) async {
     var uuid = const Uuid();
     String uniqueId = uuid.v4();
-    final path = '$userId/events/$eventId/$uniqueId.jpg';
+    String fileExtension = extension(imageFile.path);
+    final path = '$userId/events/$eventId/$uniqueId$fileExtension';
 
     await _client.storage.from('images').upload(path, imageFile);
 
