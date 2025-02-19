@@ -6,12 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:ming_cute_icons/ming_cute_icons.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:http/http.dart' as http;
-import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:share_plus/share_plus.dart';
 
 class FullScreenImage extends StatefulWidget {
@@ -154,13 +154,25 @@ class FullScreenImageState extends State<FullScreenImage> {
                 '${tempDir.path}/couplers_${timestamp}_${widget.imageUrl.split('/').last.substring(widget.imageUrl.split('/').last.length - 8)}')
             .create();
         file.writeAsBytesSync(response.bodyBytes);
-        await Share.shareXFiles([XFile(file.path)],
+
+        final shareResult = await Share.shareXFiles([XFile(file.path)],
             text: 'Check out this image!');
+
         if (mounted) {
-          showSuccessToast(
-            context,
-            AppLocalizations.of(context)!.full_screen_image_share_success_toast,
-          );
+          if (shareResult.status == ShareResultStatus.success) {
+            showSuccessToast(
+              context,
+              AppLocalizations.of(context)!
+                  .full_screen_image_share_success_toast,
+            );
+          } else if (shareResult.status == ShareResultStatus.dismissed) {
+            // No action needed
+          } else {
+            showErrorToast(
+              context,
+              AppLocalizations.of(context)!.full_screen_image_share_error_toast,
+            );
+          }
         }
       } else {
         if (mounted) {
@@ -173,7 +185,7 @@ class FullScreenImageState extends State<FullScreenImage> {
       }
     } catch (e) {
       if (mounted) {
-        showSuccessToast(context,
+        showErrorToast(context,
             "${AppLocalizations.of(context)!.full_screen_image_share_error_toast} $e");
       }
     }
