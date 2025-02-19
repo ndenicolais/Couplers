@@ -265,7 +265,7 @@ class UserDetailsScreenState extends State<UserDetailsScreen>
     return Card(
       color: Theme.of(context).colorScheme.tertiaryFixed,
       elevation: 0,
-      margin: EdgeInsets.all(16.r),
+      margin: EdgeInsets.all(36.r),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.r),
       ),

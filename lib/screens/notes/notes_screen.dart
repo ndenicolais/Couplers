@@ -270,35 +270,37 @@ class NotesScreenState extends State<NotesScreen> {
                         ),
                       ),
                     ),
-                    if (note.description.isNotEmpty == true)
-                      Positioned(
-                        bottom: 0.r,
-                        right: 66.r,
-                        child: IconButton(
-                          icon: Icon(
-                            MingCuteIcons.mgc_information_fill,
-                            size: 20.sp,
-                          ),
-                          color: AppColors.charcoal,
-                          onPressed: () => _showFullTextDialog(
-                            context,
-                            note.description,
-                            note.backgroundColor,
-                            note.textColor,
-                          ),
-                        ),
-                      ),
-                    if (isSelected)
-                      SizedBox(
-                        child: Icon(
-                          MingCuteIcons.mgc_check_circle_fill,
-                          color: Theme.of(context).colorScheme.secondary,
-                        ),
-                      ),
                   ],
                 ),
               ),
             ),
+            if (note.description.isNotEmpty == true)
+              Positioned(
+                bottom: 0.r,
+                right: 66.r,
+                child: IconButton(
+                  icon: Icon(
+                    MingCuteIcons.mgc_information_fill,
+                    size: 20.sp,
+                  ),
+                  color: AppColors.charcoal,
+                  onPressed: () => _showFullTextDialog(
+                    context,
+                    note.description,
+                    note.backgroundColor,
+                    note.textColor,
+                  ),
+                ),
+              ),
+            if (isSelected)
+              Positioned(
+                top: 8.r,
+                right: 8.r,
+                child: Icon(
+                  MingCuteIcons.mgc_check_circle_fill,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
           ],
         ),
       ),

@@ -425,10 +425,7 @@ class UserUpdaterScreenState extends State<UserUpdaterScreen>
     );
   }
 
-  Widget _buildTabBarView(
-    BuildContext context,
-    TabController tabController,
-  ) {
+  Widget _buildTabBarView(BuildContext context, TabController tabController) {
     return Expanded(
       child: TabBarView(
         controller: tabController,
