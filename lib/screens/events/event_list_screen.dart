@@ -43,20 +43,45 @@ class EventListScreenState extends State<EventListScreen> {
     );
   }
 
-  List<DropdownMenuItem<int>> _getYearDropdownItems() {
-    final currentYear = DateTime.now().year;
-    return List.generate(
-      10,
-      (index) => DropdownMenuItem(
-        value: currentYear - index,
-        child: Text(
-          (currentYear - index).toString(),
-          style: GoogleFonts.josefinSans(
-            color: Theme.of(context).colorScheme.secondary,
+  List<DropdownMenuItem<String>> _getCategoryDropdownItems(
+      List<EventModel> events) {
+    final categories = events.map((event) => event.category).toSet().toList();
+    categories.sort();
+
+    return categories.map((category) {
+      return DropdownMenuItem(
+        value: category,
+        child: ListTile(
+          leading: Icon(
+            EventModel.categoryIconMap[category]!,
+            color: Theme.of(context).colorScheme.tertiary,
+          ),
+          title: Text(
+            getTranslatedEventCategory(context, category),
+            style: GoogleFonts.josefinSans(
+              color: Theme.of(context).colorScheme.tertiary,
+            ),
           ),
         ),
-      ),
-    );
+      );
+    }).toList();
+  }
+
+  List<DropdownMenuItem<int>> _getYearDropdownItems(List<EventModel> events) {
+    final years = events.map((event) => event.startDate.year).toSet().toList();
+    years.sort((a, b) => b.compareTo(a));
+
+    return years.map((year) {
+      return DropdownMenuItem(
+        value: year,
+        child: Text(
+          year.toString(),
+          style: GoogleFonts.josefinSans(
+            color: Theme.of(context).colorScheme.tertiary,
+          ),
+        ),
+      );
+    }).toList();
   }
 
   List<EventModel> _filterAndSortEvents(List<EventModel> events) {
@@ -214,6 +239,7 @@ class EventListScreenState extends State<EventListScreen> {
 
   Widget _buildEventCard(BuildContext context, EventModel event) {
     final formattedDate = DateFormat('dd/MM/yyyy').format(event.startDate);
+    final double cardHeight = ScreenUtil().screenWidth > 600 ? 260.h : 160.h;
 
     return InkWell(
       onTap: () {
@@ -239,7 +265,7 @@ class EventListScreenState extends State<EventListScreen> {
                       topLeft: Radius.circular(20.r),
                     ),
                     child: SizedBox(
-                      height: 160.h,
+                      height: cardHeight,
                       width: double.infinity,
                       child: _buildEventImage(context, event.images!.first),
                     ),
@@ -373,8 +399,26 @@ class EventListScreenState extends State<EventListScreen> {
                 _buildFilterSearchField(context),
                 SizedBox(height: 10.h),
                 _buildFilterOrderTile(context),
-                _buildFilterCategoryTile(context),
-                _buildFilterYearTile(context),
+                StreamBuilder<List<EventModel>>(
+                  stream: _eventService.getEvents(currentUser!.uid),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const SizedBox.shrink();
+                    }
+                    var events = snapshot.data ?? [];
+                    return _buildFilterCategoryTile(context, events);
+                  },
+                ),
+                StreamBuilder<List<EventModel>>(
+                  stream: _eventService.getEvents(currentUser!.uid),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const SizedBox.shrink();
+                    }
+                    var events = snapshot.data ?? [];
+                    return _buildFilterYearTile(context, events);
+                  },
+                ),
               ],
             ),
           ),
@@ -483,11 +527,12 @@ class EventListScreenState extends State<EventListScreen> {
     );
   }
 
-  ExpansionTile _buildFilterCategoryTile(BuildContext context) {
+  ExpansionTile _buildFilterCategoryTile(
+      BuildContext context, List<EventModel> events) {
     return ExpansionTile(
       tilePadding: EdgeInsets.symmetric(horizontal: 22.r),
       leading: Icon(
-        MingCuteIcons.mgc_filter_line,
+        MingCuteIcons.mgc_list_check_3_fill,
         color: Theme.of(context).colorScheme.secondary,
       ),
       title: Text(
@@ -496,23 +541,13 @@ class EventListScreenState extends State<EventListScreen> {
           color: Theme.of(context).colorScheme.secondary,
         ),
       ),
-      children: EventModel.categoryFilter.map((String category) {
+      children: _getCategoryDropdownItems(events)
+          .map((DropdownMenuItem<String> item) {
         return ListTile(
-          leading: Icon(
-            category == 'All'
-                ? MingCuteIcons.mgc_list_check_fill
-                : EventModel.categoryIconMap[category]!,
-            color: Theme.of(context).colorScheme.secondary,
-          ),
-          title: Text(
-            getTranslatedEventCategory(context, category),
-            style: GoogleFonts.josefinSans(
-              color: Theme.of(context).colorScheme.secondary,
-            ),
-          ),
+          title: item.child,
           onTap: () {
             setState(() {
-              selectedCategory = category;
+              selectedCategory = item.value;
             });
             Get.back();
           },
@@ -521,7 +556,8 @@ class EventListScreenState extends State<EventListScreen> {
     );
   }
 
-  ExpansionTile _buildFilterYearTile(BuildContext context) {
+  ExpansionTile _buildFilterYearTile(
+      BuildContext context, List<EventModel> events) {
     return ExpansionTile(
       tilePadding: EdgeInsets.symmetric(horizontal: 22.r),
       leading: Icon(
@@ -534,7 +570,7 @@ class EventListScreenState extends State<EventListScreen> {
           color: Theme.of(context).colorScheme.secondary,
         ),
       ),
-      children: _getYearDropdownItems().map((DropdownMenuItem<int> item) {
+      children: _getYearDropdownItems(events).map((DropdownMenuItem<int> item) {
         return ListTile(
           title: item.child,
           onTap: () {
