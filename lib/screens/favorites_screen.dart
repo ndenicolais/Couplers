@@ -52,40 +52,13 @@ class FavoritesScreenState extends State<FavoritesScreen> {
       centerTitle: true,
       backgroundColor: Theme.of(context).colorScheme.primary,
       actions: [
-        PopupMenuButton<String>(
-          color: Theme.of(context).colorScheme.secondary,
+        IconButton(
           icon: Icon(
             MingCuteIcons.mgc_filter_2_fill,
             color: Theme.of(context).colorScheme.secondary,
           ),
-          onSelected: (String value) {
-            setState(() {
-              selectedCategory = value;
-            });
-          },
-          itemBuilder: (BuildContext context) {
-            return EventModel.categoryFilter.map((String category) {
-              return PopupMenuItem<String>(
-                value: category,
-                child: Row(
-                  children: [
-                    Icon(
-                      category == 'All'
-                          ? MingCuteIcons.mgc_list_check_fill
-                          : EventModel.categoryIconMap[category]!,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    SizedBox(width: 10.w),
-                    Text(
-                      getTranslatedEventCategory(context, category),
-                      style: GoogleFonts.josefinSans(
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }).toList();
+          onPressed: () {
+            _showCategoryFilterBottomSheet(context);
           },
         ),
       ],
@@ -211,6 +184,48 @@ class FavoritesScreenState extends State<FavoritesScreen> {
       ),
       onPressed: () {
         _eventService.toggleFavoriteStatus(event.id!, !event.isFavorite);
+      },
+    );
+  }
+
+  void _showCategoryFilterBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return SizedBox(
+          height: MediaQuery.of(context).size.height * 0.4,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: EventModel.categoryFilter.map((String category) {
+                return ListTile(
+                  leading: Icon(
+                    category == 'All'
+                        ? MingCuteIcons.mgc_list_check_fill
+                        : EventModel.categoryIconMap[category]!,
+                    color: Theme.of(context).colorScheme.tertiary,
+                  ),
+                  title: Text(
+                    getTranslatedEventCategory(context, category),
+                    style: GoogleFonts.josefinSans(
+                      color: Theme.of(context).colorScheme.tertiary,
+                    ),
+                  ),
+                  onTap: () {
+                    setState(() {
+                      selectedCategory = category;
+                    });
+                    Navigator.pop(context);
+                  },
+                );
+              }).toList(),
+            ),
+          ),
+        );
       },
     );
   }
