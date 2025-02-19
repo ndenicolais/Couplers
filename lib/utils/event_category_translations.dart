@@ -5,10 +5,12 @@ String getTranslatedEventCategory(BuildContext context, String category) {
   switch (category) {
     case 'Anniversary':
       return AppLocalizations.of(context)!.event_category_anniversary;
-    case 'Valentines Day':
+    case 'Valentines':
       return AppLocalizations.of(context)!.event_category_valentine;
-    case 'Birthday':
-      return AppLocalizations.of(context)!.event_category_birthday;
+    case 'Location':
+      return AppLocalizations.of(context)!.event_category_location;
+    case 'Weekend':
+      return AppLocalizations.of(context)!.event_category_weekend;
     case 'Breakfast':
       return AppLocalizations.of(context)!.event_category_breakfast;
     case 'Lunch':
@@ -17,12 +19,12 @@ String getTranslatedEventCategory(BuildContext context, String category) {
       return AppLocalizations.of(context)!.event_category_dinner;
     case 'Night':
       return AppLocalizations.of(context)!.event_category_night;
-    case 'Weekend':
-      return AppLocalizations.of(context)!.event_category_weekend;
     case 'Vacation':
       return AppLocalizations.of(context)!.event_category_vacation;
     case 'Shopping':
       return AppLocalizations.of(context)!.event_category_shopping;
+    case 'Birthday':
+      return AppLocalizations.of(context)!.event_category_birthday;
     case 'Cinema':
       return AppLocalizations.of(context)!.event_category_cinema;
     case 'Concert':
