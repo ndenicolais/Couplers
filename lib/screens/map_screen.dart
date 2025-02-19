@@ -260,71 +260,83 @@ class MapScreenState extends State<MapScreen> {
                 showModalBottomSheet(
                   context: context,
                   backgroundColor: Theme.of(context).colorScheme.primary,
+                  isScrollControlled: true,
                   builder: (context) {
-                    return FutureBuilder<List<Map<String, dynamic>>>(
-                      future: eventsListFuture,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return _buildLoadingIndicator();
-                        } else if (snapshot.hasError) {
-                          return Center(
-                            child: Text(
-                              AppLocalizations.of(context)!
-                                  .map_screen_sheet_error,
-                              style: GoogleFonts.josefinSans(
-                                color: Theme.of(context).colorScheme.tertiary,
-                                fontSize: 24.sp,
-                              ),
-                            ),
-                          );
-                        } else if (!snapshot.hasData ||
-                            snapshot.data!.isEmpty) {
-                          return Center(
-                            child: Text(
-                              AppLocalizations.of(context)!
-                                  .map_screen_sheet_empty,
-                              style: GoogleFonts.josefinSans(
-                                color: Theme.of(context).colorScheme.tertiary,
-                                fontSize: 24.sp,
-                              ),
-                            ),
-                          );
-                        } else {
-                          List<Map<String, dynamic>> eventsList =
-                              snapshot.data!;
-
-                          return ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: eventsList.length,
-                            itemBuilder: (context, index) {
-                              var event = eventsList[index];
-                              DateTime eventDate =
-                                  (event['startDate'] as Timestamp).toDate();
-
-                              return ListTile(
-                                title: Text(
-                                  event['title'],
-                                  style: GoogleFonts.josefinSans(
-                                    color:
-                                        Theme.of(context).colorScheme.tertiary,
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                    return SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.4,
+                      child: FutureBuilder<List<Map<String, dynamic>>>(
+                        future: eventsListFuture,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return _buildLoadingIndicator();
+                          } else if (snapshot.hasError) {
+                            return Center(
+                              child: Text(
+                                AppLocalizations.of(context)!
+                                    .map_screen_sheet_error,
+                                style: GoogleFonts.josefinSans(
+                                  color: Theme.of(context).colorScheme.tertiary,
+                                  fontSize: 24.sp,
                                 ),
-                                subtitle: Text(
-                                  eventDate.toLocal().toString().split(' ')[0],
-                                  style: GoogleFonts.josefinSans(
-                                    color:
-                                        Theme.of(context).colorScheme.tertiary,
-                                    fontSize: 14.sp,
-                                  ),
+                              ),
+                            );
+                          } else if (!snapshot.hasData ||
+                              snapshot.data!.isEmpty) {
+                            return Center(
+                              child: Text(
+                                AppLocalizations.of(context)!
+                                    .map_screen_sheet_empty,
+                                style: GoogleFonts.josefinSans(
+                                  color: Theme.of(context).colorScheme.tertiary,
+                                  fontSize: 24.sp,
                                 ),
-                              );
-                            },
-                          );
-                        }
-                      },
+                              ),
+                            );
+                          } else {
+                            List<Map<String, dynamic>> eventsList =
+                                snapshot.data!;
+                            eventsList.sort((a, b) =>
+                                (b['startDate'] as Timestamp)
+                                    .compareTo(a['startDate'] as Timestamp));
+
+                            return ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: eventsList.length,
+                              itemBuilder: (context, index) {
+                                var event = eventsList[index];
+                                DateTime eventDate =
+                                    (event['startDate'] as Timestamp).toDate();
+
+                                return ListTile(
+                                  title: Text(
+                                    event['title'],
+                                    style: GoogleFonts.josefinSans(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .tertiary,
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    eventDate
+                                        .toLocal()
+                                        .toString()
+                                        .split(' ')[0],
+                                    style: GoogleFonts.josefinSans(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .tertiary,
+                                      fontSize: 14.sp,
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          }
+                        },
+                      ),
                     );
                   },
                 );
