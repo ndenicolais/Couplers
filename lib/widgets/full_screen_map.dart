@@ -1,5 +1,4 @@
 import 'package:couplers/theme/app_colors.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -64,10 +63,6 @@ class FullScreenMapState extends State<FullScreenMap> {
         interactionOptions: const InteractionOptions(
           flags: InteractiveFlag.pinchZoom | InteractiveFlag.drag,
         ),
-        onTap: (pos, point) => setState(() {
-          _selectedPosition = point;
-          _getAddress(point);
-        }),
       ),
       markers: [
         if (_selectedPosition != null)
@@ -134,6 +129,11 @@ class FullScreenMapState extends State<FullScreenMap> {
             ),
           );
         },
+        resultViewOptions: FmResultViewOptions(
+          overlayDecoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
       ),
     );
   }
@@ -170,22 +170,6 @@ class FullScreenMapState extends State<FullScreenMap> {
         ),
       ),
     );
-  }
-
-  Future<void> _getAddress(LatLng pos) async {
-    final data = await FmService().getAddress(
-      lat: pos.latitude,
-      lng: pos.longitude,
-    );
-    if (kDebugMode) print(data?.address);
-    setState(() {
-      _selectedAddress = data?.address;
-    });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_selectedPosition != null) {
-        _mapController.move(_selectedPosition!, 6.r);
-      }
-    });
   }
 
   AppBar _buildAppBar() {
