@@ -102,7 +102,15 @@ class MapScreenState extends State<MapScreen> {
     try {
       final events = await _mapService.searchEvents(query);
       setState(() {
-        _filteredEvents = events;
+        _filteredEvents = events
+          ..sort((a, b) {
+            int comparison = b.addedDate.compareTo(a.addedDate);
+            if (comparison != 0) {
+              return comparison;
+            } else {
+              return b.startDate.compareTo(a.startDate);
+            }
+          });
         _isSearching = query.isNotEmpty;
         _logger.d("Filtered events: ${_filteredEvents.length} events found");
 
@@ -153,6 +161,7 @@ class MapScreenState extends State<MapScreen> {
       title: _isSearching
           ? TextField(
               controller: _searchController,
+              focusNode: _focusNode,
               decoration: InputDecoration(
                   labelText: AppLocalizations.of(context)!
                       .map_screen_title_label_search,
@@ -262,81 +271,115 @@ class MapScreenState extends State<MapScreen> {
                   backgroundColor: Theme.of(context).colorScheme.primary,
                   isScrollControlled: true,
                   builder: (context) {
-                    return SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.4,
-                      child: FutureBuilder<List<Map<String, dynamic>>>(
-                        future: eventsListFuture,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return _buildLoadingIndicator();
-                          } else if (snapshot.hasError) {
-                            return Center(
-                              child: Text(
-                                AppLocalizations.of(context)!
-                                    .map_screen_sheet_error,
-                                style: GoogleFonts.josefinSans(
-                                  color: Theme.of(context).colorScheme.tertiary,
-                                  fontSize: 24.sp,
-                                ),
-                              ),
-                            );
-                          } else if (!snapshot.hasData ||
-                              snapshot.data!.isEmpty) {
-                            return Center(
-                              child: Text(
-                                AppLocalizations.of(context)!
-                                    .map_screen_sheet_empty,
-                                style: GoogleFonts.josefinSans(
-                                  color: Theme.of(context).colorScheme.tertiary,
-                                  fontSize: 24.sp,
-                                ),
-                              ),
-                            );
-                          } else {
-                            List<Map<String, dynamic>> eventsList =
-                                snapshot.data!;
-                            eventsList.sort((a, b) =>
-                                (b['startDate'] as Timestamp)
-                                    .compareTo(a['startDate'] as Timestamp));
-
-                            return ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: eventsList.length,
-                              itemBuilder: (context, index) {
-                                var event = eventsList[index];
-                                DateTime eventDate =
-                                    (event['startDate'] as Timestamp).toDate();
-
-                                return ListTile(
-                                  title: Text(
-                                    event['title'],
-                                    style: GoogleFonts.josefinSans(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .tertiary,
-                                      fontSize: 16.sp,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        FutureBuilder<List<Map<String, dynamic>>>(
+                          future: eventsListFuture,
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return _buildLoadingIndicator();
+                            } else if (snapshot.hasError) {
+                              return Center(
+                                child: Text(
+                                  AppLocalizations.of(context)!
+                                      .map_screen_sheet_error,
+                                  style: GoogleFonts.josefinSans(
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary,
+                                    fontSize: 24.sp,
                                   ),
-                                  subtitle: Text(
-                                    eventDate
-                                        .toLocal()
-                                        .toString()
-                                        .split(' ')[0],
-                                    style: GoogleFonts.josefinSans(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .tertiary,
-                                      fontSize: 14.sp,
-                                    ),
+                                ),
+                              );
+                            } else if (!snapshot.hasData ||
+                                snapshot.data!.isEmpty) {
+                              return Center(
+                                child: Text(
+                                  AppLocalizations.of(context)!
+                                      .map_screen_sheet_empty,
+                                  style: GoogleFonts.josefinSans(
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary,
+                                    fontSize: 24.sp,
                                   ),
-                                );
-                              },
-                            );
-                          }
-                        },
-                      ),
+                                ),
+                              );
+                            } else {
+                              List<Map<String, dynamic>> eventsList =
+                                  snapshot.data!;
+                              eventsList.sort((a, b) {
+                                int comparison = (b['startDate'] as Timestamp)
+                                    .compareTo(a['startDate'] as Timestamp);
+                                if (comparison != 0) {
+                                  return comparison;
+                                } else {
+                                  return (b['addedDate'] as Timestamp)
+                                      .compareTo(a['addedDate'] as Timestamp);
+                                }
+                              });
+                              return SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.4,
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: eventsList.length,
+                                  itemBuilder: (context, index) {
+                                    var event = eventsList[index];
+                                    DateTime eventDate =
+                                        (event['startDate'] as Timestamp)
+                                            .toDate();
+
+                                    return ListTile(
+                                      title: Text(
+                                        event['title'],
+                                        style: GoogleFonts.josefinSans(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .tertiary,
+                                          fontSize: 16.sp,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      subtitle: Text(
+                                        eventDate
+                                            .toLocal()
+                                            .toString()
+                                            .split(' ')[0],
+                                        style: GoogleFonts.josefinSans(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .tertiary,
+                                          fontSize: 14.sp,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                        SizedBox(height: 16.h),
+                        ElevatedButton(
+                          onPressed: () {
+                            Get.back();
+                            Get.back();
+                          },
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.tertiary,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15.r))),
+                          child: Text(
+                            AppLocalizations.of(context)!
+                                .map_screen_sheet_close,
+                            style: GoogleFonts.josefinSans(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                        ),
+                      ],
                     );
                   },
                 );
@@ -352,26 +395,27 @@ class MapScreenState extends State<MapScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Theme.of(context).colorScheme.primary,
+      isScrollControlled: true,
       builder: (BuildContext context) {
-        return Padding(
-          padding: EdgeInsets.all(16.r),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (events.isEmpty)
-                Center(
-                  child: Text(
-                    AppLocalizations.of(context)!
-                        .map_screen_error_events_location,
-                    style: GoogleFonts.josefinSans(
-                      color: Theme.of(context).colorScheme.tertiary,
-                      fontSize: 22.sp,
-                    ),
-                    textAlign: TextAlign.center,
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (events.isEmpty)
+              Center(
+                child: Text(
+                  AppLocalizations.of(context)!
+                      .map_screen_error_events_location,
+                  style: GoogleFonts.josefinSans(
+                    color: Theme.of(context).colorScheme.tertiary,
+                    fontSize: 22.sp,
                   ),
-                )
-              else
-                ListView.builder(
+                  textAlign: TextAlign.center,
+                ),
+              )
+            else
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.4,
+                child: ListView.builder(
                   shrinkWrap: true,
                   itemCount: events.length,
                   itemBuilder: (context, index) {
@@ -397,29 +441,29 @@ class MapScreenState extends State<MapScreen> {
                     );
                   },
                 ),
-              SizedBox(height: 16.h),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    _isSearching = false;
-                    _searchController.clear();
-                    _loadMarkers();
-                  });
-                  Get.back();
-                },
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.tertiary,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15.r))),
-                child: Text(
-                  AppLocalizations.of(context)!.map_screen_sheet_close,
-                  style: GoogleFonts.josefinSans(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+              ),
+            SizedBox(height: 16.h),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _isSearching = false;
+                  _searchController.clear();
+                  _loadMarkers();
+                });
+                Get.back();
+              },
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.tertiary,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.r))),
+              child: Text(
+                AppLocalizations.of(context)!.map_screen_sheet_close,
+                style: GoogleFonts.josefinSans(
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         );
       },
     );
