@@ -118,7 +118,7 @@ class EventUpdaterScreenState extends State<EventUpdaterScreen> {
                             .event_updater_screen_form_notees_field,
                         MingCuteIcons.mgc_edit_4_fill,
                         TextInputType.text,
-                        TextCapitalization.none,
+                        TextCapitalization.sentences,
                         TextInputAction.done,
                         180,
                         (val) => null,

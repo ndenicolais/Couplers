@@ -109,7 +109,7 @@ class EventAdderScreenState extends State<EventAdderScreen> {
                             .event_adder_screen_form_notes_field,
                         MingCuteIcons.mgc_edit_4_fill,
                         TextInputType.text,
-                        TextCapitalization.none,
+                        TextCapitalization.sentences,
                         TextInputAction.done,
                         180,
                         (val) => null,
