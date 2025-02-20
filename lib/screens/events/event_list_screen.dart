@@ -445,7 +445,7 @@ class EventListScreenState extends State<EventListScreen> {
 
   Padding _buildFilterSearchField(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.r),
+      padding: EdgeInsets.symmetric(horizontal: 2.r),
       child: TextField(
         controller: _searchController,
         decoration: InputDecoration(
@@ -454,7 +454,7 @@ class EventListScreenState extends State<EventListScreen> {
           hintText: AppLocalizations.of(context)!
               .events_list_screen_filter_hint_search,
           prefixIcon: Icon(
-            MingCuteIcons.mgc_search_2_line,
+            MingCuteIcons.mgc_search_2_fill,
             color: Theme.of(context).colorScheme.secondary,
           ),
           suffixIcon: _searchController.text.trim().isEmpty
@@ -483,11 +483,10 @@ class EventListScreenState extends State<EventListScreen> {
 
   ExpansionTile _buildFilterOrderTile(BuildContext context) {
     return ExpansionTile(
-      tilePadding: EdgeInsets.symmetric(horizontal: 22.r),
       leading: Icon(
         isAscending
-            ? MingCuteIcons.mgc_sort_ascending_line
-            : MingCuteIcons.mgc_sort_descending_line,
+            ? MingCuteIcons.mgc_sort_ascending_fill
+            : MingCuteIcons.mgc_sort_descending_fill,
         color: Theme.of(context).colorScheme.secondary,
       ),
       title: Text(
@@ -498,13 +497,14 @@ class EventListScreenState extends State<EventListScreen> {
           color: Theme.of(context).colorScheme.secondary,
         ),
       ),
+      iconColor: Theme.of(context).colorScheme.secondary,
       children: [
         ListTile(
           leading: Icon(
             isAscending
-                ? MingCuteIcons.mgc_sort_descending_line
-                : MingCuteIcons.mgc_sort_ascending_line,
-            color: Theme.of(context).colorScheme.secondary,
+                ? MingCuteIcons.mgc_sort_descending_fill
+                : MingCuteIcons.mgc_sort_ascending_fill,
+            color: Theme.of(context).colorScheme.tertiary,
           ),
           title: Text(
             isAscending
@@ -513,7 +513,7 @@ class EventListScreenState extends State<EventListScreen> {
                 : AppLocalizations.of(context)!
                     .events_list_screen_order_ascending,
             style: GoogleFonts.josefinSans(
-              color: Theme.of(context).colorScheme.secondary,
+              color: Theme.of(context).colorScheme.tertiary,
             ),
           ),
           onTap: () {
@@ -530,7 +530,6 @@ class EventListScreenState extends State<EventListScreen> {
   ExpansionTile _buildFilterCategoryTile(
       BuildContext context, List<EventModel> events) {
     return ExpansionTile(
-      tilePadding: EdgeInsets.symmetric(horizontal: 22.r),
       leading: Icon(
         MingCuteIcons.mgc_list_check_3_fill,
         color: Theme.of(context).colorScheme.secondary,
@@ -541,6 +540,7 @@ class EventListScreenState extends State<EventListScreen> {
           color: Theme.of(context).colorScheme.secondary,
         ),
       ),
+      iconColor: Theme.of(context).colorScheme.secondary,
       children: _getCategoryDropdownItems(events)
           .map((DropdownMenuItem<String> item) {
         return ListTile(
@@ -559,9 +559,8 @@ class EventListScreenState extends State<EventListScreen> {
   ExpansionTile _buildFilterYearTile(
       BuildContext context, List<EventModel> events) {
     return ExpansionTile(
-      tilePadding: EdgeInsets.symmetric(horizontal: 22.r),
       leading: Icon(
-        MingCuteIcons.mgc_calendar_2_line,
+        MingCuteIcons.mgc_calendar_2_fill,
         color: Theme.of(context).colorScheme.secondary,
       ),
       title: Text(
@@ -570,6 +569,7 @@ class EventListScreenState extends State<EventListScreen> {
           color: Theme.of(context).colorScheme.secondary,
         ),
       ),
+      iconColor: Theme.of(context).colorScheme.secondary,
       children: _getYearDropdownItems(events).map((DropdownMenuItem<int> item) {
         return ListTile(
           title: item.child,
