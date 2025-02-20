@@ -37,12 +37,12 @@ class CustomDrawer extends StatelessWidget {
                   ),
                 ),
                 ListTile(
-                  leading: Icon(MingCuteIcons.mgc_user_heart_line,
+                  leading: Icon(MingCuteIcons.mgc_user_heart_fill,
                       color: Theme.of(context).colorScheme.secondary),
                   title: Text(
                     AppLocalizations.of(context)!.drawer_users,
                     style: GoogleFonts.josefinSans(
-                        color: Theme.of(context).colorScheme.tertiary),
+                        color: Theme.of(context).colorScheme.secondary),
                   ),
                   onTap: () {
                     final userId = authService.currentUser?.uid ?? '';
@@ -54,12 +54,12 @@ class CustomDrawer extends StatelessWidget {
                   },
                 ),
                 ListTile(
-                  leading: Icon(MingCuteIcons.mgc_settings_5_line,
+                  leading: Icon(MingCuteIcons.mgc_settings_5_fill,
                       color: Theme.of(context).colorScheme.secondary),
                   title: Text(
                     AppLocalizations.of(context)!.drawer_settings,
                     style: GoogleFonts.josefinSans(
-                        color: Theme.of(context).colorScheme.tertiary),
+                        color: Theme.of(context).colorScheme.secondary),
                   ),
                   onTap: () {
                     Get.to(
@@ -70,12 +70,12 @@ class CustomDrawer extends StatelessWidget {
                   },
                 ),
                 ListTile(
-                  leading: Icon(MingCuteIcons.mgc_information_line,
+                  leading: Icon(MingCuteIcons.mgc_information_fill,
                       color: Theme.of(context).colorScheme.secondary),
                   title: Text(
                     AppLocalizations.of(context)!.drawer_info,
                     style: GoogleFonts.josefinSans(
-                        color: Theme.of(context).colorScheme.tertiary),
+                        color: Theme.of(context).colorScheme.secondary),
                   ),
                   onTap: () {
                     Get.to(
@@ -86,12 +86,12 @@ class CustomDrawer extends StatelessWidget {
                   },
                 ),
                 ListTile(
-                  leading: Icon(MingCuteIcons.mgc_file_certificate_line,
+                  leading: Icon(MingCuteIcons.mgc_file_certificate_fill,
                       color: Theme.of(context).colorScheme.secondary),
                   title: Text(
                     AppLocalizations.of(context)!.drawer_policy,
                     style: GoogleFonts.josefinSans(
-                        color: Theme.of(context).colorScheme.tertiary),
+                        color: Theme.of(context).colorScheme.secondary),
                   ),
                   onTap: () {
                     Get.to(
@@ -102,12 +102,12 @@ class CustomDrawer extends StatelessWidget {
                   },
                 ),
                 ListTile(
-                  leading: Icon(MingCuteIcons.mgc_group_3_line,
+                  leading: Icon(MingCuteIcons.mgc_group_3_fill,
                       color: Theme.of(context).colorScheme.secondary),
                   title: Text(
                     AppLocalizations.of(context)!.drawer_support,
                     style: GoogleFonts.josefinSans(
-                        color: Theme.of(context).colorScheme.tertiary),
+                        color: Theme.of(context).colorScheme.secondary),
                   ),
                   onTap: () {
                     Get.to(
@@ -118,12 +118,12 @@ class CustomDrawer extends StatelessWidget {
                   },
                 ),
                 ListTile(
-                  leading: Icon(MingCuteIcons.mgc_share_2_line,
+                  leading: Icon(MingCuteIcons.mgc_share_2_fill,
                       color: Theme.of(context).colorScheme.secondary),
                   title: Text(
                     AppLocalizations.of(context)!.drawer_share,
                     style: GoogleFonts.josefinSans(
-                        color: Theme.of(context).colorScheme.tertiary),
+                        color: Theme.of(context).colorScheme.secondary),
                   ),
                   onTap: () {
                     Share.share(AppConstants.uriGithubLink.toString());
