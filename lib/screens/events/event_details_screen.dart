@@ -104,7 +104,7 @@ class EventDetailsScreenState extends State<EventDetailsScreen> {
 
   Widget _buildPopupMenu(BuildContext context, EventModel event) {
     return PopupMenuButton<String>(
-      color: Theme.of(context).colorScheme.secondary,
+      color: Theme.of(context).colorScheme.primary,
       icon: Icon(
         MingCuteIcons.mgc_more_2_fill,
         color: Theme.of(context).colorScheme.secondary,
@@ -151,13 +151,13 @@ class EventDetailsScreenState extends State<EventDetailsScreen> {
         children: [
           Icon(
             icon,
-            color: Theme.of(context).colorScheme.primary,
+            color: Theme.of(context).colorScheme.secondary,
           ),
           SizedBox(width: 10.w),
           Text(
             text,
             style: GoogleFonts.josefinSans(
-              color: Theme.of(context).colorScheme.primary,
+              color: Theme.of(context).colorScheme.secondary,
               fontSize: 14.sp,
             ),
           ),
@@ -276,7 +276,7 @@ class EventDetailsScreenState extends State<EventDetailsScreen> {
         getTranslatedEventCategory(context, event.category);
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      spacing: 20.w,
+      spacing: 10.w,
       children: [
         event.getIcon(color: Theme.of(context).colorScheme.tertiary),
         Text(
@@ -287,7 +287,6 @@ class EventDetailsScreenState extends State<EventDetailsScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        event.getIcon(color: Theme.of(context).colorScheme.tertiary),
       ],
     );
   }
