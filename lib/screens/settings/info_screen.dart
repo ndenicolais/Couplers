@@ -19,15 +19,12 @@ class InfoScreen extends StatelessWidget {
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 20.h,
               children: [
                 _buildLogo(context),
-                SizedBox(height: 20.h),
                 _buildAppName(context),
-                SizedBox(height: 20.h),
                 _buildDescription(context),
-                SizedBox(height: 20.h),
                 _buildCredits(context),
-                SizedBox(height: 20.h),
                 _buildVersion(context),
               ],
             ),

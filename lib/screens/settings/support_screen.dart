@@ -22,6 +22,7 @@ class SupportScreen extends StatelessWidget {
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 20.h,
               children: [
                 _buildContactSection(
                   context,
@@ -35,10 +36,8 @@ class SupportScreen extends StatelessWidget {
                   onTap: () => _launchEmail(),
                 ),
                 Divider(color: Theme.of(context).colorScheme.tertiaryFixed),
-                SizedBox(height: 20.h),
                 _buildFaqSection(context),
                 Divider(color: Theme.of(context).colorScheme.tertiaryFixed),
-                SizedBox(height: 20.h),
                 _buildContactSection(
                   context,
                   title: AppLocalizations.of(context)!
