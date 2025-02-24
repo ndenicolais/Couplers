@@ -8,7 +8,7 @@
   "onboarding_second_title": "Visualizza",
   "onboarding_second_description": "Rivivi i momenti speciali trascorsi insieme. Le tue memorie sono a portata di mano, pronte per essere ricordate.",
   "onboarding_third_title": "Traguardi",
-  "onboarding_third_description": "Tieni traccia delle tue tappe importanti come coppia. Dai anniversari ai piccoli successi quotidiani, ogni traguardo conta.",
+  "onboarding_third_description": "Tieni traccia delle tappe importanti della tua coppia. Dagli anniversari ai piccoli successi quotidiani, ogni traguardo conta.",
   "onboarding_fourth_title": "Mappa",
   "onboarding_fourth_description": "Esplora la mappa dei tuoi ricordi! Guarda dove hai vissuto i tuoi momenti speciali. Ogni luogo ha una storia da raccontare.",
   "onboarding_skip": "Salta",
@@ -115,6 +115,7 @@
   "users_details_screen_title": "I Nostri Dati",
   "users_details_screen_user1_title": "Personale",
   "users_details_screen_user2_title": "Partner",
+  "users_details_screen_partner_title": "partner di",
   "users_details_screen_gender_empty": "Nessun genere scelto",
   "users_details_screen_birthday_empty": "Nessuna data selezionata",
 

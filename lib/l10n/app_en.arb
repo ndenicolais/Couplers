@@ -115,6 +115,7 @@
   "users_details_screen_title": "Our Data",
   "users_details_screen_user1_title": "Personal",
   "users_details_screen_user2_title": "Partner",
+  "users_details_screen_partner_title": "partner of",
   "users_details_screen_gender_empty": "No gender chosen",
   "users_details_screen_birthday_empty": "No date selected",
 
