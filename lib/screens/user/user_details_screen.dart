@@ -265,20 +265,22 @@ class UserDetailsScreenState extends State<UserDetailsScreen>
     return Card(
       color: Theme.of(context).colorScheme.tertiaryFixed,
       elevation: 0,
-      margin: EdgeInsets.all(36.r),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.r),
       ),
       child: Padding(
-        padding: EdgeInsets.all(66.r),
+        padding: EdgeInsets.all(72.r),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          spacing: 15.h,
           children: [
             _buildUserImage(context, userImage),
+            SizedBox(height: 20.h),
             _buildUserName(context, userName),
+            _builUserPartner(context, userIndex, userName2),
+            SizedBox(height: 20.h),
             _buildUserGender(context, userGender),
+            SizedBox(height: 20.h),
             _buildUserBirthday(context, userBirthday),
+            SizedBox(height: 20.h),
             _buildUserEmail(context, userEmail),
           ],
         ),
@@ -343,6 +345,31 @@ class UserDetailsScreenState extends State<UserDetailsScreen>
         fontSize: 36.sp,
         fontWeight: FontWeight.bold,
       ),
+    );
+  }
+
+  Widget _builUserPartner(
+      BuildContext context, int userIndex, String? userName) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      spacing: 6.h,
+      children: [
+        Text(
+          AppLocalizations.of(context)!.users_details_screen_partner_title,
+          style: GoogleFonts.josefinSans(
+            color: Theme.of(context).colorScheme.tertiary,
+            fontSize: 20.sp,
+          ),
+        ),
+        Text(
+          userIndex == 1 ? userName2! : userName1!,
+          style: GoogleFonts.josefinSans(
+            color: Theme.of(context).colorScheme.secondary,
+            fontSize: 26.sp,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
     );
   }
 

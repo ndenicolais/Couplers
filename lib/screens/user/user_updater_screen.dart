@@ -327,7 +327,6 @@ class UserUpdaterScreenState extends State<UserUpdaterScreen>
           .update({
         'user1': couple.user1.toFirestore(),
         'user2': couple.user2.toFirestore(),
-        'isProfileCompleted': true,
       });
 
       Get.back(result: true);

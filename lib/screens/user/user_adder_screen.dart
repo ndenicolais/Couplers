@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:couplers/models/couple_model.dart';
 import 'package:couplers/models/user_model.dart';
 import 'package:couplers/screens/home_screen.dart';
@@ -8,7 +9,6 @@ import 'package:couplers/widgets/custom_toast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -159,7 +159,6 @@ class UserAdderScreenState extends State<UserAdderScreen>
       'user1': couple.user1.toFirestore(),
       'user2': couple.user2.toFirestore(),
       'coupleDate': coupleDate != null ? Timestamp.fromDate(coupleDate!) : null,
-      'isProfileCompleted': true,
     });
 
     if (mounted) {
