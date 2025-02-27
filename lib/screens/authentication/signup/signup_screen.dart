@@ -140,7 +140,6 @@ class SignupScreenState extends State<SignupScreen> {
         style: GoogleFonts.josefinSans(
           color: Theme.of(context).colorScheme.tertiary,
           fontSize: 14.sp,
-          fontWeight: FontWeight.bold,
         ),
       ),
     );
