@@ -35,8 +35,8 @@ class EventModel {
   Map<String, dynamic> toFirestore() {
     return {
       'title': title,
-      'startDate': startDate,
-      'endDate': endDate,
+      'startDate': Timestamp.fromDate(startDate),
+      'endDate': endDate != null ? Timestamp.fromDate(endDate!) : null,
       'category': category,
       'images': images,
       'locations': locations,
@@ -48,7 +48,7 @@ class EventModel {
           .toList(),
       'note': note,
       'isFavorite': isFavorite,
-      'addedDate': addedDate,
+      'addedDate': Timestamp.fromDate(addedDate),
     };
   }
 

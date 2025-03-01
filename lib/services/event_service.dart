@@ -1,9 +1,12 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:couplers/models/event_model.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:path/path.dart';
+import 'package:path/path.dart' as path;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
@@ -14,19 +17,20 @@ class EventService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final SupabaseClient _client = Supabase.instance.client;
 
+  // Function that get Events collection reference for current user
+  CollectionReference getEventsCollection() {
+    return _firestore
+        .collection('couple')
+        .doc(currentUser!.uid)
+        .collection('events');
+  }
+
   // Function that adds a new event to Firestore
   Future<String> addEvent(EventModel event) async {
     try {
-      if (currentUser == null) {
-        throw "User not logged in";
-      }
-
-      DocumentReference docRef = await _firestore
-          .collection('couple')
-          .doc(currentUser!.uid)
-          .collection('events')
-          .add(event.toFirestore());
-
+      CollectionReference eventsCollection = getEventsCollection();
+      DocumentReference docRef =
+          await eventsCollection.add(event.toFirestore());
       _logger.i("Event added successfully with ID: ${docRef.id}");
       return docRef.id;
     } catch (e) {
@@ -38,20 +42,8 @@ class EventService {
   // Function that updates an existing event
   Future<void> updateEvent(EventModel event) async {
     try {
-      if (currentUser == null) {
-        throw "User not logged in";
-      }
-      if (event.id == null) {
-        throw "ID missing event";
-      }
-
-      await _firestore
-          .collection('couple')
-          .doc(currentUser!.uid)
-          .collection('events')
-          .doc(event.id)
-          .update(event.toFirestore());
-
+      CollectionReference eventsCollection = getEventsCollection();
+      await eventsCollection.doc(event.id).update(event.toFirestore());
       _logger.i("Event with ID ${event.id} successfully updated");
     } catch (e) {
       _logger.e("Error updating the event: $e");
@@ -62,17 +54,8 @@ class EventService {
   // Function that deletes an event
   Future<void> deleteEvent(String eventId) async {
     try {
-      if (currentUser == null) {
-        throw "User not logged in";
-      }
-
-      await _firestore
-          .collection('couple')
-          .doc(currentUser!.uid)
-          .collection('events')
-          .doc(eventId)
-          .delete();
-
+      CollectionReference eventsCollection = getEventsCollection();
+      await eventsCollection.doc(eventId).delete();
       _logger.i("Event with ID $eventId successfully deleted");
     } catch (e) {
       _logger.e("Error in deleting the event: $e");
@@ -83,10 +66,6 @@ class EventService {
   // Function that gets an event based on its ID
   Future<EventModel> getEventById(String eventId) async {
     try {
-      if (currentUser == null) {
-        throw "User not logged in";
-      }
-
       final doc = await _firestore
           .collection('couple')
           .doc(currentUser!.uid)
@@ -296,5 +275,88 @@ class EventService {
     return _client.storage
         .from('images')
         .getPublicUrl('$userId/events/$eventId/$fileName');
+  }
+
+  // Converts Timestamp objects in the map to ISO 8601 string representations
+  Map<String, dynamic> _convertTimestamps(Map<String, dynamic> data) {
+    data.forEach((key, value) {
+      if (value is Timestamp) {
+        data[key] = value.toDate().toIso8601String();
+      }
+    });
+    return data;
+  }
+
+  // Export all events to JSON
+  Future<String> exportCodesToJson() async {
+    try {
+      CollectionReference eventsCollection = getEventsCollection();
+      QuerySnapshot querySnapshot = await eventsCollection.get();
+      List<Map<String, dynamic>> eventList = querySnapshot.docs.map((doc) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        return _convertTimestamps(data);
+      }).toList();
+      String jsonEvents = jsonEncode(eventList);
+      _logger.i('Events exported successfully.');
+      return jsonEvents;
+    } catch (e) {
+      _logger.e('Error exporting events to JSON: $e');
+      throw Exception('Failed to export events to JSON: $e');
+    }
+  }
+
+  // Converts string representations of dates in the map to Timestamp objects
+  Map<String, dynamic> _convertStringsToTimestamps(Map<String, dynamic> data) {
+    data.forEach((key, value) {
+      if ((key == 'addedDate' || key == 'startDate' || key == 'endDate') &&
+          value != null) {
+        data[key] = Timestamp.fromDate(DateTime.parse(value));
+      }
+    });
+    return data;
+  }
+
+  // Import events from JSON
+  Future<void> importCodesFromJson(String jsonCodes, String userId) async {
+    try {
+      List<dynamic> eventList = jsonDecode(jsonCodes);
+      for (var eventMap in eventList) {
+        Map<String, dynamic> eventData = eventMap as Map<String, dynamic>;
+        eventData = _convertStringsToTimestamps(eventData);
+
+        EventModel events = EventModel.fromFirestore('', eventData);
+        String eventId = await addEvent(events);
+        List<dynamic>? imageUrls = eventData['images'];
+
+        if (imageUrls != null && imageUrls.isNotEmpty) {
+          List<String> uploadedImageUrls = [];
+          for (var imageUrl in imageUrls) {
+            Uri imageUri = Uri.parse(imageUrl);
+            http.Response response = await http.get(imageUri);
+            if (response.statusCode == 200) {
+              File imageFile = File(
+                  '${Directory.systemTemp.path}/${path.basename(imageUri.path)}');
+              await imageFile.writeAsBytes(response.bodyBytes);
+              String uploadedImagePath =
+                  await addEventImageSupabase(userId, eventId, imageFile);
+              final fileName = uploadedImagePath.split('/').last;
+              String finalImageUrl =
+                  getEventImageUrlSupabase(currentUser!.uid, eventId, fileName);
+              uploadedImageUrls.add(finalImageUrl);
+            } else {
+              _logger.e('Failed to download image from $imageUrl');
+            }
+          }
+          eventData['images'] = uploadedImageUrls;
+        }
+
+        EventModel confirmEvent = EventModel.fromFirestore(eventId, eventData);
+        await updateEvent(confirmEvent);
+      }
+      _logger.i('Events imported successfully.');
+    } catch (e) {
+      _logger.e('Error importing events from JSON: $e');
+      throw Exception('Failed to import events from JSON: $e');
+    }
   }
 }

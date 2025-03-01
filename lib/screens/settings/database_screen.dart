@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:couplers/models/couple_model.dart';
 import 'package:couplers/models/event_model.dart';
@@ -5,7 +6,10 @@ import 'package:couplers/services/event_service.dart';
 import 'package:couplers/services/user_service.dart';
 import 'package:couplers/utils/date_calculation.dart';
 import 'package:couplers/utils/event_category_translations.dart';
+import 'package:couplers/utils/permission_helper.dart';
 import 'package:couplers/widgets/custom_loader.dart';
+import 'package:couplers/widgets/custom_toast.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -34,27 +38,36 @@ class DatabasePageState extends State<DatabasePage> {
   int? anniversaryCount;
   int? dayversaryCount;
   Map<String, int>? eventCountByCategory;
+  bool _isJSONLoading = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(context),
       backgroundColor: Theme.of(context).colorScheme.primary,
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(20.r),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 10.h,
-              children: [
-                _buildUserInfoCard(context),
-                _buildAchievementsCard(context),
-                _buildEventsCard(context),
-              ],
+      body: Stack(
+        children: [
+          SafeArea(
+            child: Padding(
+              padding: EdgeInsets.all(20.r),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 10.h,
+                  children: [
+                    _buildUserInfoCard(context),
+                    _buildAchievementsCard(context),
+                    _buildEventsCard(context),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
+          if (_isJSONLoading)
+            Positioned.fill(
+              child: _buildJSONLoading(context),
+            ),
+        ],
       ),
     );
   }
@@ -130,6 +143,74 @@ class DatabasePageState extends State<DatabasePage> {
     }
   }
 
+  Future<void> _exportShoes(BuildContext context) async {
+    setState(() {
+      _isJSONLoading = true;
+    });
+
+    try {
+      String permissionStatus =
+          await requestManageExternalStoragePermission(context);
+      if (permissionStatus != 'Permission granted') {
+        throw Exception('Permission not granted');
+      }
+
+      final jsonCodes = await _eventService.exportCodesToJson();
+      final directory = Directory('/storage/emulated/0/Download');
+      final now = DateTime.now();
+      final dateFormat = DateFormat('yyyyMMdd_HHmmss');
+      final formattedDate = dateFormat.format(now);
+      final filePath = '${directory.path}/couplers_db_$formattedDate.json';
+      final file = File(filePath);
+      await file.writeAsString(jsonCodes);
+      if (context.mounted) {
+        showSuccessToast(context,
+            AppLocalizations.of(context)!.database_screen_export_success);
+      }
+    } catch (e) {
+      if (context.mounted) {
+        showErrorToast(context,
+            '${AppLocalizations.of(context)!.database_screen_export_error} $e');
+      }
+    } finally {
+      setState(() {
+        _isJSONLoading = false;
+      });
+    }
+  }
+
+  Future<void> _importShoes(BuildContext context) async {
+    setState(() {
+      _isJSONLoading = true;
+    });
+
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+
+      if (result != null) {
+        File file = File(result.files.single.path!);
+        String jsonCodes = await file.readAsString();
+        await _eventService.importCodesFromJson(jsonCodes, currentUser!.uid);
+        if (context.mounted) {
+          showSuccessToast(context,
+              AppLocalizations.of(context)!.database_screen_import_success);
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        showErrorToast(context,
+            '${AppLocalizations.of(context)!.database_screen_import_error} $e');
+      }
+    } finally {
+      setState(() {
+        _isJSONLoading = false;
+      });
+    }
+  }
+
   Future<void> _loadEventCountByCategory() async {
     if (currentUser != null) {
       Map<String, int> countByCategory =
@@ -160,6 +241,78 @@ class DatabasePageState extends State<DatabasePage> {
       centerTitle: true,
       backgroundColor: Theme.of(context).colorScheme.primary,
       foregroundColor: Theme.of(context).colorScheme.secondary,
+      actions: [
+        _buildPopupMenu(context),
+      ],
+    );
+  }
+
+  Widget _buildPopupMenu(BuildContext context) {
+    return PopupMenuButton<String>(
+      color: Theme.of(context).colorScheme.primary,
+      icon: Icon(
+        MingCuteIcons.mgc_more_2_fill,
+        color: Theme.of(context).colorScheme.secondary,
+      ),
+      onSelected: (String result) {
+        switch (result) {
+          case 'export':
+            _exportShoes(context);
+            break;
+          case 'import':
+            _importShoes(context);
+            break;
+        }
+      },
+      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+        _buildPopupMenuItem(
+          context,
+          'export',
+          MingCuteIcons.mgc_file_export_line,
+          AppLocalizations.of(context)!.database_screen_export_menu,
+        ),
+        _buildPopupMenuItem(
+          context,
+          'import',
+          MingCuteIcons.mgc_file_import_line,
+          AppLocalizations.of(context)!.database_screen_import_menu,
+        ),
+      ],
+    );
+  }
+
+  PopupMenuItem<String> _buildPopupMenuItem(
+    BuildContext context,
+    String value,
+    IconData icon,
+    String text,
+  ) {
+    return PopupMenuItem<String>(
+      value: value,
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            color: Theme.of(context).colorScheme.secondary,
+          ),
+          SizedBox(width: 10.w),
+          Text(
+            text,
+            style: GoogleFonts.josefinSans(
+              color: Theme.of(context).colorScheme.secondary,
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildJSONLoading(BuildContext context) {
+    return Container(
+      color: Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.5),
+      child: Center(child: _buildLoadingIndicator(context)),
     );
   }
 
