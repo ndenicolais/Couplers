@@ -32,7 +32,7 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _buildTopImage(context),
+                  _buildLogo(),
                   SizedBox(height: 50.h),
                   _buildTextDescription(context),
                   SizedBox(height: 50.h),
@@ -74,7 +74,7 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
     );
   }
 
-  Widget _buildTopImage(BuildContext context) {
+  Widget _buildLogo() {
     return Image.asset(
       'assets/images/logo_app.png',
       width: 180.w,
@@ -84,7 +84,7 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
   Widget _buildTextDescription(BuildContext context) {
     return SizedBox(
-      width: 320.w,
+      width: 300.w,
       child: Text(
         AppLocalizations.of(context)!.reset_password_screen_description,
         style: GoogleFonts.josefinSans(

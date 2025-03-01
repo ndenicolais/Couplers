@@ -65,16 +65,14 @@ class MapService {
                   children: [
                     Icon(
                       MingCuteIcons.mgc_location_fill,
-                      color: eventCount > 1
-                          ? AppColors.darkBrick
-                          : event.getColor(),
+                      color: event.getColor(),
                       size: 30.sp,
                     ),
                     if (eventCount > 1)
                       Positioned(
                         right: 0,
                         child: Container(
-                          width: 15.h,
+                          width: 15.w,
                           height: 15.h,
                           padding: EdgeInsets.all(2.w),
                           decoration: const BoxDecoration(
@@ -87,7 +85,9 @@ class MapService {
                               style: GoogleFonts.josefinSans(
                                 color: AppColors.charcoal,
                                 fontSize: 12.sp,
+                                fontWeight: FontWeight.bold,
                               ),
+                              textAlign: TextAlign.center,
                             ),
                           ),
                         ),

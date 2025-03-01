@@ -43,9 +43,10 @@ class LoginScreenState extends State<LoginScreen> {
             child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+                spacing: 20.h,
                 children: [
-                  _buildTopImage(context),
-                  SizedBox(height: 50.h),
+                  _buildLogo(),
+                  SizedBox(height: 20.h),
                   LoginForm(
                     context: context,
                     formKey: _formKey,
@@ -57,7 +58,6 @@ class LoginScreenState extends State<LoginScreen> {
                         controller.togglePasswordVisibility,
                     onLogin: () => controller.login(context, _formKey),
                   ),
-                  SizedBox(height: 20.h),
                   SizedBox(
                     width: 320.w,
                     child: Row(
@@ -68,9 +68,7 @@ class LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 20.h),
                   _buildLoginButton(context, controller),
-                  SizedBox(height: 20.h),
                   _buildSignupText(context),
                 ],
               ),
@@ -113,7 +111,7 @@ class LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildTopImage(BuildContext context) {
+  Widget _buildLogo() {
     return Image.asset(
       'assets/images/logo_app.png',
       width: 180.w,
@@ -187,14 +185,14 @@ class LoginScreenState extends State<LoginScreen> {
         text: AppLocalizations.of(context)!.login_screen_account,
         style: GoogleFonts.josefinSans(
           color: Theme.of(context).colorScheme.secondary,
-          fontSize: 16.sp,
+          fontSize: 14.sp,
         ),
         children: [
           TextSpan(
             text: AppLocalizations.of(context)!.login_screen_signup,
             style: GoogleFonts.josefinSans(
               color: Theme.of(context).colorScheme.tertiary,
-              fontSize: 16.sp,
+              fontSize: 14.sp,
               fontWeight: FontWeight.bold,
             ),
             recognizer: TapGestureRecognizer()

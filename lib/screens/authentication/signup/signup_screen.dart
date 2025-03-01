@@ -33,9 +33,10 @@ class SignupScreenState extends State<SignupScreen> {
             child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+                spacing: 20.h,
                 children: [
-                  _buildTopImage(context),
-                  SizedBox(height: 50.h),
+                  _buildLogo(),
+                  SizedBox(height: 20.h),
                   SignupForm(
                     context: context,
                     formKey: _formKey,
@@ -46,12 +47,9 @@ class SignupScreenState extends State<SignupScreen> {
                     togglePasswordVisibility:
                         controller.togglePasswordVisibility,
                   ),
-                  SizedBox(height: 20.h),
                   _buildPasswordNote(context),
-                  SizedBox(height: 20.h),
                   _buildButton(context, controller),
-                  SizedBox(height: 20.h),
-                  _buildSignupText(context),
+                  _buildLoginText(context),
                 ],
               ),
             ),
@@ -84,7 +82,7 @@ class SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  Widget _buildTopImage(BuildContext context) {
+  Widget _buildLogo() {
     return Image.asset(
       'assets/images/logo_app.png',
       width: 180.w,
@@ -101,7 +99,7 @@ class SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  Widget _buildSignupText(BuildContext context) {
+  Widget _buildLoginText(BuildContext context) {
     return RichText(
       text: TextSpan(
         text: AppLocalizations.of(context)!.signup_screen_account,
@@ -119,11 +117,9 @@ class SignupScreenState extends State<SignupScreen> {
             ),
             recognizer: TapGestureRecognizer()
               ..onTap = () => Get.off(
-                    Get.off(
-                      () => const LoginScreen(),
-                      transition: Transition.fade,
-                      duration: const Duration(milliseconds: 500),
-                    ),
+                    () => const LoginScreen(),
+                    transition: Transition.fade,
+                    duration: const Duration(milliseconds: 500),
                   ),
           ),
         ],
