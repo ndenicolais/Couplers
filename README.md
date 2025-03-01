@@ -23,6 +23,8 @@ The release of version 1.0.0 of the application is now available for download. Y
 - A map showing all events and the event search function
 - Favorites list of your events
 - Notes to mark everything you need to remember
+- Database export and import in JSON format
+- Layout responsive to the device screen
 - Light and dark theme variants
 - English and Italian languages variants
 
