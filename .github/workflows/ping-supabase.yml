@@ -1,0 +1,44 @@
+name: Ping Supabase Storage to Prevent Pausing
+
+on:
+  schedule:
+    - cron: '0 12 * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Supabase Client
+        run: npm install @supabase/supabase-js --force
+
+      - name: Ping Supabase Storage
+        env:
+          SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.NEXT_SERVICE_ROLE_KEY }}
+        run: |
+          node -e "
+          (async () => {
+            try {
+              const { createClient } = require('@supabase/supabase-js');
+              const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+
+              // Elenca tutti i bucket dello storage
+              const { data, error } = await supabase.storage.listBuckets();
+              if (error) throw error;
+              console.log('Ping Storage successful. Buckets:', data);
+            } catch (err) {
+              console.error('Error pinging Supabase Storage:', err.message);
+              process.exit(1);
+            }
+          })();
+          "
