@@ -1,4 +1,4 @@
-name: Ping Supabase Storage to Prevent Pausing
+name: Ping Supabase to Prevent Pausing
 
 on:
   schedule:
@@ -31,13 +31,32 @@ jobs:
             try {
               const { createClient } = require('@supabase/supabase-js');
               const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
-
-              // Elenca tutti i bucket dello storage
               const { data, error } = await supabase.storage.listBuckets();
               if (error) throw error;
               console.log('Ping Storage successful. Buckets:', data);
             } catch (err) {
               console.error('Error pinging Supabase Storage:', err.message);
+              process.exit(1);
+            }
+          })();
+          "
+
+      - name: Ping Supabase Database
+        env:
+          SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.NEXT_SERVICE_ROLE_KEY }}
+        run: |
+          node -e "
+          (async () => {
+            try {
+              const { createClient } = require('@supabase/supabase-js');
+              const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+              // Ping la tabella keepalive appena creata
+              const { data, error } = await supabase.from('keepalive').select('id').limit(1);
+              if (error) throw error;
+              console.log('Ping Database successful. Data:', data);
+            } catch (err) {
+              console.error('Error pinging Supabase Database:', err.message);
               process.exit(1);
             }
           })();
